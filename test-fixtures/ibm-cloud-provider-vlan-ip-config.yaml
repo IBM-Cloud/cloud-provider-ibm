@@ -1,0 +1,105 @@
+# ******************************************************************************
+# IBM Cloud Kubernetes Service, 5737-D43
+# (C) Copyright IBM Corp. 2021 All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ******************************************************************************
+---
+apiVersion: v1
+data:
+  vlanipmap.json: |2
+     {
+      "reserved_ips":[
+        {
+          "ip": "192.168.10.15",
+          "subnet_id": "11",
+          "vlan_id": "1",
+          "is_public": true
+        },
+        {
+          "ip": "10.10.10.15",
+          "subnet_id": "22",
+          "vlan_id": "2",
+          "is_public": false
+        }
+      ],
+      "vlans":[
+        {
+          "id": "1",
+          "subnets":[{
+            "id": "11",
+            "ips": ["192.168.10.20", "192.168.10.21", "192.168.10.22"],
+            "is_public": true
+          }]
+        },
+        {
+          "id": "2",
+          "subnets":[{
+            "id": "22",
+            "ips": ["10.10.10.20", "10.10.10.21"],
+            "is_public": false
+          }]
+        },
+        {
+          "id": "3",
+          "subnets":[{
+            "id": "33",
+            "ips": ["2001:db8::1"],
+            "is_public": true
+          }]
+        }
+      ],
+      "vlan_errors": [
+        {
+          "id": "1502181",
+          "subnets": [
+            {
+              "is_public": false,
+              "is_byoip": false,
+              "error_reason_code": "ErrorSubnetLimitReached",
+              "error_message": "There are already the maximum number of subnets permitted in this VLAN",
+              "status": "Failed to create subnet"
+            }
+          ],
+          "zone": "mex01",
+          "region": "us-south"
+        },
+        {
+          "id": "1502179",
+          "subnets": [
+            {
+              "is_public": true,
+              "is_byoip": false,
+              "error_reason_code": "ErrorSubnetLimitReached",
+              "error_message": "There are already the maximum number of subnets permitted in this VLAN",
+              "status": "Failed to create subnet"
+            },
+            {
+              "is_public": true,
+              "is_byoip": false,
+              "error_reason_code": "ErrorSubnetLimitReached1",
+              "error_message": "There are already the maximum number of subnets permitted in this VLAN",
+              "status": "Failed to create subnet"
+            }
+          ],
+          "zone": "mex01",
+          "region": "us-south"
+        }
+      ]
+    }
+kind: ConfigMap
+metadata:
+  name: ibm-cloud-provider-vlan-ip-config
+  namespace: kube-system

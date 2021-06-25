@@ -1,0 +1,51 @@
+# ******************************************************************************
+# IBM Cloud Kubernetes Service, 5737-D43
+# (C) Copyright IBM Corp. 2021 All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ******************************************************************************
+---
+name: ibm-cloud-controller-manager
+command:
+- /bin/ibm-cloud-controller-manager
+- --port=0
+- --use-service-account-credentials=true
+- --kubeconfig=/mnt/etc/kubernetes/admin-local-kubeconfig
+- --client-ca-file=/mnt/etc/kubernetes-cert/ca.pem
+- --requestheader-client-ca-file=/mnt/etc/kubernetes-cert/ca.pem
+- --tls-cert-file=/mnt/etc/kubernetes-cert/apiserver.pem
+- --tls-private-key-file=/mnt/etc/kubernetes-cert/apiserver-key.pem
+- --tls-cipher-suites=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+- --cloud-provider=ibm
+- --cloud-config=/mnt/etc/kubernetes/ibm-cloud-config.ini
+- --v=2
+- --profiling=false
+- --leader-elect=true
+image: "[REGISTRY]/[NAMESPACE]/ibm-cloud-controller-manager:[TAG]"
+livenessProbe:
+  failureThreshold: 3
+  httpGet:
+    path: /healthz
+    port: 10258
+    scheme: HTTPS
+  initialDelaySeconds: 300
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 160
+volumeMounts:
+- mountPath: /mnt/etc/kubernetes
+  name: master-config
+- mountPath: /mnt/etc/kubernetes-cert
+  name: master-certs

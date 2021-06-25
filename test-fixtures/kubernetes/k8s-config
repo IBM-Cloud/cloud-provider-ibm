@@ -1,0 +1,14 @@
+current-context: service-account-context
+apiVersion: v1
+kind: Config
+contexts:
+- context:
+    cluster: local
+    user: kubelet
+    namespace: default
+  name: service-account-context
+clusters:
+- name: local
+  cluster:
+    apiVersion: v1
+    server: https://192.168.10.3:10592

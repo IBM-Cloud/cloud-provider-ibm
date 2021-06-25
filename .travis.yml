@@ -1,0 +1,99 @@
+# ******************************************************************************
+# IBM Cloud Kubernetes Service, 5737-D43
+# (C) Copyright IBM Corp. 2021 All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ******************************************************************************
+language: go
+
+go:
+  - 1.16.4
+
+dist: bionic
+
+env:
+  global:
+    - IKS_PIPELINE_IAM_APIKEY="${ALL_GLOBAL_UPDATE_IKS_PIPELINE_IAM_APIKEY_20201116}"
+    - registry_iam_api_key="${PROD_GLOBAL_UPDATE_ARMADA_UPDATE_BUILD_REGISTRY_API_KEY_20210423}"
+    - GHE_TOKEN="${ALL_GLOBAL_UPDATE_IKSROCH1_GHE_TOKEN_20210520}"
+    - TRAVIS_HOSTNAME="travis.ibm.com"
+    - GOLANGCI_LINT_VERSION=1.40.1
+    - ARTIFACTORY_AUTH_HEADER_FILE="/tmp/.artifactory-auth-header"
+
+sudo: required
+
+services:
+  - docker
+
+git:
+  depth: false
+
+before_install:
+  - echo "${TRAVIS_BUILD_WEB_URL}" && export TRAVIS_BUILD_WEB_URL=$(echo "$TRAVIS_BUILD_WEB_URL" | sed "s/:\/\/\//:\/\/${TRAVIS_HOSTNAME}\//") && echo "${TRAVIS_BUILD_WEB_URL}"
+  - export REPO_BASE_URL=$(git config --get remote.origin.url | awk -F'[@:]' '{print $2}') && echo "${REPO_BASE_URL}"
+  - export REPO_SOURCE_URL="https://${REPO_BASE_URL}/${TRAVIS_REPO_SLUG}/commit/${TRAVIS_COMMIT}" && echo "${REPO_SOURCE_URL}"
+  - export BUILD_URL="${TRAVIS_BUILD_WEB_URL}"
+  # NOTE(cjschaef): Rather than setup a separate build to access Python 3, override pyenv
+  - pyenv global system 3.8
+  - echo "StrictHostKeyChecking no" > ~/.ssh/config
+  - curl -s https://s3.us.cloud-object-storage.appdomain.cloud/armada-build-tools-prod-us-geo/build-tools/build-tools.tar.gz | tar -xvz
+  - ./build-tools/install.sh
+  - export ARTIFACTORY_API_KEY=$(./build-tools/key-protect/get-key-data.sh --bluemix-api-key "${IKS_PIPELINE_IAM_APIKEY}" --keyprotect-instance-id "${IKS_PIPELINE_KEYPROTECT_INSTANCE_ID}" --keyprotect-root-key-name icdevops-artifactory-api-key --keyprotect-host "us-south.kms.cloud.ibm.com" | base64 -d)
+  - docker login wcp-alchemy-containers-team-access-redhat-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER}" --password-stdin <<< "${ARTIFACTORY_API_KEY}"
+  - docker login wcp-alchemy-containers-team-gcr-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER}" --password-stdin <<< "${ARTIFACTORY_API_KEY}"
+  - make setup-artifactory-pip
+  # NOTE(RTHEIS): Prevent legal scan tags from triggering a new travis build.
+  - if [[ ${TRAVIS_TAG} == *legal_scan* ]]; then travis_terminate 0; fi
+  - sudo apt-get install shellcheck -y
+  - pip install PyYAML yamllint
+  # Setup curl
+  - echo "X-JFrog-Art-Api:${ARTIFACTORY_API_KEY}" > ${ARTIFACTORY_AUTH_HEADER_FILE}
+
+before_script:
+  - if [[ ${TRAVIS_EVENT_TYPE} == cron ]]; then ./kube-update.sh; make runanalyzedeps || true; travis_terminate 0; fi
+  - curl -H @${ARTIFACTORY_AUTH_HEADER_FILE} -L "https://na.artifactory.swg-devops.com/artifactory/wcp-alchemy-containers-team-github-generic-remote/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz" | sudo tar -xvz -C $(go env GOPATH)/bin --strip-components=1 golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64/golangci-lint
+
+script:
+  - make fmt
+  - make lint
+  - make lint-sh
+  - make lint-copyright
+  - make yamllint
+  - make vet
+  - make test
+  - make coverage
+  - make commands
+  - make fvttest
+  - make runanalyzedeps || true
+  - BUILD_SHA=${TRAVIS_COMMIT} BUILD_ID=${TRAVIS_BUILD_NUMBER} BUILD_TAG=${TRAVIS_TAG} make containers
+
+after_success:
+  - ./scripts/calculateCoverage.sh
+
+deploy:
+  - provider: script
+    script: BUILD_TAG=${TRAVIS_TAG} make travis-deploy
+    skip_cleanup: true
+    on:
+      tags: true
+      condition: ${TRAVIS_TAG} == v1.22.0-alpha.3-*
+      go: 1.16.4
+  - provider: script
+    script: BUILD_TAG=${TRAVIS_TAG} make dev-deploy
+    skip_cleanup: true
+    on:
+      tags: true
+      go: 1.16.4
+      condition: ${TRAVIS_TAG} == dev-*
