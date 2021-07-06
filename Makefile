@@ -44,7 +44,7 @@ OSS_FILES := go.mod
 GOLANGCI_LINT_EXISTS:=$(shell golangci-lint --version 2>/dev/null)
 
 REGISTRY ?= armada-master
-TAG ?= v1.22.0-alpha.3
+TAG ?= v1.22.0-beta.0
 VPCCTL_SOURCE=$(shell cat addons/vpcctl.yml | awk '/^source:/{print $$2}')
 VPCCTL_CHECKSUM=$(shell cat addons/vpcctl.yml | awk '/^checksum:/{print $$2}')
 
@@ -72,11 +72,6 @@ setup-artifactory-pip:
 	echo "index-url = https://na.artifactory.swg-devops.com/artifactory/api/pypi/wcp-alchemy-containers-team-pypi-remote/simple" >> ~/.pip/pip.conf
 	# Hide Artifactory APIKey usage for pip via .netrc configuration
 	@echo "machine na.artifactory.swg-devops.com login ${ARTIFACTORY_USER} password ${ARTIFACTORY_API_KEY}" >> ~/.netrc
-
-.PHONY: updatedeps
-updatedeps:
-	go get -u=patch ./...
-	go mod tidy
 
 .PHONY: kube-update
 kube-update:

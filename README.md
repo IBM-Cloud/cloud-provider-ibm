@@ -6,7 +6,8 @@ infrastructure node and load balancer support to
 [Kubernetes](https://kubernetes.io/docs/home/) or
 [OpenShift](https://docs.openshift.com/) clusters running on
 [IBM Cloud](https://cloud.ibm.com/docs). This repository branch is based on
-[Kubernetes version v1.22.0-alpha.3](https://github.com/kubernetes/kubernetes/tree/v1.22.0-alpha.3).
+[Kubernetes version v1.22.0-beta.0](https://github.com/kubernetes/kubernetes/tree/v1.22.0-beta.0).
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
 ## Local Build and Deploy Instructions
 
@@ -116,23 +117,14 @@ for a new Kubernetes version.
    - This task can also be run manually to skip having to wait for the cron job
      to trigger. Running the following steps will create the PR:
 
-     If the update is for a new Kubernetes major or minor version, you will need
-     to do these steps first:
-
-     1. `git checkout -b manual-deps`
-     1. Manually update the `k8s.io` dependencies in `go.mod` to the new version.
-         - Several `k8s.io/*` dependencies in `go.mod` should all be at the same version.
-         - That version should match current Kubernetes version, with the exception that
-           the major version is a 0 instead of a 1 (e.g. v0.21.4 instead of v1.21.4).
-         - Manually modify those versions in `go.mod` to the latest release of the
-           new major/minor version, again using a 0 instead of a 1 for the major
-           version (e.g. v0.22.0-alpha.3)
-
-     Then these steps can be run:
-
      1. `cd vagrant-kube-build`
-     1. `./build.sh make kube-update KUBE_VERSION=vX.Y.Z` (e.g `v1.22.0-alpha.3`)
+     1. `./build.sh make kube-update KUBE_VERSION=vX.Y.Z` (e.g `v1.22.0-beta.0`)
      1. Go to the URL displayed in the build output to create the pull request.
+
+1. go.mod and go.sum dependencies are kept up to date with the 
+   [renovate](https://docs.renovatebot.com/golang/) application.
+   One or more pull requests with the necessary changes will be created
+   and must be reviewed and merged.
 
 1. If the current branch is the latest branch, update this repository's branch
    settings to make it the default branch.

@@ -109,16 +109,6 @@ if [[ "${K8S_GOLANG_CURRENT_VERSION}" != "${K8S_GOLANG_UPDATE_VERSION}" ]]; then
     done
 fi
 
-make updatedeps
-echo "INFO: Updated dependencies in go.mod and go.sum"
-
-git add go.mod go.sum
-NON_INDEXED_FILES_NUM=$(git diff --name-only |  wc -l)
-if [[ ${NON_INDEXED_FILES_NUM} -gt 0 ]]; then
-    echo "FAIL: Files found not indexed in git."
-    exit 1
-fi
-
 COMMIT_MESSAGE="Update from ${K8S_CURRENT_VERSION} to ${K8S_UPDATE_VERSION}"
 git checkout -b "${K8S_UPDATE_VERSION}-initial"
 git commit --no-verify -m "${COMMIT_MESSAGE}"

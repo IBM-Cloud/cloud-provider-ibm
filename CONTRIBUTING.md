@@ -1,6 +1,19 @@
+# Contributing
+
+Unfortunately, this repository is not yet enabled for pull request contributions.
+However, you are encouraged to [open an issue](https://github.com/IBM-Cloud/cloud-provider-ibm/issues)
+to request new features or to get bugs triaged and fixed. Thank you.
+
+# Legal
+
+All files, except documentaion, must include a license header for the
+[Apache License, Version 2.0 ](./LICENSE). Using the SPDX format is the
+simplest approach. Here is an example:
+
+```
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021 All Rights Reserved.
+* (C) Copyright <holder> <YYYY> All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -16,32 +29,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *******************************************************************************/
+```
 
-package ibm
+# Communication
 
-import (
-	"fmt"
-	"os"
-
-	flag "github.com/spf13/pflag"
-)
-
-var (
-	versionFlag bool
-)
-
-// Version is overwritten during builds.
-var Version = "v1.22.0-beta.0"
-
-func PrintVersionAndExitIfRequested() {
-	if versionFlag {
-		fmt.Printf("%s\n", Version)
-		os.Exit(0)
-	}
-}
-
-// AddFlags registers this package's flags on arbitrary FlagSets, such that they point to the
-// same value as the global flags.
-func AddVersionFlag(fs *flag.FlagSet) {
-	fs.BoolVar(&versionFlag, "version", false, "Print version and exit")
-}
+Please feel free to contact us on our [Kubernetes Slack channel](https://kubernetes.slack.com/archives/C90BWDWCE).
