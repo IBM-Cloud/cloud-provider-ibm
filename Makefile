@@ -44,7 +44,7 @@ OSS_FILES := go.mod
 GOLANGCI_LINT_EXISTS:=$(shell golangci-lint --version 2>/dev/null)
 
 REGISTRY ?= armada-master
-TAG ?= v1.22.0-beta.0
+TAG ?= v1.22.0-beta.1
 VPCCTL_SOURCE=$(shell cat addons/vpcctl.yml | awk '/^source:/{print $$2}')
 VPCCTL_CHECKSUM=$(shell cat addons/vpcctl.yml | awk '/^checksum:/{print $$2}')
 

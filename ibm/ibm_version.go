@@ -31,7 +31,7 @@ var (
 )
 
 // Version is overwritten during builds.
-var Version = "v1.22.0-beta.0"
+var Version = "v1.22.0-beta.1"
 
 func PrintVersionAndExitIfRequested() {
 	if versionFlag {
