@@ -73,6 +73,11 @@ setup-artifactory-pip:
 	# Hide Artifactory APIKey usage for pip via .netrc configuration
 	@echo "machine na.artifactory.swg-devops.com login ${ARTIFACTORY_USER} password ${ARTIFACTORY_API_KEY}" >> ~/.netrc
 
+.PHONY: oss
+oss:
+	# invoked by renovate postUpgradeTasks; ensure LICENSE file exists
+	test -f "LICENSE" || (echo "LICENSE file does not exist" && exit 1)
+
 .PHONY: kube-update
 kube-update:
 	./kube-update.sh ${KUBE_VERSION}
