@@ -66,6 +66,7 @@ before_script:
   - curl -H @${ARTIFACTORY_AUTH_HEADER_FILE} -L "https://na.artifactory.swg-devops.com/artifactory/wcp-alchemy-containers-team-github-generic-remote/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz" | sudo tar -xvz -C $(go env GOPATH)/bin --strip-components=1 golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64/golangci-lint
 
 script:
+  - make oss
   - make fmt
   - make lint
   - make lint-sh

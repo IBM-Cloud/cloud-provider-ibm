@@ -96,6 +96,8 @@ if [[ $build_source -eq 1 || $build_containers -eq 1 ]]; then
 fi
 
 if [[ $build_source -eq 1 ]]; then
+    if ! make oss; then exit_build ; fi
+
     if ! make fmt; then exit_build ; fi
 
     if ! make lint; then exit_build ; fi

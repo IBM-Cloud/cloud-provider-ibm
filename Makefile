@@ -63,7 +63,7 @@ ifeq (,$(BUILD_TAG))
 endif
 
 .PHONY: all
-all: fmt lint lint-sh lint-copyright vet test coverage commands fvttest containers
+all: oss fmt lint lint-sh lint-copyright vet test coverage commands fvttest containers
 
 .PHONY: setup-artifactory-pip
 setup-artifactory-pip:
@@ -75,7 +75,6 @@ setup-artifactory-pip:
 
 .PHONY: oss
 oss:
-	# invoked by renovate postUpgradeTasks; ensure LICENSE file exists
 	test -f "LICENSE" || (echo "LICENSE file does not exist" && exit 1)
 
 .PHONY: kube-update
