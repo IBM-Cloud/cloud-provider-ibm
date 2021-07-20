@@ -92,7 +92,7 @@ endif
 
 .PHONY: setup-build
 setup-build: setup-artifactory-build
-	sudo apt-get install shellcheck -y
+	sudo apt-get install shellcheck -y || sudo snap install shellcheck
 	pip install PyYAML yamllint
 
 .PHONY: install-golangci-lint

@@ -38,6 +38,11 @@ function lint_file() {
         return
     fi
 
+    # Skip copyright checks for select test files.
+    if [[ "${file}" == "test-fixtures/kdd-calico-config.yaml" ]]; then
+        return
+    fi
+
     file_name_was_displayed=0
 
     # Ensure files changed this year have their copyright updated accordingly.
