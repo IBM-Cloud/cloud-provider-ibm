@@ -21,19 +21,6 @@
 
 build_steps = ENV.fetch('CLOUD_PROVIDER_IBM_BUILD_STEPS','')
 
-# Inline script to setup Python dependencies for the build.
-$setup_python_deps = <<SCRIPT
-function exit_build {
-    echo "ERROR: Failed to setup Python dependencies"
-    exit 1
-}
-
-pip install PyYAML yamllint
-if [[ $? -ne 0 ]]; then
-    exit_build
-fi
-SCRIPT
-
 # Inline script to setup Python and pip for the build.
 $setup_python_and_pip = <<SCRIPT
 function exit_build {
@@ -92,7 +79,7 @@ apt-get update
 if [[ $? -ne 0 ]]; then exit_build ; fi
 apt-get install -y mercurial apt-transport-https ca-certificates \
                    linux-image-extra-virtual \
-                   docker.io sshpass shellcheck gcc
+                   docker.io sshpass gcc
 if [[ $? -ne 0 ]]; then exit_build ; fi
 
 echo -e "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
@@ -103,10 +90,20 @@ if [[ $? -ne 0 ]]; then exit_build ; fi
 service docker start
 if [[ $? -ne 0 ]]; then exit_build ; fi
 
-# Install golangci-lint and make sure the executable is in PATH
-GOLANGCI_LINT_VERSION=1.40.1
-curl -L "https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz" | sudo tar -xvz -C $(go env GOPATH)/bin --strip-components=1 golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64/golangci-lint
+# Add Go binaries to PATH
 export PATH=PATH:$GOPATH/bin
+SCRIPT
+
+# Inline script to setup the build.
+$setup_build = <<SCRIPT
+function exit_build {
+    echo "ERROR: Failed to setup build dependencies"
+    exit 1
+}
+
+cd cloud-provider-ibm
+if ! make setup-build; then exit_build ; fi
+if ! make install-golangci-lint; then exit_build ; fi
 SCRIPT
 
 if File.exists?('/var/run/libvirtd.pid')
@@ -141,7 +138,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node.vm.hostname = "cloud-provider-ibm-build"
     node.vm.provision "shell", inline: $setup_go_and_docker
     node.vm.provision "shell", inline: $setup_python_and_pip
-    node.vm.provision "shell", inline: $setup_python_deps
+    node.vm.provision "shell", inline: $setup_build
     node.vm.provision "shell", path: "provisioning/build.sh", privileged: false, args: "#{build_steps}"
     node.vm.provider PROVIDER do |nodeopts|
       nodeopts.memory = "4096"

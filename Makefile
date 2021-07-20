@@ -21,11 +21,15 @@ GO111MODULE := on
 CALICOCTL_VERSION=$(shell cat addons/calicoctl.yml | awk '/^version:/{print $$2}')
 CALICOCTL_CHECKSUM=$(shell cat addons/calicoctl.yml | awk '/^checksum:/{print $$2}')
 
+# When ARTIFACTORY_API_KEY is set then artifactory builds are enabled and the
+# following environment variables will also be set:
+# - ARTIFACTORY_USER
+# - ARTIFACTORY_API_KEY_FILE
+# - ARTIFACTORY_AUTH_HEADER_FILE
 ifdef ARTIFACTORY_API_KEY
 GOPROXY := https://${ARTIFACTORY_USER}:${ARTIFACTORY_API_KEY}@na.artifactory.swg-devops.com/artifactory/api/go/wcp-alchemy-containers-team-go-virtual
 IMAGE_SOURCE := wcp-alchemy-containers-team-gcr-docker-remote.artifactory.swg-devops.com
-ARTIFACTORY_AUTH_HEADER_FILE := "/tmp/.artifactory-auth-header"
-CALICOCTL_CURL_HEADERS := "-H @/tmp/.artifactory-auth-header"
+CALICOCTL_CURL_HEADERS := "-H @${ARTIFACTORY_AUTH_HEADER_FILE}"
 CALICOCTL_CURL_URL=$(shell cat addons/calicoctl.yml | awk '/^source_artifactory:/{print $$2}')
 else
 IMAGE_SOURCE := gcr.io
@@ -41,7 +45,8 @@ YAML_FILES=$(shell find . -type f -name '*.y*ml' -not -path "./build-tools/*" -p
 INI_FILES=$(shell find . -type f -name '*.ini' -not -path "./build-tools/*")
 OSS_FILES := go.mod
 
-GOLANGCI_LINT_EXISTS:=$(shell golangci-lint --version 2>/dev/null)
+GOLANGCI_LINT_VERSION := 1.40.1
+GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
 REGISTRY ?= armada-master
 TAG ?= v1.22.0-beta.2
@@ -65,13 +70,38 @@ endif
 .PHONY: all
 all: oss fmt lint lint-sh lint-copyright vet test coverage commands fvttest containers
 
-.PHONY: setup-artifactory-pip
-setup-artifactory-pip:
+.PHONY: setup-artifactory-build
+setup-artifactory-build:
+ifdef IKS_PIPELINE_IAM_APIKEY
+	echo "Preparing artifactory build setup."
+	curl -s https://s3.us.cloud-object-storage.appdomain.cloud/armada-build-tools-prod-us-geo/build-tools/build-tools.tar.gz | tar -xvz
+	./build-tools/install.sh
+	./build-tools/key-protect/get-key-data.sh --bluemix-api-key "${IKS_PIPELINE_IAM_APIKEY}" --keyprotect-instance-id "${IKS_PIPELINE_KEYPROTECT_INSTANCE_ID}" --keyprotect-root-key-name icdevops-artifactory-api-key --keyprotect-host "us-south.kms.cloud.ibm.com" | base64 -d > "${ARTIFACTORY_API_KEY_FILE}"
+	cat "${ARTIFACTORY_API_KEY_FILE}" | docker login wcp-alchemy-containers-team-access-redhat-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER}" --password-stdin
+	cat "${ARTIFACTORY_API_KEY_FILE}" | docker login wcp-alchemy-containers-team-gcr-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER}" --password-stdin
 	mkdir -p ~/.pip/
 	echo "[global]" > ~/.pip/pip.conf
 	echo "index-url = https://na.artifactory.swg-devops.com/artifactory/api/pypi/wcp-alchemy-containers-team-pypi-remote/simple" >> ~/.pip/pip.conf
-	# Hide Artifactory APIKey usage for pip via .netrc configuration
-	@echo "machine na.artifactory.swg-devops.com login ${ARTIFACTORY_USER} password ${ARTIFACTORY_API_KEY}" >> ~/.netrc
+	printf "machine na.artifactory.swg-devops.com login ${ARTIFACTORY_USER} password " >> ~/.netrc
+	cat "${ARTIFACTORY_API_KEY_FILE}" >> ~/.netrc
+	printf "X-JFrog-Art-Api:" > "${ARTIFACTORY_AUTH_HEADER_FILE}"
+	cat "${ARTIFACTORY_API_KEY_FILE}" >> "${ARTIFACTORY_AUTH_HEADER_FILE}"
+else
+	echo "Skipping artifactory build setup."
+endif
+
+.PHONY: setup-build
+setup-build: setup-artifactory-build
+	sudo apt-get install shellcheck -y
+	pip install PyYAML yamllint
+
+.PHONY: install-golangci-lint
+install-golangci-lint:
+ifdef ARTIFACTORY_API_KEY
+	curl -H @${ARTIFACTORY_AUTH_HEADER_FILE} -L "https://na.artifactory.swg-devops.com/artifactory/wcp-alchemy-containers-team-github-generic-remote/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz" | sudo tar -xvz -C $(go env GOPATH)/bin --strip-components=1 golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64/golangci-lint
+else
+	curl -L "https://github.com/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz" | sudo tar -xvz -C $(go env GOPATH)/bin --strip-components=1 golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64/golangci-lint
+endif
 
 .PHONY: oss
 oss:
@@ -142,7 +172,11 @@ runanalyzedeps:
 
 .PHONY: install-nancy-dep-scanner
 install-nancy-dep-scanner:
+ifdef ARTIFACTORY_API_KEY
 	curl -L -H @${ARTIFACTORY_AUTH_HEADER_FILE} "https://na.artifactory.swg-devops.com/artifactory/wcp-alchemy-containers-team-github-generic-remote/sonatype-nexus-community/nancy/releases/download/v$(NANCY_VERSION)/nancy-v$(NANCY_VERSION)-linux-amd64" -o nancy
+else
+	curl -L "https://github.com/sonatype-nexus-community/nancy/releases/download/v$(NANCY_VERSION)/nancy-v$(NANCY_VERSION)-linux-amd64" -o nancy
+endif
 	chmod u+x nancy
 	sudo mv nancy /usr/local/bin/nancy
 

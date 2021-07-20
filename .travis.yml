@@ -29,7 +29,7 @@ env:
     - registry_iam_api_key="${PROD_GLOBAL_UPDATE_ARMADA_UPDATE_BUILD_REGISTRY_API_KEY_20210423}"
     - GHE_TOKEN="${ALL_GLOBAL_UPDATE_IKSROCH1_GHE_TOKEN_20210520}"
     - TRAVIS_HOSTNAME="travis.ibm.com"
-    - GOLANGCI_LINT_VERSION=1.40.1
+    - ARTIFACTORY_API_KEY_FILE="/tmp/.artifactory-api-key"
     - ARTIFACTORY_AUTH_HEADER_FILE="/tmp/.artifactory-auth-header"
 
 sudo: required
@@ -40,6 +40,13 @@ services:
 git:
   depth: false
 
+jobs:
+  include:
+    - name: "Default"
+      env: BUILD_JOB_NAME="Default"
+    - name: "No Artifactory"
+      env: BUILD_JOB_NAME="No Artifactory" IKS_PIPELINE_IAM_APIKEY=""
+
 before_install:
   - echo "${TRAVIS_BUILD_WEB_URL}" && export TRAVIS_BUILD_WEB_URL=$(echo "$TRAVIS_BUILD_WEB_URL" | sed "s/:\/\/\//:\/\/${TRAVIS_HOSTNAME}\//") && echo "${TRAVIS_BUILD_WEB_URL}"
   - export REPO_BASE_URL=$(git config --get remote.origin.url | awk -F'[@:]' '{print $2}') && echo "${REPO_BASE_URL}"
@@ -48,22 +55,12 @@ before_install:
   # NOTE(cjschaef): Rather than setup a separate build to access Python 3, override pyenv
   - pyenv global system 3.8
   - echo "StrictHostKeyChecking no" > ~/.ssh/config
-  - curl -s https://s3.us.cloud-object-storage.appdomain.cloud/armada-build-tools-prod-us-geo/build-tools/build-tools.tar.gz | tar -xvz
-  - ./build-tools/install.sh
-  - export ARTIFACTORY_API_KEY=$(./build-tools/key-protect/get-key-data.sh --bluemix-api-key "${IKS_PIPELINE_IAM_APIKEY}" --keyprotect-instance-id "${IKS_PIPELINE_KEYPROTECT_INSTANCE_ID}" --keyprotect-root-key-name icdevops-artifactory-api-key --keyprotect-host "us-south.kms.cloud.ibm.com" | base64 -d)
-  - docker login wcp-alchemy-containers-team-access-redhat-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER}" --password-stdin <<< "${ARTIFACTORY_API_KEY}"
-  - docker login wcp-alchemy-containers-team-gcr-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER}" --password-stdin <<< "${ARTIFACTORY_API_KEY}"
-  - make setup-artifactory-pip
-  # NOTE(RTHEIS): Prevent legal scan tags from triggering a new travis build.
-  - if [[ ${TRAVIS_TAG} == *legal_scan* ]]; then travis_terminate 0; fi
-  - sudo apt-get install shellcheck -y
-  - pip install PyYAML yamllint
-  # Setup curl
-  - echo "X-JFrog-Art-Api:${ARTIFACTORY_API_KEY}" > ${ARTIFACTORY_AUTH_HEADER_FILE}
+  - make setup-build
+  - if [[ -n ${IKS_PIPELINE_IAM_APIKEY} ]]; then export ARTIFACTORY_API_KEY=$(cat "${ARTIFACTORY_API_KEY_FILE}"); fi
 
 before_script:
-  - if [[ ${TRAVIS_EVENT_TYPE} == cron ]]; then ./kube-update.sh; make runanalyzedeps || true; travis_terminate 0; fi
-  - curl -H @${ARTIFACTORY_AUTH_HEADER_FILE} -L "https://na.artifactory.swg-devops.com/artifactory/wcp-alchemy-containers-team-github-generic-remote/golangci/golangci-lint/releases/download/v${GOLANGCI_LINT_VERSION}/golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64.tar.gz" | sudo tar -xvz -C $(go env GOPATH)/bin --strip-components=1 golangci-lint-${GOLANGCI_LINT_VERSION}-linux-amd64/golangci-lint
+  - if [[ ${TRAVIS_EVENT_TYPE} == cron && ${BUILD_JOB_NAME} == Default ]]; then ./kube-update.sh; make runanalyzedeps || true; travis_terminate 0; fi
+  - make install-golangci-lint
 
 script:
   - make oss
@@ -89,7 +86,7 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      condition: ${TRAVIS_TAG} == v1.22.0-beta.2-*
+      condition: ${TRAVIS_TAG} == v1.22.0-beta.2-* && ${BUILD_JOB_NAME} == Default
       go: 1.16.6
   - provider: script
     script: BUILD_TAG=${TRAVIS_TAG} make dev-deploy
@@ -97,4 +94,4 @@ deploy:
     on:
       tags: true
       go: 1.16.6
-      condition: ${TRAVIS_TAG} == dev-*
+      condition: ${TRAVIS_TAG} == dev-* && ${BUILD_JOB_NAME} == Default

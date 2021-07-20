@@ -137,6 +137,7 @@ if [[ $build_source -eq 1 ]]; then
         if ! make runfvt TEST_FVT_OPTIONS="--action=delete"; then exit_build ; fi
     fi
 
+    make runanalyzedeps
 fi
 
 if [[ $build_containers -eq 1 ]]; then
