@@ -124,10 +124,15 @@ func (c *Cloud) HasClusterID() bool {
 // SetInformers initializes any informers when the cloud provider starts
 func (c *Cloud) SetInformers(informerFactory informers.SharedInformerFactory) {
 	klog.Infof("Initializing Informers")
-	endpointInformer := informerFactory.Core().V1().Endpoints().Informer()
-	endpointInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: c.handleEndpointUpdate,
-	})
+
+	// endpointInformer is not needed for VPC Gen2
+	if !isProviderVpc(c.Config.Prov.ProviderType) {
+		endpointInformer := informerFactory.Core().V1().Endpoints().Informer()
+		endpointInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: c.handleEndpointUpdate,
+		})
+	}
+
 	nodeInformer := informerFactory.Core().V1().Nodes().Informer()
 	nodeInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		DeleteFunc: c.handleNodeDelete,
