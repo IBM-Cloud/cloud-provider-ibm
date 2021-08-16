@@ -42,7 +42,6 @@ const vpcStatusOfflineCreatePending = "offline/create_pending"
 const vpcStatusOfflineMaintenancePending = "offline/maintenance_pending"
 const vpcStatusOfflineFailed = "offline/failed"
 const vpcStatusOfflineNotFound = "offline/not_found"
-const proxyProtocolFeatureName = "proxy-protocol"
 const networkLoadBalancerFeature = "nlb"
 
 // execVpcCommand - Run a VPC command and return the output to the caller
@@ -115,8 +114,8 @@ func (c *Cloud) getVpcLoadBalancer(ctx context.Context, clusterName string, serv
 	lbName := c.getVpcLoadBalancerName(service)
 	klog.Infof("GetLoadBalancer(%v, %v)", lbName, clusterName)
 
-	command := "STATUS-LB " + lbName
-	outArray, err := execVpcCommand(command, []string{"KUBECONFIG=" + c.Config.Kubernetes.ConfigFilePaths[0]})
+	command := c.determineCommandArgs("STATUS-LB", lbName, service)
+	outArray, err := execVpcCommand(command, c.determineVpcEnvSettings(nil))
 	if err != nil {
 		return nil, false, c.Recorder.VpcLoadBalancerServiceWarningEvent(
 			service, GettingCloudLoadBalancerFailed, lbName,
@@ -161,23 +160,11 @@ func (c *Cloud) getVpcLoadBalancer(ctx context.Context, clusterName string, serv
 		"Invalid response from command")
 }
 
-func (c *Cloud) determineCreateCommand(service *v1.Service, lbName string) string {
-	// Default to the CREATE-LB routine
-	command := "CREATE-LB " + lbName + " " + service.Namespace + "/" + service.Name
-
-	// Determine proxy-protocol support
-	// Temporary: If proxy-protocol support is enabled, use the PoC code path
-	// as a temp measure to allow for this support until SDK 2.0 work is completed.
-	if c.Config.Prov.ProviderType == lbVpcNextGenProvider {
-		if isFeatureEnabled(service, proxyProtocolFeatureName) {
-			command = "SDK-CREATE-LB " + lbName + " " + service.Namespace + "/" + service.Name
-		}
-	}
-
-	return command
+func (c *Cloud) determineCommandArgs(command, lbName string, service *v1.Service) string {
+	return command + " " + lbName + " " + service.Namespace + "/" + service.Name
 }
 
-func (c *Cloud) determineVpcEnvSettings(service *v1.Service) []string {
+func (c *Cloud) determineVpcEnvSettings(nodes []*v1.Node) []string {
 	// Set the default environment to be just the KUBECONFIG
 	env := []string{"KUBECONFIG=" + c.Config.Kubernetes.ConfigFilePaths[0]}
 
@@ -185,6 +172,25 @@ func (c *Cloud) determineVpcEnvSettings(service *v1.Service) []string {
 	if c.Config.Prov.ProviderType == lbVpcNextGenProvider {
 		env = append(env, "G2_WORKER_SERVICE_ACCOUNT_ID="+c.Config.Prov.G2WorkerServiceAccountID)
 	}
+
+	// If we have a cluster ID, then add it as an environment variable
+	if c.Config.Prov.ClusterID != "" {
+		env = append(env, "VPCCTL_CLUSTER_ID="+c.Config.Prov.ClusterID)
+	}
+
+	// If a list of nodes was specified, then add the node names as an environment variable
+	if len(nodes) > 0 {
+		nodeNames := []string{}
+		for _, node := range nodes {
+			nodeNames = append(nodeNames, node.Name)
+		}
+		nodeList := strings.Join(nodeNames, ",")
+		// If the generated string is > 16K, don't add it to the env
+		if len(nodeList) < 16*1024 {
+			env = append(env, "VPCCTL_NODE_LIST="+nodeList)
+		}
+	}
+
 	return env
 }
 
@@ -203,8 +209,8 @@ func (c *Cloud) ensureVpcLoadBalancer(ctx context.Context, clusterName string, s
 		service.Spec.Selector,
 	)
 
-	command := c.determineCreateCommand(service, lbName)
-	outArray, err := execVpcCommand(command, c.determineVpcEnvSettings(service))
+	command := c.determineCommandArgs("CREATE-LB", lbName, service)
+	outArray, err := execVpcCommand(command, c.determineVpcEnvSettings(nodes))
 	if err != nil {
 		return nil, c.Recorder.VpcLoadBalancerServiceWarningEvent(
 			service, CreatingCloudLoadBalancerFailed, lbName,
@@ -259,8 +265,8 @@ func (c *Cloud) updateVpcLoadBalancer(ctx context.Context, clusterName string, s
 	lbName := c.getVpcLoadBalancerName(service)
 	klog.Infof("UpdateLoadBalancer(%v, %v, %v, %v)", lbName, clusterName, service, len(nodes))
 
-	command := "UPDATE-LB " + lbName + " " + service.Namespace + "/" + service.Name
-	outArray, err := execVpcCommand(command, c.determineVpcEnvSettings(service))
+	command := c.determineCommandArgs("UPDATE-LB", lbName, service)
+	outArray, err := execVpcCommand(command, c.determineVpcEnvSettings(nodes))
 	if err != nil {
 		return c.Recorder.VpcLoadBalancerServiceWarningEvent(
 			service, UpdatingCloudLoadBalancerFailed, lbName,
@@ -310,8 +316,8 @@ func (c *Cloud) ensureVpcLoadBalancerDeleted(ctx context.Context, clusterName st
 	lbName := c.getVpcLoadBalancerName(service)
 	klog.Infof("EnsureLoadBalancerDeleted(%v, %v, %v)", lbName, clusterName, service)
 
-	command := "DELETE-LB " + lbName
-	outArray, err := execVpcCommand(command, []string{"KUBECONFIG=" + c.Config.Kubernetes.ConfigFilePaths[0]})
+	command := c.determineCommandArgs("DELETE-LB", lbName, service)
+	outArray, err := execVpcCommand(command, c.determineVpcEnvSettings(nil))
 	if err != nil {
 		return c.Recorder.VpcLoadBalancerServiceWarningEvent(
 			service, DeletingCloudLoadBalancerFailed, lbName,
@@ -404,7 +410,7 @@ func monitorVpcLoadBalancers(c *Cloud, services *v1.ServiceList, status map[stri
 	}
 
 	command := "MONITOR"
-	outArray, err := execVpcCommand(command, []string{"KUBECONFIG=" + c.Config.Kubernetes.ConfigFilePaths[0]})
+	outArray, err := execVpcCommand(command, c.determineVpcEnvSettings(nil))
 	if err != nil {
 		klog.Errorf("Error calling vpcctl binary: %s", err)
 		return

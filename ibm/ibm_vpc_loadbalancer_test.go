@@ -606,12 +606,12 @@ func spoofVpcBinary() {
 			outputArray, err := spoofCreateLB(arg1, arg2)
 			return outputArray, err
 		case "delete-lb":
-			outputArray, err := spoofDeleteLB(arg1) // multiple messages can be returned so spoofDeleteLB returns a string array
+			outputArray, err := spoofDeleteLB(arg1, arg2) // multiple messages can be returned so spoofDeleteLB returns a string array
 			return outputArray, err
 		case "monitor":
 			return spoofMonitor()
 		case "status-lb":
-			outputArray, err := spoofStatusLB(arg1)
+			outputArray, err := spoofStatusLB(arg1, arg2)
 			return outputArray, err
 		case "update-lb":
 		default:
@@ -688,7 +688,7 @@ func spoofCreateLB(lbName string, serviceName string) ([]string, error) {
 }
 
 // A mock helper method spoofing cloud.StatusLB() from vpcctl
-func spoofStatusLB(lbName string) ([]string, error) {
+func spoofStatusLB(lbName string, serviceName string) ([]string, error) {
 	serviceID := strings.Split(lbName, "-")[2] // lbName is of the form "kube-<CLUSTERID>-<SERVICE_UID_DASHES_REMOVED>"
 	stringArray := make([]string, 0, 2)
 
@@ -713,7 +713,7 @@ func spoofStatusLB(lbName string) ([]string, error) {
 	}
 }
 
-func spoofDeleteLB(lbName string) ([]string, error) {
+func spoofDeleteLB(lbName string, serviceName string) ([]string, error) {
 	serviceID := strings.Split(lbName, "-")[2] // lbName is of the form "kube-<CLUSTERID>-<SERVICE_UID_DASHES_REMOVED>"
 	testcase := serviceID
 
@@ -820,86 +820,53 @@ func createTestVPCLoadBalancerService(serviceName, serviceUID string, creationTi
 	return s
 }
 
-func TestDetermineCreateCommand(t *testing.T) {
-	testCases := []struct {
-		annotationVal       string
-		provider            string
-		expectedPOCCodePath bool
-	}{
-		{ // No proxy protocol feature
-			annotationVal:       "feature-xyz",
-			provider:            lbVpcNextGenProvider,
-			expectedPOCCodePath: false,
-		},
-		{ // Proxy protocol feature enabled
-			annotationVal:       "proxy-protocol",
-			provider:            lbVpcNextGenProvider,
-			expectedPOCCodePath: true,
-		},
-		{ // Proxy protocol feature enabled, however provider is set to classic
-			annotationVal:       "proxy-protocol",
-			provider:            lbVpcClassicProvider,
-			expectedPOCCodePath: false,
-		},
-	}
-
-	for _, tc := range testCases {
-		testSvc := v1.Service{}
-		testSvc.Annotations = map[string]string{}
-		testSvc.Annotations[ServiceAnnotationLoadBalancerCloudProviderEnableFeatures] = tc.annotationVal
-
-		// Testing G2
-		cloud, _, _ := getVpcCloud()
-		cloud.Config.Prov.ProviderType = tc.provider
-
-		cmd := cloud.determineCreateCommand(&testSvc, "testLBName")
-
-		if tc.expectedPOCCodePath {
-			if !strings.Contains(cmd, "SDK-CREATE-LB") {
-				t.Fatalf("Incorrect create-lb command. Expected PoC path.")
-			}
-		} else {
-			if strings.Contains(cmd, "SDK-CREATE-LB") {
-				t.Fatalf("Incorrect create-lb command. Expected non-PoC path.")
-			}
-		}
+func TestDetermineCommandArgs(t *testing.T) {
+	testSvc := &v1.Service{ObjectMeta: metav1.ObjectMeta{
+		Name:      "serviceName",
+		Namespace: "testNamespace"}}
+	cloud, _, _ := getVpcCloud()
+	cmd := cloud.determineCommandArgs("cmd", "testLBName", testSvc)
+	if cmd != "cmd testLBName testNamespace/serviceName" {
+		t.Fatalf("Incorrect command arguments generated.")
 	}
 }
 
 func TestDetermineEnvironemtSettings(t *testing.T) {
 	testCases := []struct {
-		annotation  string
+		clusterID   string
+		nodes       []*v1.Node
 		provider    string
 		expectedEnv []string
 	}{
-		{ // No network load balancer feature
-			annotation:  "feature-xyz",
+		{ // VPC Gen2 Provider.  List of nodes and cluster ID provided
+			clusterID:   "clusterID",
+			nodes:       []*v1.Node{{ObjectMeta: metav1.ObjectMeta{Name: "192.168.1.1"}}, {ObjectMeta: metav1.ObjectMeta{Name: "192.168.2.2"}}},
+			provider:    lbVpcNextGenProvider,
+			expectedEnv: []string{"KUBECONFIG=../test-fixtures/kubernetes/k8s-config", "G2_WORKER_SERVICE_ACCOUNT_ID=accountID", "VPCCTL_CLUSTER_ID=clusterID", "VPCCTL_NODE_LIST=192.168.1.1,192.168.2.2"},
+		},
+		{ // VPC Gen2 Provider. List of nodes not provided.
+			clusterID:   "clusterID",
+			provider:    lbVpcNextGenProvider,
+			expectedEnv: []string{"KUBECONFIG=../test-fixtures/kubernetes/k8s-config", "G2_WORKER_SERVICE_ACCOUNT_ID=accountID", "VPCCTL_CLUSTER_ID=clusterID"},
+		},
+		{ // VPC Gen2 Provider. List of nodes not provided. ClusterID not set in config
 			provider:    lbVpcNextGenProvider,
 			expectedEnv: []string{"KUBECONFIG=../test-fixtures/kubernetes/k8s-config", "G2_WORKER_SERVICE_ACCOUNT_ID=accountID"},
 		},
-		{ // Network load balancer feature enabled
-			annotation:  networkLoadBalancerFeature,
-			provider:    lbVpcNextGenProvider,
-			expectedEnv: []string{"KUBECONFIG=../test-fixtures/kubernetes/k8s-config", "G2_WORKER_SERVICE_ACCOUNT_ID=accountID"},
-		},
-		{ // Network load balancer feature enabled, however provider is set to classic
-			annotation:  networkLoadBalancerFeature,
+		{ // Classic Provider. List of nodes not provided. ClusterID not set in config
 			provider:    lbVpcClassicProvider,
 			expectedEnv: []string{"KUBECONFIG=../test-fixtures/kubernetes/k8s-config"},
 		},
 	}
 
 	for _, tc := range testCases {
-		testSvc := v1.Service{}
-		testSvc.Annotations = map[string]string{}
-		testSvc.Annotations[ServiceAnnotationLoadBalancerCloudProviderEnableFeatures] = tc.annotation
-
 		// Testing G2
 		cloud, _, _ := getVpcCloud()
+		cloud.Config.Prov.ClusterID = tc.clusterID
 		cloud.Config.Prov.ProviderType = tc.provider
 		cloud.Config.Prov.G2WorkerServiceAccountID = "accountID"
 
-		env := cloud.determineVpcEnvSettings(&testSvc)
+		env := cloud.determineVpcEnvSettings(tc.nodes)
 		if len(env) != len(tc.expectedEnv) {
 			t.Fatalf("Incorrect environment settings generated. Expected: %v, Got %v", tc.expectedEnv, env)
 		}
