@@ -133,7 +133,7 @@ endif
 .PHONY: lint-sh
 lint-sh:
 	# NOTE(cjschaef) Travis CI xenial uses shellcheck version 0.7.0
-	shellcheck -V
+	shellcheck -x -V
 	shellcheck ${SHFILES}
 
 .PHONY: lint-copyright

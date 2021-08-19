@@ -33,8 +33,7 @@
 # ==============================================================================
 SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
 # import shared common bash functions
-# NOTE(cjschaef): shellcheck can't handle the recommended solution, ignore it
-# shellcheck disable=SC1090
+# shellcheck source=scripts/common_functions.sh
 . "${SCRIPT_DIR}/common_functions.sh"
 
 set -ex
