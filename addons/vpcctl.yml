@@ -16,5 +16,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ******************************************************************************
-source: https://s3.us.cloud-object-storage.appdomain.cloud/ibm-vpcctl/vpcctl-linux.1815
-checksum: 87ebef06efcf1cf25cae8605eb93346f
+source: https://s3.us.cloud-object-storage.appdomain.cloud/ibm-vpcctl/vpcctl-linux.1885
+checksum: d127f8e22e504786c1aaeb1e78aea865
