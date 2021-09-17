@@ -18,5 +18,5 @@
 # ******************************************************************************
 source_git: https://github.com/projectcalico/calicoctl/releases/download/${CALICOCTL_VERSION}/calicoctl
 source_artifactory: https://na.artifactory.swg-devops.com/artifactory/wcp-alchemy-containers-team-github-generic-remote/projectcalico/calicoctl/releases/download/${CALICOCTL_VERSION}/calicoctl
-checksum: b7582c6518d8b8878c566cb32800d561
-version: v3.19.2
+checksum: c3bdf21202232b8fc3b3a2232c8c2e55
+version: v3.19.3
