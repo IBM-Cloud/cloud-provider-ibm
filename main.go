@@ -18,8 +18,8 @@
 *******************************************************************************/
 
 // References:
-// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.22.2/staging/src/k8s.io/cloud-provider/app/controllermanager.go
-// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.22.2/staging/src/k8s.io/cloud-provider/sample/basic_main.go
+// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.23.0-alpha.2/staging/src/k8s.io/cloud-provider/app/controllermanager.go
+// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.23.0-alpha.2/staging/src/k8s.io/cloud-provider/sample/basic_main.go
 
 package main
 
@@ -78,7 +78,7 @@ func main() {
 	}
 }
 
-func NewCloudControllerManagerCommand(s *options.CloudControllerManagerOptions, cloudInitializer app.InitCloudFunc, initFuncConstructor map[string]app.InitFuncConstructor, additionalFlags cliflag.NamedFlagSets, stopCh <-chan struct{}) *cobra.Command {
+func NewCloudControllerManagerCommand(s *options.CloudControllerManagerOptions, cloudInitializer app.InitCloudFunc, initFuncConstructor map[string]app.ControllerInitFuncConstructor, additionalFlags cliflag.NamedFlagSets, stopCh <-chan struct{}) *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "ibm-cloud-controller-manager",
 		Long: `The IBM Cloud controller manager is a daemon that embeds
