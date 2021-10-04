@@ -34,3 +34,9 @@ BOM_FILE_NAME=$(echo "${BUILD_PIPELINE_TAG}" | awk -F'[v.]' '{ print "armada-ans
 echo "Updating BOM ${BOM_FILE_NAME} image ${BOM_IMAGE} with new tag ${BOM_IMAGE_TAG} ..."
 export BOM_FILE_NAME
 armada-ansible/common/bom/tools/update-bom-image-tags.sh "${BOM_IMAGE}" "${BOM_IMAGE_TAG}"
+
+# OpenShift 4.9 uses the 1.22 version of the IBM CCM.
+export BOM_FILE_NAME="openshift-target-bom-4.9.yml"
+
+echo "Updating BOM ${BOM_FILE_NAME} image ${BOM_IMAGE} with new tag ${BOM_IMAGE_TAG} ..."
+armada-ansible/common/bom/tools/update-bom-image-tags.sh "${BOM_IMAGE}" "${BOM_IMAGE_TAG}"
