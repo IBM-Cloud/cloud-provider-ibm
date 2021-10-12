@@ -17,6 +17,8 @@
 # limitations under the License.
 # ******************************************************************************
 
+# Example IBM CCM load balancer setup for cluster running on classic infrastructure.
+
 ---
 apiVersion: v1
 kind: Namespace
@@ -25,18 +27,6 @@ metadata:
 
 ---
 apiVersion: v1
-data:
-  .dockerconfigjson: {{ibm_cloud_provider_lb_image_pull_secret}}
-kind: Secret
-metadata:
-  name: ibm-cloud-provider-lb
-  namespace: ibm-system
-type: kubernetes.io/dockerconfigjson
-
----
-apiVersion: v1
-imagePullSecrets:
-- name: ibm-cloud-provider-lb
 kind: ServiceAccount
 metadata:
   name: ibm-cloud-provider-lb
@@ -76,28 +66,6 @@ kind: PriorityClass
 metadata:
   name: ibm-app-cluster-critical
 value: 900000000
-
----
-apiVersion: v1
-data:
-  etcd-ca: {{cluster_etcd_ca}}
-  etcd-cert: {{cluster_etcd_cert}}
-  etcd-key: {{cluster_etcd_key}}
-kind: Secret
-metadata:
-  name: calico-etcd-secrets
-  namespace: kube-system
-type: Opaque
-
----
-apiVersion: v1
-data:
-  etcd_host: {{cluster_etcd_host}}
-  etcd_port: "{{cluster_etcd_port}}"
-kind: ConfigMap
-metadata:
-  name: cluster-info
-  namespace: kube-system
 
 ---
 apiVersion: v1
