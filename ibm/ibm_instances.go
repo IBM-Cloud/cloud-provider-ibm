@@ -23,7 +23,7 @@ import (
 	"context"
 	"fmt"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	cloudprovider "k8s.io/cloud-provider"
 )
@@ -33,11 +33,6 @@ Instances cloud provider interface must be implemented.
 */
 func (c *Cloud) Instances() (cloudprovider.Instances, bool) {
 	return c, true
-}
-
-// TODO(rtheis): Implement InstancesV2 interface.
-func (c *Cloud) InstancesV2() (cloudprovider.InstancesV2, bool) {
-	return nil, false
 }
 
 // NodeAddresses returns the addresses of the specified instance.
@@ -56,7 +51,7 @@ func (c *Cloud) NodeAddresses(ctx context.Context, name types.NodeName) ([]v1.No
 		// Override: If available, get external IP from provider configuration.
 		providerInternalIP := c.Config.Prov.InternalIP
 		providerExternalIP := c.Config.Prov.ExternalIP
-		if "" != providerInternalIP && "" != providerExternalIP && nodeInternalIP == providerInternalIP {
+		if providerInternalIP != "" && providerExternalIP != "" && nodeInternalIP == providerInternalIP {
 			nodeExternalIP = providerExternalIP
 		}
 
@@ -175,4 +170,66 @@ func (c *Cloud) InstanceShutdownByProviderID(ctx context.Context, providerID str
 // InstanceMetadataByProviderID returns the instance's metadata.
 func (c *Cloud) InstanceMetadataByProviderID(ctx context.Context, providerID string) (*cloudprovider.InstanceMetadata, error) {
 	return nil, cloudprovider.NotImplemented
+}
+
+/*
+InstancesV2 cloud provider interface must be implemented.
+*/
+
+func (c *Cloud) InstancesV2() (cloudprovider.InstancesV2, bool) {
+	return c, false
+}
+
+// InstanceExists returns true if the instance for the given node exists according to the cloud provider.
+// Use the node.name or node.spec.providerID field to find the node in the cloud provider.
+func (c *Cloud) InstanceExists(ctx context.Context, node *v1.Node) (bool, error) {
+	// NOTE(rtheis): Returning an error causes Kubernetes to add unnecessary
+	// error messages to the logs. To avoid this noise, we'll continue assuming
+	// the instance exists, but no longer return cloudprovider.NotImplemented
+	// error.
+	return true, nil
+}
+
+// InstanceShutdown returns true if the instance is shutdown according to the cloud provider.
+// Use the node.name or node.spec.providerID field to find the node in the cloud provider.
+func (c *Cloud) InstanceShutdown(ctx context.Context, node *v1.Node) (bool, error) {
+	return false, nil
+}
+
+// InstanceMetadata returns the instance's metadata. The values returned in InstanceMetadata are
+// translated into specific fields and labels in the Node object on registration.
+// Implementations should always check node.spec.providerID first when trying to discover the instance
+// for a given node. In cases where node.spec.providerID is empty, implementations can use other
+// properties of the node like its name, labels and annotations.
+func (c *Cloud) InstanceMetadata(ctx context.Context, node *v1.Node) (*cloudprovider.InstanceMetadata, error) {
+	nodename := types.NodeName(node.Name)
+	nodeMD, err := c.Metadata.GetNodeMetadata(node.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	providerID, err := c.InstanceID(ctx, nodename)
+	if err != nil {
+		return nil, err
+	}
+
+	instanceType, err := c.InstanceType(ctx, nodename)
+	if err != nil {
+		return nil, err
+	}
+
+	nodeAddresses, err := c.NodeAddresses(ctx, nodename)
+	if err != nil {
+		return nil, err
+	}
+
+	instanceMetadata := cloudprovider.InstanceMetadata{
+		ProviderID:    providerID,
+		InstanceType:  instanceType,
+		NodeAddresses: nodeAddresses,
+		Zone:          nodeMD.FailureDomain,
+		Region:        nodeMD.Region,
+	}
+
+	return &instanceMetadata, nil
 }
