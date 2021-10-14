@@ -32,7 +32,7 @@ import (
 
 func TestMetadataService(t *testing.T) {
 	k8sclient := fake.NewSimpleClientset()
-	mdService := NewMetadataService(k8sclient)
+	mdService := NewMetadataService(nil, k8sclient)
 	var node NodeMetadata
 	var err error
 	var expectedMetadata NodeMetadata

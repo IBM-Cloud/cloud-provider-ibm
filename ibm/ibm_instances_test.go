@@ -145,7 +145,7 @@ func TestNodeAddressesCCM(t *testing.T) {
 	expectedAccountID := "testaccount"
 	expectedClusterID := "testcluster"
 	fakeclient := k8sfake.NewSimpleClientset()
-	metadataSvc := NewMetadataService(fakeclient)
+	metadataSvc := NewMetadataService(nil, fakeclient)
 	var metadata NodeMetadata
 	var expectedNodeAddresses []v1.NodeAddress
 	var labels map[string]string
@@ -258,7 +258,7 @@ func TestInstanceIDCCM(t *testing.T) {
 	expectedClusterID := "testcluster"
 	expectedInstanceID := "testaccount///testcluster/testworkerid"
 	fakeclient := k8sfake.NewSimpleClientset()
-	metadataSvc := NewMetadataService(fakeclient)
+	metadataSvc := NewMetadataService(nil, fakeclient)
 
 	// Define fake node
 	expectedMetadata := NodeMetadata{
@@ -341,7 +341,7 @@ func TestInstanceTypeCCM(t *testing.T) {
 	expectedClusterID := "testcluster"
 	expectedInstanceType := "testmachinetype"
 	fakeclient := k8sfake.NewSimpleClientset()
-	metadataSvc := NewMetadataService(fakeclient)
+	metadataSvc := NewMetadataService(nil, fakeclient)
 
 	// Define fake node
 	expectedMetadata := NodeMetadata{
@@ -500,7 +500,7 @@ func TestInstanceMetadata(t *testing.T) {
 	expectedClusterID := "testcluster"
 	expectedInstanceType := "testmachinetype"
 	fakeclient := k8sfake.NewSimpleClientset()
-	metadataSvc := NewMetadataService(fakeclient)
+	metadataSvc := NewMetadataService(nil, fakeclient)
 
 	expectedMetadata := cloudprovider.InstanceMetadata{
 		ProviderID:   "testaccount///testcluster/testworkerid",

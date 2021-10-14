@@ -27,6 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/klog/v2"
 )
 
 // NodeMetadata holds the provider metatdata from a node.
@@ -42,7 +43,9 @@ type NodeMetadata struct {
 
 // MetadataService provides access to provider metadata stored in node labels.
 type MetadataService struct {
+	provider       Provider
 	kubeClient     kubernetes.Interface
+	vpcClient      *vpcClient
 	nodeMap        map[string]NodeMetadata
 	nodeMapMux     sync.Mutex
 	nodeCacheStart time.Time
@@ -64,8 +67,11 @@ var (
 
 // NewMetadataService creates a service using the specified client to connect to the
 // cluster.  kubernetes.Interface could be a kubernetes/fake ClientSet
-func NewMetadataService(kubeClient kubernetes.Interface) *MetadataService {
+func NewMetadataService(provider *Provider, kubeClient kubernetes.Interface) *MetadataService {
 	ms := MetadataService{}
+	if provider != nil {
+		ms.provider = *provider
+	}
 	ms.kubeClient = kubeClient
 	ms.nodeMap = make(map[string]NodeMetadata)
 	ms.nodeMapMux = sync.Mutex{}
@@ -143,6 +149,27 @@ func (ms *MetadataService) GetNodeMetadata(name string) (NodeMetadata, error) {
 	if ok {
 		ms.putCachedNode(name, newNode)
 		return newNode, nil
+	} else if isProviderVpc(ms.provider.ProviderType) {
+		// labels were not set; if VPC we can try to call api for values
+		klog.Infof("Retrieving information for node=" + name + " from VPC")
+
+		// create vpcClient if we haven't already
+		if ms.vpcClient == nil {
+			ms.vpcClient, err = newVpcClient(ms.provider)
+			if err != nil {
+				return node, err
+			}
+		}
+
+		// gather node information from VPC
+		err = ms.vpcClient.populateNodeMetadata(name, &newNode)
+		if err != nil {
+			return node, err
+		}
+
+		ms.putCachedNode(name, newNode)
+		return newNode, nil
 	}
+
 	return node, errLabelsMissing
 }

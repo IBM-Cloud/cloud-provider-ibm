@@ -34,7 +34,7 @@ func getNodeWatchTestCloud() (*Cloud, *fake.Clientset) {
 	fakeKubeClient := fake.NewSimpleClientset()
 	cc.Prov.AccountID = "testAccount"
 	cc.Prov.ClusterID = "testCluster"
-	cloudMetadata := NewMetadataService(fakeKubeClient)
+	cloudMetadata := NewMetadataService(nil, fakeKubeClient)
 	c := Cloud{
 		Name:       "ibm",
 		KubeClient: fakeKubeClient,

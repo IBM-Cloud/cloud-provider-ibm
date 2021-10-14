@@ -72,6 +72,10 @@ type Provider struct {
 	ProviderType string `gcfg:"cluster-default-provider"`
 	// Optional: Service account ID used to allocate worker nodes in VPC Gen2 environment
 	G2WorkerServiceAccountID string `gcfg:"g2workerServiceAccountID"`
+	// Optional: VPC Gen2 name
+	G2VpcName string `gcfg:"g2VpcName"`
+	// Optional: File containing VPC Gen2 credentials
+	G2Credentials string `gcfg:"g2Credentials"`
 }
 
 // CloudConfig is the ibm cloud provider config data.
@@ -207,7 +211,7 @@ func NewCloud(config io.Reader) (cloudprovider.Interface, error) {
 
 	// Create the metadataservice
 	if cloudConfig.Prov.AccountID != "" {
-		cloudMetadata = NewMetadataService(k8sClient)
+		cloudMetadata = NewMetadataService(&cloudConfig.Prov, k8sClient)
 	} else {
 		cloudMetadata = nil
 	}

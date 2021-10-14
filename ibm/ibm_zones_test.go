@@ -124,7 +124,7 @@ func TestGetZoneByNodeNameCCM(t *testing.T) {
 	expectedAccountID := "testaccount"
 	expectedClusterID := "testcluster"
 	fakeclient := k8sfake.NewSimpleClientset()
-	metadataSvc := NewMetadataService(fakeclient)
+	metadataSvc := NewMetadataService(nil, fakeclient)
 
 	// Define fake node
 	expectedMetadata := NodeMetadata{
