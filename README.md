@@ -40,6 +40,11 @@ These build instructions have been verified using
    `ssh cloud-provider-ibm-build` to access the VM. Also, you can use
    `vagrant suspend` to suspend the VM and `vagrant destroy -f` to destroy it.
 
+### Deploying IBM Cloud Provider
+
+Refer to [examples](./docs/examples) for deploying the IBM Cloud Provider based
+on underlying infrastructure type, classic or VPC.
+
 ## Testing
 
 ### Unit
@@ -121,7 +126,7 @@ for a new Kubernetes version.
      1. `./build.sh make kube-update KUBE_VERSION=vX.Y.Z` (e.g `v1.23.0-alpha.3`)
      1. Go to the URL displayed in the build output to create the pull request.
 
-1. go.mod and go.sum dependencies are kept up to date with the 
+1. go.mod and go.sum dependencies are kept up to date with the
    [renovate](https://docs.renovatebot.com/golang/) application.
    One or more pull requests with the necessary changes will be created
    and must be reviewed and merged.

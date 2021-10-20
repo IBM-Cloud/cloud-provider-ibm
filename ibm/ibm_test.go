@@ -57,62 +57,73 @@ func TestNewCloud(t *testing.T) {
 		t.Fatalf("Unexpected cloud created: %v, %v", c, err)
 	}
 
-	// Create cloud with config
-	config, err = os.Open("../test-fixtures/ibm-cloud-config.ini")
-	if nil != err {
-		t.Fatalf("Unexpected error opening cloud config file: %v", err)
+	// Create cloud with various invalid configurations.
+	// NOTE(rtheis): ibm-cloud-config-ccm-in-cluster.ini would normally be a
+	// valid configuration if we could easily simulate an in cluster Kubernetes
+	// config file.
+	invalidCloudConfigFilenames := []string{
+		"../test-fixtures/ibm-cloud-config-error.ini",
+		"../test-fixtures/ibm-cloud-config-invalid.ini",
+		"../test-fixtures/ibm-cloud-config-ccm-in-cluster.ini",
 	}
-	defer config.Close()
-	c, err = NewCloud(config)
-	if nil == c || nil != err {
-		t.Fatalf("Unexpected error creating cloud: %v, %v", c, err)
-	}
-	ibmCloud, ok := c.(*Cloud)
-	if !ok {
-		t.Fatalf("Unexpected cloud type created")
-	}
-	if 0 != strings.Compare("ibm", ibmCloud.Name) {
-		t.Fatalf("Unexpected cloud name: %v", ibmCloud.Name)
+	for _, invalidCloudConfigFilename := range invalidCloudConfigFilenames {
+		config, err = os.Open(invalidCloudConfigFilename)
+		if nil != err {
+			t.Fatalf("Unexpected error opening cloud config file: %v", err)
+		}
+		defer config.Close()
+		c, err = NewCloud(config)
+		if nil != c || nil == err {
+			t.Fatalf("Unexpected cloud created: %v, %v", c, err)
+		}
 	}
 
-	// Create cloud with CCM config
-	config, err = os.Open("../test-fixtures/ibm-cloud-config-ccm.ini")
-	if nil != err {
-		t.Fatalf("Unexpected error opening cloud config file: %v", err)
+	// Create cloud with various valid configurations.
+	validCloudConfigFilenames := []string{
+		"../test-fixtures/ibm-cloud-config.ini",
+		"../test-fixtures/ibm-cloud-config-ccm.ini",
+		"../test-fixtures/ibm-cloud-config-ccm-classic.ini",
+		"../test-fixtures/ibm-cloud-config-ccm-vpc.ini",
 	}
-	defer config.Close()
-	c, err = NewCloud(config)
-	if nil == c || nil != err {
-		t.Fatalf("Unexpected error creating cloud: %v, %v", c, err)
-	}
-	ibmCloud, ok = c.(*Cloud)
-	if !ok {
-		t.Fatalf("Unexpected cloud type created")
-	}
-	if 0 != strings.Compare("ibm", ibmCloud.Name) {
-		t.Fatalf("Unexpected cloud name: %v", ibmCloud.Name)
+	for _, validCloudConfigFilename := range validCloudConfigFilenames {
+		config, err = os.Open(validCloudConfigFilename)
+		if nil != err {
+			t.Fatalf("Unexpected error opening cloud config file: %v", err)
+		}
+		defer config.Close()
+		c, err = NewCloud(config)
+		if nil == c || nil != err {
+			t.Fatalf("Unexpected error creating cloud: %v, %v", c, err)
+		}
+		ibmCloud, ok := c.(*Cloud)
+		if !ok {
+			t.Fatalf("Unexpected cloud type created")
+		}
+		if 0 != strings.Compare("ibm", ibmCloud.Name) {
+			t.Fatalf("Unexpected cloud name: %v", ibmCloud.Name)
+		}
 	}
 }
 
 func verifyCloudConfig(t *testing.T, cc *CloudConfig, ecc *CloudConfig) {
 	if ecc.Global.Version != cc.Global.Version {
-		t.Fatalf("Unexpected cloud config version: %v", cc.Global.Version)
+		t.Fatalf("Unexpected cloud config version: %v, expected: %v", cc.Global.Version, ecc.Global.Version)
 	}
 
 	if !reflect.DeepEqual(ecc.Kubernetes.ConfigFilePaths, cc.Kubernetes.ConfigFilePaths) {
-		t.Fatalf("Unexpected cloud config k8s config file paths: %v", cc.Kubernetes.ConfigFilePaths)
+		t.Fatalf("Unexpected cloud config k8s config file paths: %v, expected: %v", cc.Kubernetes.ConfigFilePaths, ecc.Kubernetes.ConfigFilePaths)
 	}
 
 	if !reflect.DeepEqual(ecc.Kubernetes.CalicoDatastore, cc.Kubernetes.CalicoDatastore) {
-		t.Fatalf("Unexpected calico datastore type: %v\tExpected: %v", cc.Kubernetes.CalicoDatastore, ecc.Kubernetes.CalicoDatastore)
+		t.Fatalf("Unexpected calico datastore type: %v, expected: %v", cc.Kubernetes.CalicoDatastore, ecc.Kubernetes.CalicoDatastore)
 	}
 
 	if !reflect.DeepEqual(ecc.LBDeployment, cc.LBDeployment) {
-		t.Fatalf("Unexpected cloud config load balancer deployment: %v", cc.LBDeployment)
+		t.Fatalf("Unexpected cloud config load balancer deployment: %v, expected: %v", cc.LBDeployment, ecc.LBDeployment)
 	}
 
 	if !reflect.DeepEqual(ecc.Prov, cc.Prov) {
-		t.Fatalf("Unexpected cloud config provider: %v", cc.Prov)
+		t.Fatalf("Unexpected cloud config provider: %v, expected: %v", cc.Prov, ecc.Prov)
 	}
 }
 
@@ -120,8 +131,6 @@ func TestGetCloudConfig(t *testing.T) {
 	var config *os.File
 	var config2 *os.File
 	var configccm *os.File
-	var invalidConfig *os.File
-	var errorConfig *os.File
 	var cc *CloudConfig
 	var ecc CloudConfig
 	var err error
@@ -180,8 +189,52 @@ func TestGetCloudConfig(t *testing.T) {
 	ecc.LBDeployment.Image = "registry.ng.bluemix.net/armada-master/keepalived:1328"
 	ecc.LBDeployment.Application = "keepalived"
 	ecc.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
-	ecc.Prov.ClusterID = "testclusterID"
-	ecc.Prov.AccountID = "testaccountID"
+	ecc.Prov.ClusterID = "testClusterID"
+	ecc.Prov.AccountID = "testAccountID"
+	verifyCloudConfig(t, cc, &ecc)
+
+	configccm, err = os.Open("../test-fixtures/ibm-cloud-config-ccm-classic.ini")
+	if nil != err {
+		t.Fatalf("Failed to open cloud config ccm: %v", err)
+	}
+	defer configccm.Close()
+	cc, err = getCloudConfig(configccm)
+	if nil != err {
+		t.Fatalf("getCloudConfig failed for ibm-cloud-config-ccm-classic.ini: %v", err)
+	}
+	// Build off previous expected configuration with select overrides.
+	ecc.Kubernetes.CalicoDatastore = "KDD"
+	verifyCloudConfig(t, cc, &ecc)
+
+	configccm, err = os.Open("../test-fixtures/ibm-cloud-config-ccm-vpc.ini")
+	if nil != err {
+		t.Fatalf("Failed to open cloud config ccm: %v", err)
+	}
+	defer configccm.Close()
+	cc, err = getCloudConfig(configccm)
+	if nil != err {
+		t.Fatalf("getCloudConfig failed for ibm-cloud-config-vpc.ini: %v", err)
+	}
+	// Build off previous expected configuration with select overrides.
+	ecc.Kubernetes.CalicoDatastore = ""
+	ecc.LBDeployment.Image = ""
+	ecc.LBDeployment.Application = ""
+	ecc.LBDeployment.VlanIPConfigMap = ""
+	ecc.Prov.ProviderType = "g2"
+	ecc.Prov.G2WorkerServiceAccountID = "testServiceAccountID"
+	verifyCloudConfig(t, cc, &ecc)
+
+	configccm, err = os.Open("../test-fixtures/ibm-cloud-config-ccm-in-cluster.ini")
+	if nil != err {
+		t.Fatalf("Failed to open cloud config ccm: %v", err)
+	}
+	defer configccm.Close()
+	cc, err = getCloudConfig(configccm)
+	if nil != err {
+		t.Fatalf("getCloudConfig failed for ibm-cloud-config-ccm-in-cluster.ini: %v", err)
+	}
+	// Build off previous expected configuration with select overrides.
+	ecc.Kubernetes.ConfigFilePaths = nil
 	verifyCloudConfig(t, cc, &ecc)
 
 	// Verify nil cloud config.
@@ -190,26 +243,21 @@ func TestGetCloudConfig(t *testing.T) {
 		t.Fatalf("getCloudConfig successful for nil cloud config: %v", cc)
 	}
 
-	// Verify invalid cloud config.
-	invalidConfig, err = os.Open("../test-fixtures/ibm-cloud-config-invalid.ini")
-	if nil != err {
-		t.Fatalf("Failed to open cloud config: %v", err)
+	// Verify invalid configurations.
+	invalidCloudConfigFilenames := []string{
+		"../test-fixtures/ibm-cloud-config-error.ini",
+		"../test-fixtures/ibm-cloud-config-invalid.ini",
 	}
-	defer invalidConfig.Close()
-	cc, err = getCloudConfig(invalidConfig)
-	if nil == err {
-		t.Fatalf("getCloudConfig successful for ibm-cloud-config-invalid.ini: %v", cc)
-	}
-
-	// Verify error cloud config.
-	errorConfig, err = os.Open("../test-fixtures/ibm-cloud-config-error.ini")
-	if nil != err {
-		t.Fatalf("Failed to open cloud config: %v", err)
-	}
-	defer errorConfig.Close()
-	cc, err = getCloudConfig(errorConfig)
-	if nil == err {
-		t.Fatalf("getCloudConfig successful for ibm-cloud-config-error.ini: %v", cc)
+	for _, invalidCloudConfigFilename := range invalidCloudConfigFilenames {
+		invalidCloudConfigFile, err := os.Open(invalidCloudConfigFilename)
+		if nil != err {
+			t.Fatalf("Failed to open cloud config: %v", err)
+		}
+		defer invalidCloudConfigFile.Close()
+		cc, err = getCloudConfig(invalidCloudConfigFile)
+		if nil == err {
+			t.Fatalf("getCloudConfig successful for %v: %v", invalidCloudConfigFile, cc)
+		}
 	}
 }
 
