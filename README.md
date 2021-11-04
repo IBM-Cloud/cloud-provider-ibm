@@ -6,7 +6,7 @@ infrastructure node and load balancer support to
 [Kubernetes](https://kubernetes.io/docs/home/) or
 [OpenShift](https://docs.openshift.com/) clusters running on
 [IBM Cloud](https://cloud.ibm.com/docs). This repository branch is based on
-[Kubernetes version v1.23.0-alpha.3](https://github.com/kubernetes/kubernetes/tree/v1.23.0-alpha.3).
+[Kubernetes version v1.23.0-alpha.4](https://github.com/kubernetes/kubernetes/tree/v1.23.0-alpha.4).
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
 ## Local Build and Deploy Instructions
@@ -123,7 +123,7 @@ for a new Kubernetes version.
      to trigger. Running the following steps will create the PR:
 
      1. `cd vagrant-kube-build`
-     1. `./build.sh make kube-update KUBE_VERSION=vX.Y.Z` (e.g `v1.23.0-alpha.3`)
+     1. `./build.sh make kube-update KUBE_VERSION=vX.Y.Z` (e.g `v1.23.0-alpha.4`)
      1. Go to the URL displayed in the build output to create the pull request.
 
 1. go.mod and go.sum dependencies are kept up to date with the
