@@ -25,21 +25,18 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
-	"time"
 
 	"cloud.ibm.com/cloud-provider-ibm/ibm"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/cloud-provider"
 	"k8s.io/cloud-provider/app"
 	"k8s.io/cloud-provider/app/config"
 	"k8s.io/cloud-provider/options"
+	"k8s.io/component-base/cli"
 	cliflag "k8s.io/component-base/cli/flag"
 	"k8s.io/component-base/cli/globalflag"
-	"k8s.io/component-base/logs"
 	_ "k8s.io/component-base/metrics/prometheus/clientgo" // load all the prometheus client-go plugins
 	_ "k8s.io/component-base/metrics/prometheus/version"  // for version metric registration
 	"k8s.io/component-base/term"
@@ -47,8 +44,6 @@ import (
 )
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
 	ccmOptions, err := options.NewCloudControllerManagerOptions()
 	if err != nil {
 		klog.Fatalf("unable to initialize IBM Cloud controller manager command options: %v", err)
@@ -63,18 +58,9 @@ func main() {
 
 	fss := cliflag.NamedFlagSets{}
 	command := NewCloudControllerManagerCommand(ccmOptions, IBMCloudInitializer, controllerInitializers, fss, wait.NeverStop)
-
-	// TODO: once we switch everything over to Cobra commands, we can go back to calling
-	// utilflag.InitFlags() (by removing its pflag.Parse() call). For now, we have to set the
-	// normalize func and add the go flag set by hand.
-	// Here is an sample
-	pflag.CommandLine.SetNormalizeFunc(cliflag.WordSepNormalizeFunc)
-	// utilflag.InitFlags()
-	logs.InitLogs()
-	defer logs.FlushLogs()
-
-	if err := command.Execute(); err != nil {
-		os.Exit(1)
+	code := cli.Run(command)
+	if code != 0 {
+		os.Exit(code)
 	}
 }
 
