@@ -51,6 +51,10 @@ func TestNewCloud(t *testing.T) {
 	var config *os.File
 	var c cloudprovider.Interface
 
+	// NOTE(cjschaef): Make sure environment variables used to access a Kubernetes cluster during testing are unset
+	os.Unsetenv("KUBERNETES_SERVICE_HOST")
+	os.Unsetenv("KUBERNETES_MASTER")
+
 	// No cloud config
 	c, err = NewCloud(nil)
 	if nil != c || nil == err {
