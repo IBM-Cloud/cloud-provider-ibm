@@ -18,7 +18,7 @@
 # ******************************************************************************
 teamName: ibm
 teamLeadEmail: rtheis@us.ibm.com
-secretName: ALL_GLOBAL_UPDATE_IKS_PIPELINE_IAM_APIKEY_20201116
+secretName: ALL_GLOBAL_UPDATE_IKS_PIPELINE_IAM_APIKEY_20211116
 purposeOfSecret: |
   IAM APIKey used by build-tools to generate ARTIFACTORY_API_KEY
 emailOfPersonThatGenerated: jonesbr@us.ibm.com
