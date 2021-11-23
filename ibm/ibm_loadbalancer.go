@@ -2292,14 +2292,28 @@ func sliceContains(stringSlice []string, searchString string) bool {
 }
 
 func isServiceConfigurationSupported(service *v1.Service) error {
+	var hasTCP bool
+	var hasUDP bool
+
 	for _, port := range service.Spec.Ports {
-		if port.Protocol == v1.ProtocolSCTP {
-			return fmt.Errorf("SCTP protocol")
+		switch port.Protocol {
+		case v1.ProtocolTCP:
+			hasTCP = true
+		case v1.ProtocolUDP:
+			hasUDP = true
+		default:
+			return fmt.Errorf("%s protocol", port.Protocol)
 		}
+
 		if port.AppProtocol != nil {
 			return fmt.Errorf("application protocol")
 		}
 	}
+
+	if hasTCP && hasUDP {
+		return fmt.Errorf("mixed protocol")
+	}
+
 	return nil
 }
 

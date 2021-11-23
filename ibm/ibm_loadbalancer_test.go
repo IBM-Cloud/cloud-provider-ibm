@@ -31,6 +31,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	scheduling "k8s.io/api/scheduling/v1"
@@ -59,6 +61,21 @@ func getLoadBalancerService(lbName string) *v1.Service {
 	s.Annotations = map[string]string{}
 	s.Spec.Type = v1.ServiceTypeLoadBalancer
 	s.Status.LoadBalancer.Ingress = []v1.LoadBalancerIngress{{IP: "1.1.1.1"}}
+	return s
+}
+
+func getLoadBalancerMixedService(lbName string) *v1.Service {
+	s := getLoadBalancerService(lbName)
+	s.Spec.Ports = []v1.ServicePort{
+		{
+			Port:     80,
+			Protocol: v1.ProtocolTCP,
+		},
+		{
+			Port:     80,
+			Protocol: v1.ProtocolUDP,
+		},
+	}
 	return s
 }
 
@@ -1896,6 +1913,14 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	}
 	if 0 != strings.Compare("192.168.10.30", status.Ingress[0].IP) {
 		t.Fatalf("Unexpected load balancer 'test' status: %v", status.Ingress[0].IP)
+	}
+
+	// MixedProtocol (i.e. both TCP and UDP ports) is NOT supportd for now
+	status, err = c.EnsureLoadBalancer(context.Background(), clusterName, getLoadBalancerMixedService("testMixed"), nil)
+	if nil == status && err != nil {
+		assert.Contains(t, err.Error(), "mixed protocol")
+	} else {
+		t.Fatalf("MixedProtocol did not return error")
 	}
 
 	// Duplicate load balancers exist
