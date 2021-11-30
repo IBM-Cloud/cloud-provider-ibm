@@ -151,6 +151,7 @@ func createTestLoadBalancerDeployment(lbName, cloudProviderIP string, replicas i
 	}
 	d := &apps.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
+			// #nosec G404 used for testing only
 			UID:       types.UID(strconv.FormatInt(rand.Int63(), 10)),
 			Name:      lbDeploymentName,
 			Namespace: lbDeploymentNamespace,
@@ -226,6 +227,7 @@ func createTestLoadBalancerDeployment(lbName, cloudProviderIP string, replicas i
 		rsTemplate := cp.Spec.Template
 		rs = &apps.ReplicaSet{
 			ObjectMeta: metav1.ObjectMeta{
+				// #nosec G404 used for testing only
 				UID:       types.UID(strconv.FormatInt(rand.Int63(), 10)),
 				Name:      rsName,
 				Namespace: rsNamespace,

@@ -124,7 +124,8 @@ endif
 lint:
 ifdef GOLANGCI_LINT_EXISTS
 	# NOTE(cjschaef): golangci-lint can take a while to run, bump deadline
-	golangci-lint run --deadline 5m -e G404 -e exitAfterDefer
+	echo "Running gosec"
+	golangci-lint run --deadline 5m -e exitAfterDefer
 else
 	@echo "golangci-lint is not installed"
 	exit 1

@@ -106,7 +106,11 @@ func main() {
 	if nil != err {
 		panic(err.Error())
 	}
-	defer config.Close()
+	defer func() {
+		if err := config.Close(); err != nil {
+			panic(err.Error())
+		}
+	}()
 	c, err = ibm.NewCloud(config)
 	if nil != err {
 		panic(err.Error())
