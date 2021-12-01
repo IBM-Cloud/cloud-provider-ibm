@@ -47,9 +47,7 @@ const networkLoadBalancerFeature = "nlb"
 // execVpcCommand - Run a VPC command and return the output to the caller
 // switched from func to var so method can be spoofed
 var execVpcCommand = func(args string, envvars []string) ([]string, error) {
-	// NOTE(cjschaef): external access to this function is not possible, so we don't need to worry about shell command injection; ignoring
-	// #nosec
-	cmd := exec.Command("vpcctl", strings.Fields(args)...)
+	cmd := exec.Command("vpcctl", strings.Fields(args)...) // #nosec G204 external access to this function is not possible
 	env := os.Environ()
 	env = append(env, envvars...)
 	cmd.Env = env
