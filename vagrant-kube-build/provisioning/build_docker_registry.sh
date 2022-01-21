@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+# (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -23,7 +23,7 @@ function exit_build {
     exit 1
 }
 
-BUILD_VERSION="v1.22.5"
+BUILD_VERSION="v1.22.6"
 BUILD_REGISTRY_NAME="armada-master"
 BUILD_REGISTRY_IP_ADDRESS="192.168.10.10"
 BUILD_REGISTRY_PORT="5000"

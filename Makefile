@@ -1,6 +1,6 @@
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2021 All Rights Reserved.
+# (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -49,7 +49,7 @@ GOLANGCI_LINT_VERSION := 1.40.1
 GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
 REGISTRY ?= armada-master
-TAG ?= v1.22.5
+TAG ?= v1.22.6
 VPCCTL_SOURCE=$(shell cat addons/vpcctl.yml | awk '/^source:/{print $$2}')
 VPCCTL_CHECKSUM=$(shell cat addons/vpcctl.yml | awk '/^checksum:/{print $$2}')
 
