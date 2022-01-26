@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -492,6 +492,12 @@ func (c *Cloud) getLoadBalancerDeployment(lbName string) (*apps.Deployment, erro
 func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *apps.Deployment, service *v1.Service, nodes []*v1.Node) error {
 	var err error
 	var updatesRequired []string
+
+	// Ensure minReadySeconds is 90
+	if lbDeployment.Spec.MinReadySeconds != 90 {
+		lbDeployment.Spec.MinReadySeconds = 90
+		updatesRequired = append(updatesRequired, "SetMinReadySeconds")
+	}
 
 	if 1 == len(lbDeployment.Spec.Template.Spec.Containers) {
 		// Update the load balancer deployment if a new image is available.
@@ -1717,13 +1723,9 @@ func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, serv
 		// load balancer pod running during an update (assuming enough nodes available).
 		// This configuration minimizes downtime during load balancer deployment updates.
 		// Only one deployment revision will be saved for rollback purposes.
-		// TODO(rtheis): Set MinReadySeconds to 3 once kubernetes issue #29229 is fixed
-		// (https://github.com/kubernetes/kubernetes/issues/29229). This ensures that the
-		// pod application is given time to start which further minimizes downtime during
-		// load balancer deployment updates.
 		var lbDeploymentReplicas int32 = 2
 		var lbDeploymentRevisionHistoryLimit int32 = 1
-		var lbDeploymentMinReadySeconds int32
+		var lbDeploymentMinReadySeconds int32 = 90
 		lbDeploymentMaxUnavailable := intstr.FromInt(1)
 		lbDeploymentMaxSurge := intstr.FromInt(1)
 		lbDeploymentStrategy := apps.DeploymentStrategy{

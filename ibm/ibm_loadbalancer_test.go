@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -40,6 +40,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes/fake"
 	core "k8s.io/client-go/testing"
 )
@@ -920,6 +921,9 @@ func verifyLoadBalancerEdgeDeployment(t *testing.T, c *Cloud, clusterName string
 			t.Fatalf("Unexpected node affinifty for load balancer '%v': %v.  Expected: %v", serviceName, nodeSelectorReq, expectedKeys)
 		}
 	}
+	if d.Spec.MinReadySeconds != 90 {
+		t.Fatalf("Unexpected min ready seconds for load balancer 'new': %v", d.Spec.MinReadySeconds)
+	}
 }
 
 func verifyLoadBalancerGatewayDeployment(t *testing.T, c *Cloud, clusterName string, lbService *v1.Service, serviceName string, expectedKeys map[string]string) {
@@ -978,6 +982,9 @@ func verifyLoadBalancerGatewayDeployment(t *testing.T, c *Cloud, clusterName str
 			t.Fatalf("Unexpected node affinifty for load balancer '%v': %v.  Expected: %v", serviceName, nodeSelectorReq, expectedKeys)
 		}
 	}
+	if d.Spec.MinReadySeconds != 90 {
+		t.Fatalf("Unexpected min ready seconds for load balancer 'new': %v", d.Spec.MinReadySeconds)
+	}
 }
 
 func verifyLoadBalancerSourceIPIPVS(t *testing.T, c *Cloud, clusterName string, lbService *v1.Service, serviceName string, numNodes int) {
@@ -1016,9 +1023,11 @@ func verifyLoadBalancerSourceIPIPVS(t *testing.T, c *Cloud, clusterName string, 
 	if nil == d.Spec.Strategy.RollingUpdate.MaxUnavailable {
 		t.Fatalf("Unexpected strategy rolling update max unavailable for load balancer 'new'")
 	}
-
 	if lbService.Spec.ExternalTrafficPolicy != v1.ServiceExternalTrafficPolicyTypeLocal {
 		t.Fatalf("Unexpected ExternalTrafficPolicy for load balancer service '%v': %v", serviceName, dSpecTemplateAffinity)
+	}
+	if d.Spec.MinReadySeconds != 90 {
+		t.Fatalf("Unexpected min ready seconds for load balancer 'new': %v", d.Spec.MinReadySeconds)
 	}
 }
 
@@ -1085,6 +1094,9 @@ func verifyLoadBalancerSourceIP(t *testing.T, c *Cloud, clusterName string, lbSe
 	if lbService.Spec.ExternalTrafficPolicy != v1.ServiceExternalTrafficPolicyTypeLocal {
 		t.Fatalf("Unexpected ExternalTrafficPolicy for load balancer service '%v': %v", serviceName, dSpecTemplateAffinity)
 	}
+	if d.Spec.MinReadySeconds != 90 {
+		t.Fatalf("Unexpected min ready seconds for load balancer 'new': %v", d.Spec.MinReadySeconds)
+	}
 }
 
 func verifyLoadBalancerSourceIPRemoved(t *testing.T, c *Cloud, clusterName string, lbService *v1.Service, serviceName string, expectedKeys map[string]string, numNodes int) {
@@ -1122,6 +1134,9 @@ func verifyLoadBalancerSourceIPRemoved(t *testing.T, c *Cloud, clusterName strin
 
 	if lbService.Spec.ExternalTrafficPolicy != v1.ServiceExternalTrafficPolicyTypeCluster {
 		t.Fatalf("Unexpected ExternalTrafficPolicy for load balancer service '%v': %v", serviceName, d.Spec.Template.Spec.Affinity.PodAffinity)
+	}
+	if d.Spec.MinReadySeconds != 90 {
+		t.Fatalf("Unexpected min ready seconds for load balancer 'new': %v", d.Spec.MinReadySeconds)
 	}
 }
 
@@ -1683,6 +1698,100 @@ func TestIsFeatureEnabled(t *testing.T) {
 	}
 }
 
+func TestIsUpdateSourceIPRequired(t *testing.T) {
+	lbDeployment, _ := createTestLoadBalancerDeployment("TestIsUpdateSourceIPRequired", "192-168-222-111", 2, false, true, true, "", false)
+	s1 := createTestLoadBalancerService("TestIsUpdateSourceIPRequired1", "192.168.222.111", false, true)
+	s2 := createTestLoadBalancerService("TestIsUpdateSourceIPRequired2", "192.168.222.111", true, false)
+
+	localUpdatesRequired := isUpdateSourceIPRequired(lbDeployment, s1)
+	if len(localUpdatesRequired) == 0 {
+		t.Fatalf("isUpdateSourceIPRequired returned with empty slice")
+	} else if localUpdatesRequired[0] != "RemoveSourceIPPodAffinity" {
+		t.Fatalf("isUpdateSourceIPRequired returned with %s", localUpdatesRequired[0])
+	}
+
+	var lbDeploymentMaxSurge = intstr.FromInt(1)
+	var lbDeploymentMaxUnavailable = intstr.FromString("100%")
+	var lbDeploymentMaxUnavailable50 = intstr.FromString("50%")
+
+	lbDeployment.Spec.Strategy = apps.DeploymentStrategy{
+		Type: apps.RollingUpdateDeploymentStrategyType,
+		RollingUpdate: &apps.RollingUpdateDeployment{
+			MaxUnavailable: &lbDeploymentMaxUnavailable,
+			MaxSurge:       &lbDeploymentMaxSurge,
+		},
+	}
+
+	lbDeployment.Spec.Strategy.Type = apps.RecreateDeploymentStrategyType
+	localUpdatesRequired = isUpdateSourceIPRequired(lbDeployment, s2)
+	if len(localUpdatesRequired) == 0 {
+		t.Fatalf("isUpdateSourceIPRequired returned with empty slice")
+	} else if localUpdatesRequired[0] != "UpdateSourceIPPodMaxUnavailable" {
+		t.Fatalf("isUpdateSourceIPRequired returned with %s", localUpdatesRequired[0])
+	}
+
+	lbDeployment.Spec.Strategy.Type = apps.RollingUpdateDeploymentStrategyType
+	lbDeployment.Spec.Strategy.RollingUpdate.MaxUnavailable = &lbDeploymentMaxUnavailable50
+	localUpdatesRequired = isUpdateSourceIPRequired(lbDeployment, s2)
+	if len(localUpdatesRequired) == 0 {
+		t.Fatalf("isUpdateSourceIPRequired returned with empty slice")
+	} else if localUpdatesRequired[0] != "UpdateSourceIPPodMaxUnavailable" {
+		t.Fatalf("isUpdateSourceIPRequired returned with %s", localUpdatesRequired[0])
+	}
+
+	lbDeployment.Spec.Strategy.RollingUpdate.MaxUnavailable = nil
+	localUpdatesRequired = isUpdateSourceIPRequired(lbDeployment, s2)
+	if len(localUpdatesRequired) == 0 {
+		t.Fatalf("isUpdateSourceIPRequired returned with empty slice")
+	} else if localUpdatesRequired[0] != "UpdateSourceIPPodMaxUnavailable" {
+		t.Fatalf("isUpdateSourceIPRequired returned with %s", localUpdatesRequired[0])
+	}
+
+	lbDeployment.Spec.Strategy.RollingUpdate = nil
+	localUpdatesRequired = isUpdateSourceIPRequired(lbDeployment, s2)
+	if len(localUpdatesRequired) == 0 {
+		t.Fatalf("isUpdateSourceIPRequired returned with empty slice")
+	} else if localUpdatesRequired[0] != "UpdateSourceIPPodMaxUnavailable" {
+		t.Fatalf("isUpdateSourceIPRequired returned with %s", localUpdatesRequired[0])
+	}
+
+	lbDeployment.Spec.Strategy = apps.DeploymentStrategy{
+		Type: apps.RollingUpdateDeploymentStrategyType,
+		RollingUpdate: &apps.RollingUpdateDeployment{
+			MaxUnavailable: &lbDeploymentMaxUnavailable,
+			MaxSurge:       &lbDeploymentMaxSurge,
+		},
+	}
+
+	lbDeployment.Spec.Template.Spec.Affinity = &v1.Affinity{}
+	lbDeployment.Spec.Template.Spec.Affinity.PodAffinity = &v1.PodAffinity{}
+	localUpdatesRequired = isUpdateSourceIPRequired(lbDeployment, s2)
+	if len(localUpdatesRequired) == 0 {
+		t.Fatalf("isUpdateSourceIPRequired returned with empty slice")
+	} else if localUpdatesRequired[0] != "DifferentSourceIPAffinityWithPodAffinity" {
+		t.Fatalf("isUpdateSourceIPRequired returned with %s", localUpdatesRequired[0])
+	}
+
+	s2.Spec.Selector = map[string]string{"tomIsCool": "true"}
+	lbServiceLabelSelector := &metav1.LabelSelector{
+		MatchLabels: s2.Spec.Selector,
+	}
+	lbPodAffinity := &v1.PodAffinity{
+		RequiredDuringSchedulingIgnoredDuringExecution: []v1.PodAffinityTerm{
+			{
+				LabelSelector: lbServiceLabelSelector,
+				TopologyKey:   v1.LabelHostname,
+				Namespaces:    []string{s2.Namespace},
+			},
+		},
+	}
+	lbDeployment.Spec.Template.Spec.Affinity.PodAffinity = lbPodAffinity
+	localUpdatesRequired = isUpdateSourceIPRequired(lbDeployment, s2)
+	if len(localUpdatesRequired) > 0 {
+		t.Fatalf("isUpdateSourceIPRequired returned with %s", localUpdatesRequired)
+	}
+}
+
 func TestPopulateAvailableCloudProviderVlanIPConfig(t *testing.T) {
 	var err error
 	var availableCloudProviderVLANs map[string][]string
@@ -2204,7 +2313,7 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	if nil == replicas || 2 != *replicas {
 		t.Fatalf("Unexpected replicas for load balancer 'new': %v", replicas)
 	}
-	if 0 != d.Spec.MinReadySeconds {
+	if d.Spec.MinReadySeconds != 90 {
 		t.Fatalf("Unexpected min ready seconds for load balancer 'new': %v", d.Spec.MinReadySeconds)
 	}
 	revisionHistoryLimit := d.Spec.RevisionHistoryLimit
