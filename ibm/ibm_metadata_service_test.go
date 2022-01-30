@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2019, 2021 All Rights Reserved.
+* (C) Copyright IBM Corp. 2019, 2022 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -53,6 +53,7 @@ func TestMetadataService(t *testing.T) {
 		InstanceType:  "test-machine-type",
 		FailureDomain: "test-failure-domain",
 		Region:        "test-region",
+		ProviderID:    "test-provider-id",
 	}
 	labels = map[string]string{
 		"ibm-cloud.kubernetes.io/internal-ip":  expectedMetadata.InternalIP,
@@ -66,6 +67,9 @@ func TestMetadataService(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   "goodnode",
 			Labels: labels},
+		Spec: corev1.NodeSpec{
+			ProviderID: expectedMetadata.ProviderID,
+		},
 	}
 	_, err = k8sclient.CoreV1().Nodes().Create(context.TODO(), &k8snode, metav1.CreateOptions{})
 	if nil != err {
@@ -87,6 +91,9 @@ func TestMetadataService(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   "goodnode",
 			Labels: labels},
+		Spec: corev1.NodeSpec{
+			ProviderID: expectedMetadata.ProviderID,
+		},
 	}
 	k8sclient.CoreV1().Nodes().Update(context.TODO(), &k8snode, metav1.UpdateOptions{})
 	if nil != err {
@@ -144,6 +151,9 @@ func TestMetadataService(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name:   "partialnode",
 				Labels: labels},
+			Spec: corev1.NodeSpec{
+				ProviderID: expectedMetadata.ProviderID,
+			},
 		}
 		_, err = k8sclient.CoreV1().Nodes().Create(context.TODO(), &k8snode, metav1.CreateOptions{})
 		if nil != err {
@@ -164,6 +174,7 @@ func TestMetadataService(t *testing.T) {
 		InstanceType:  "test-machine-type",
 		FailureDomain: "test-failure-domain",
 		Region:        "test-region",
+		ProviderID:    "test-provider-id",
 	}
 	labels = map[string]string{
 		"ibm-cloud.kubernetes.io/internal-ip": expectedMetadata.InternalIP,
@@ -177,6 +188,9 @@ func TestMetadataService(t *testing.T) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   "privateonlynode",
 			Labels: labels},
+		Spec: corev1.NodeSpec{
+			ProviderID: expectedMetadata.ProviderID,
+		},
 	}
 	_, err = k8sclient.CoreV1().Nodes().Create(context.TODO(), &k8snode, metav1.CreateOptions{})
 	if nil != err {
@@ -191,4 +205,38 @@ func TestMetadataService(t *testing.T) {
 		t.Fatal("NodeMetadata not correct for 'privateonlynode'.")
 	}
 
+	// ask for node with no providerID
+	expectedMetadata = NodeMetadata{
+		InternalIP:    "test-internal-ip",
+		WorkerID:      "test-worker-id",
+		InstanceType:  "test-machine-type",
+		FailureDomain: "test-failure-domain",
+		Region:        "test-region",
+		ProviderID:    "",
+	}
+	labels = map[string]string{
+		"ibm-cloud.kubernetes.io/internal-ip":  expectedMetadata.InternalIP,
+		"ibm-cloud.kubernetes.io/external-ip":  expectedMetadata.ExternalIP,
+		"ibm-cloud.kubernetes.io/zone":         expectedMetadata.FailureDomain,
+		"ibm-cloud.kubernetes.io/region":       expectedMetadata.Region,
+		"ibm-cloud.kubernetes.io/worker-id":    expectedMetadata.WorkerID,
+		"ibm-cloud.kubernetes.io/machine-type": expectedMetadata.InstanceType,
+	}
+	k8snode = corev1.Node{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   "noprovideridnode",
+			Labels: labels},
+	}
+	_, err = k8sclient.CoreV1().Nodes().Create(context.TODO(), &k8snode, metav1.CreateOptions{})
+	if nil != err {
+		t.Fatalf("Failed to create Node noprovideridnode: %v", err)
+	}
+	node, err = mdService.GetNodeMetadata("noprovideridnode")
+	if nil != err {
+		t.Fatalf("Got an error for noprovideridnode: %v", err)
+	}
+	cmp = reflect.DeepEqual(expectedMetadata, node)
+	if !cmp {
+		t.Fatal("NodeMetadata not correct for 'noprovideridnode'.")
+	}
 }

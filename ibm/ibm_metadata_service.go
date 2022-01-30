@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2019, 2021 All Rights Reserved.
+* (C) Copyright IBM Corp. 2019, 2022 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -39,6 +39,7 @@ type NodeMetadata struct {
 	InstanceType  string
 	FailureDomain string
 	Region        string
+	ProviderID    string
 }
 
 // MetadataService provides access to provider metadata stored in node labels.
@@ -143,6 +144,12 @@ func (ms *MetadataService) GetNodeMetadata(name string) (NodeMetadata, error) {
 	newNode.Region, labelOk = k8sNode.Labels[regionLabel]
 	if !labelOk {
 		ok = false
+	}
+
+	newNode.ProviderID = k8sNode.Spec.ProviderID
+	if newNode.ProviderID != "" && newNode.ProviderID != node.ProviderID {
+		// Remove node from cache if the input ProviderID doesn't match what we have cached
+		ms.deleteCachedNode(name)
 	}
 
 	// If all labels were set, cache and return the result
