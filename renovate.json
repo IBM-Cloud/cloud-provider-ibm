@@ -1,3 +1,16 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "packageRules": [
+        {
+            "matchPackagePrefixes": [
+                "k8s.io/"
+            ],
+            "excludePackageNames": [
+                "k8s.io/klog/v2",
+                "k8s.io/kube-openapi",
+                "k8s.io/utils"
+            ],
+            "allowedVersions": "< 0.24.0"
+        }
+    ]
 }
