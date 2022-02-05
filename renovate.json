@@ -1,3 +1,14 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "packageRules": [
+        {
+            "matchPackagePrefixes": [
+                "k8s.io/"
+            ],
+            "excludePackageNames": [
+                "k8s.io/klog/v2"
+            ],
+            "allowedVersions": "< 0.23.0"
+        }
+    ]
 }
