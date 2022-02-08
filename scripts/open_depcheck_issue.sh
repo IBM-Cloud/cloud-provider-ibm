@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2021 All Rights Reserved.
+# (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -17,7 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ******************************************************************************
-if [ "${TRAVIS_ALLOW_FAILURE}" = "false" ] && [ "${TRAVIS_BRANCH}" = "release-1.23" ] && [ "${TRAVIS_PULL_REQUEST_BRANCH}" = "" ] && [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
+if [ "${TRAVIS_ALLOW_FAILURE}" = "false" ] && [ "${TRAVIS_BRANCH}" = "release-1.24" ] && [ "${TRAVIS_PULL_REQUEST_BRANCH}" = "" ] && [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
   (
     set +x
     echo "Authorization: token ${GHE_TOKEN}" > ghe-auth.txt

@@ -6,7 +6,7 @@ infrastructure node and load balancer support to
 [Kubernetes](https://kubernetes.io/docs/home/) or
 [OpenShift](https://docs.openshift.com/) clusters running on
 [IBM Cloud](https://cloud.ibm.com/docs). This repository branch is based on
-[Kubernetes version v1.23.3](https://github.com/kubernetes/kubernetes/tree/v1.23.3).
+[Kubernetes version v1.24.0-alpha.2](https://github.com/kubernetes/kubernetes/tree/v1.24.0-alpha.2).
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
 ## Local Build and Deploy Instructions
@@ -101,7 +101,7 @@ for a new Kubernetes version.
    current branch from which the new branch will be created. Then
    in the `Find or create a branch...` field under the `Branch` drop-down menu,
    enter the new branch name `release-<major>.<minor>` where `<major>.<minor>`
-   is the Kubernetes major and minor version (e.g. `release-1.23`).
+   is the Kubernetes major and minor version (e.g. `release-1.24`).
 
 1. The Travis CI configuration for this repo includes a cron job that runs
    every day. If a new Kubernetes patch version is available for a release, the
@@ -114,7 +114,7 @@ for a new Kubernetes version.
      1. Navigate to the Travis CI settings page, and locate the `Cron Jobs` section.
      1. Beneath the list of current cron configurations, create a new
         configuration with these specifications:
-        - Branch: `release-<major>.<minor>` (e.g. `release-1.23`)
+        - Branch: `release-<major>.<minor>` (e.g. `release-1.24`)
         - Interval: `Daily`
         - Options: `Always Run`
      1. Click `Add`
@@ -123,7 +123,7 @@ for a new Kubernetes version.
      to trigger. Running the following steps will create the PR:
 
      1. `cd vagrant-kube-build`
-     1. `./build.sh make kube-update KUBE_VERSION=vX.Y.Z` (e.g `v1.23.3`)
+     1. `./build.sh make kube-update KUBE_VERSION=vX.Y.Z` (e.g `v1.24.0-alpha.2`)
      1. Go to the URL displayed in the build output to create the pull request.
 
 1. go.mod and go.sum dependencies are kept up to date with the
