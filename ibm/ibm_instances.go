@@ -32,7 +32,7 @@ import (
 Instances cloud provider interface must be implemented.
 */
 func (c *Cloud) Instances() (cloudprovider.Instances, bool) {
-	return c, true
+	return c, false
 }
 
 // NodeAddresses returns the addresses of the specified instance.
@@ -177,7 +177,7 @@ InstancesV2 cloud provider interface must be implemented.
 */
 
 func (c *Cloud) InstancesV2() (cloudprovider.InstancesV2, bool) {
-	return c, false
+	return c, true
 }
 
 // InstanceExists returns true if the instance for the given node exists according to the cloud provider.
