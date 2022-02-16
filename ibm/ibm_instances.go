@@ -207,7 +207,7 @@ func (c *Cloud) InstanceMetadata(ctx context.Context, node *v1.Node) (*cloudprov
 		return nil, err
 	}
 
-	providerID := c.instanceIDV2(ctx, nodeMD)
+	providerID := c.providerIDV2(ctx, nodeMD)
 	instanceType := c.instanceTypeV2(ctx, nodeMD)
 	nodeAddresses := c.nodeAddressesV2(ctx, nodeMD)
 
@@ -223,12 +223,12 @@ func (c *Cloud) InstanceMetadata(ctx context.Context, node *v1.Node) (*cloudprov
 }
 
 // get provider id from node labels
-func (c *Cloud) instanceIDV2(ctx context.Context, nodeMD NodeMetadata) string {
+func (c *Cloud) providerIDV2(ctx context.Context, nodeMD NodeMetadata) string {
 	if nodeMD.ProviderID != "" {
 		return nodeMD.ProviderID
 	}
 	// construct provider id from config and node metadata
-	return fmt.Sprintf("%s///%s/%s", c.Config.Prov.AccountID, c.Config.Prov.ClusterID, nodeMD.WorkerID)
+	return fmt.Sprintf("ibm://%s///%s/%s", c.Config.Prov.AccountID, c.Config.Prov.ClusterID, nodeMD.WorkerID)
 }
 
 // Get instance type from node labels

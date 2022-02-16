@@ -502,7 +502,7 @@ func TestInstanceMetadata(t *testing.T) {
 	metadataSvc := NewMetadataService(nil, fakeclient)
 
 	expectedMetadata := cloudprovider.InstanceMetadata{
-		ProviderID:   "testaccount///testcluster/testworkerid",
+		ProviderID:   "ibm://testaccount///testcluster/testworkerid",
 		InstanceType: expectedInstanceType,
 		NodeAddresses: []v1.NodeAddress{
 			{Type: v1.NodeInternalIP, Address: "10.190.31.186"},
