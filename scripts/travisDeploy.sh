@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2019, 2021 All Rights Reserved.
+# (C) Copyright IBM Corp. 2019, 2022 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -33,4 +33,10 @@ BOM_IMAGE_TAG="${DOCKER_IMAGE_TAG}"
 BOM_FILE_NAME=$(echo "${BUILD_PIPELINE_TAG}" | awk -F'[v.]' '{ print "armada-ansible-bom-"$2"."$3".yml" }')
 echo "Updating BOM ${BOM_FILE_NAME} image ${BOM_IMAGE} with new tag ${BOM_IMAGE_TAG} ..."
 export BOM_FILE_NAME
+armada-ansible/common/bom/tools/update-bom-image-tags.sh "${BOM_IMAGE}" "${BOM_IMAGE_TAG}"
+
+# OpenShift 4.10 uses the 1.23 version of the IBM CCM.
+export BOM_FILE_NAME="openshift-target-bom-4.10.yml"
+
+echo "Updating BOM ${BOM_FILE_NAME} image ${BOM_IMAGE} with new tag ${BOM_IMAGE_TAG} ..."
 armada-ansible/common/bom/tools/update-bom-image-tags.sh "${BOM_IMAGE}" "${BOM_IMAGE_TAG}"
