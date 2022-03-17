@@ -7,14 +7,14 @@ require (
 	github.com/IBM/vpc-go-sdk v0.17.0
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	gopkg.in/gcfg.v1 v1.2.3
 	k8s.io/api v0.24.0-alpha.3
 	k8s.io/apimachinery v0.24.0-alpha.3
 	k8s.io/client-go v0.24.0-alpha.3
 	k8s.io/cloud-provider v0.24.0-alpha.3
 	k8s.io/component-base v0.24.0-alpha.3
-	k8s.io/klog/v2 v2.40.1
+	k8s.io/klog/v2 v2.50.1
 )
 
 require (
