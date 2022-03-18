@@ -3,7 +3,7 @@ module cloud.ibm.com/cloud-provider-ibm
 go 1.17
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.9.2
+	github.com/IBM/go-sdk-core/v5 v5.9.3
 	github.com/IBM/vpc-go-sdk v0.17.0
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
@@ -14,7 +14,7 @@ require (
 	k8s.io/client-go v0.24.0-alpha.3
 	k8s.io/cloud-provider v0.24.0-alpha.3
 	k8s.io/component-base v0.24.0-alpha.3
-	k8s.io/klog/v2 v2.50.1
+	k8s.io/klog/v2 v2.60.0
 )
 
 require (
