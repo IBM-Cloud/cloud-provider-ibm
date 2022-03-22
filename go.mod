@@ -14,7 +14,7 @@ require (
 	k8s.io/client-go v0.24.0-alpha.3
 	k8s.io/cloud-provider v0.24.0-alpha.3
 	k8s.io/component-base v0.24.0-alpha.3
-	k8s.io/klog/v2 v2.60.0
+	k8s.io/klog/v2 v2.60.1
 )
 
 require (
