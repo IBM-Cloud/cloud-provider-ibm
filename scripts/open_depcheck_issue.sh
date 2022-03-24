@@ -27,7 +27,7 @@ if [ "${TRAVIS_ALLOW_FAILURE}" = "false" ] && [ "${TRAVIS_BRANCH}" = "release-1.
     -X POST \
     -H "Accept: application/vnd.github.v3+json" \
     -H "@ghe-auth.txt" \
-    "https://github.ibm.com:443/api/v3/repos/alchemy-containers/armada-update/issues" \
+    "https://github.ibm.com:443/api/v3/repos/alchemy-containers/armada-network/issues" \
     --data-binary @- << EOF
   {
     "title":"Travis build ${TRAVIS_REPO_SLUG}#${TRAVIS_BUILD_NUMBER} failed depcheck",
