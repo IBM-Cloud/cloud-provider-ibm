@@ -71,11 +71,11 @@ const (
 	lbNoIPsMessage                      = lbNoIPsBaseMessage + " Add a portable subnet to the cluster and try again."
 	lbPortableSubnetMessage             = lbNoIPsBaseMessage + " Resolve the following issues then add a portable subnet to the cluster: "
 	lbLiteClusterMessage                = "Clusters with one node must use services of type NodePort."
-	lbDocBaseURL                        = "https://cloud.ibm.com/"
-	lbDocDefaultNetworkURL              = lbDocBaseURL + "docs/containers?topic=containers-cs_troubleshoot_lb"
-	lbDocSupportedSchedulers            = lbDocBaseURL + "docs/containers?topic=containers-loadbalancer#scheduling"
-	lbDocReferenceMessage               = "See " + lbDocDefaultNetworkURL + " for details."
-	lbDocTroubleshootMessage            = "For more information read the troubleshooting cluster networking doc: " + lbDocDefaultNetworkURL
+	lbDocIKSNetworkURL                  = "https://ibm.biz/lb-debug"
+	lbDocROKSNetworkURL                 = "https://ibm.biz/oc-lb-debug"
+	lbDocSupportedSchedulers            = "https://ibm.biz/lbv2-scheduling"
+	lbDocReferenceMessage               = "See " + lbDocIKSNetworkURL + "(IKS) or " + lbDocROKSNetworkURL + " (Openshift) for more details."
+	lbDocTroubleshootMessage            = "For more information read the troubleshooting cluster networking doc: " + lbDocIKSNetworkURL + " (IKS) or " + lbDocROKSNetworkURL + " (Openshift)"
 	lbDocUnsupportedScheduler           = "For more information read the supported scheduler doc: " + lbDocSupportedSchedulers
 	lbUnsupportedScheduler              = "You have specified an unsupported scheduler: %s. Supported schedulers are: %s. " + lbDocUnsupportedScheduler
 	lbDefaultNoIPPortableSubnetErrorMsg = lbNoIPsMessage + " " + lbDocReferenceMessage

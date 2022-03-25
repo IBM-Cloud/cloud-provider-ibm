@@ -54,11 +54,14 @@ var (
 )
 
 func getLoadBalancerService(lbName string) *v1.Service {
-	s := &v1.Service{}
-	s.ObjectMeta.UID = types.UID(lbName)
-	s.ObjectMeta.Name = lbName
-	s.ObjectMeta.Namespace = lbDeploymentNamespace
-	s.ObjectMeta.SelfLink = "/apis/apps/v1/namespaces/" + lbDeploymentNamespace + "/services/" + lbName
+	s := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			UID:       types.UID(lbName),
+			Name:      lbName,
+			Namespace: lbDeploymentNamespace,
+			SelfLink:  "/apis/apps/v1/namespaces/" + lbDeploymentNamespace + "/services/" + lbName,
+		},
+	}
 	s.Annotations = map[string]string{}
 	s.Spec.Type = v1.ServiceTypeLoadBalancer
 	s.Status.LoadBalancer.Ingress = []v1.LoadBalancerIngress{{IP: "1.1.1.1"}}

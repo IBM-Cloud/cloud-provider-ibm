@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -126,7 +126,13 @@ func main() {
 	lb, _ = c.LoadBalancer()
 
 	clusterName := "test"
-	s = &v1.Service{}
+	s = &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      td.name,
+			Namespace: lbDeploymentNamespace,
+			SelfLink:  "/api/v1/namespaces/" + lbDeploymentNamespace + "/services/" + td.name,
+		},
+	}
 	if ibmCloud.Config.Prov.ProviderType != "gc" && ibmCloud.Config.Prov.ProviderType != "g2" {
 		// For classic LB, just use name as UID
 		s.ObjectMeta.UID = types.UID(td.name)
@@ -139,9 +145,6 @@ func main() {
 		s.ObjectMeta.UID = types.UID(lbUID)
 	}
 
-	s.ObjectMeta.Name = td.name
-	s.ObjectMeta.Namespace = lbDeploymentNamespace
-	s.ObjectMeta.SelfLink = "/api/v1/namespaces/" + s.ObjectMeta.Namespace + "/services/" + s.ObjectMeta.Name
 	s.Annotations = map[string]string{}
 
 	matchLabel := lbNameLabel + "=" + ibm.GetCloudProviderLoadBalancerName(s)
