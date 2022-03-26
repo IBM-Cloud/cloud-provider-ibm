@@ -232,13 +232,9 @@ runfvt: kubectlcli vpcctlcli
 push-images:
 	cd vagrant-kube-build/provisioning && ./push_image.sh ${ALT_REGISTRY} ${ALT_NAMESPACE} ibm-cloud-controller-manager
 
-.PHONY: travis-deploy
-travis-deploy:
-	scripts/travisDeploy.sh ${REGISTRY}/ibm-cloud-controller-manager ${BUILD_TAG} ${TAG}
-
-.PHONY: dev-deploy
-dev-deploy:
-	scripts/devDeploy.sh ${REGISTRY}/ibm-cloud-controller-manager ${BUILD_TAG}
+.PHONY: deploy
+deploy:
+	scripts/deploy.sh ${REGISTRY}/ibm-cloud-controller-manager ${BUILD_TAG}
 
 .PHONY: clean
 clean:
