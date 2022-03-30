@@ -43,6 +43,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes/fake"
 	core "k8s.io/client-go/testing"
+	"k8s.io/utils/pointer"
 )
 
 var (
@@ -3534,6 +3535,39 @@ func TestEnsureLoadBalancerDeleted(t *testing.T) {
 	result, err = c.KubeClient.CoreV1().ConfigMaps(lbDeploymentNamespace).Get(context.TODO(), cmName, metav1.GetOptions{})
 	if result != nil || err == nil {
 		t.Fatalf("Unexpected error in ensuring deleted load balancer 'testIPVSDeleteCM'. Configmap found: %v", cmName)
+	}
+}
+
+func TestFilterLoadBalancersFromServiceList(t *testing.T) {
+	c, _, _ := getTestCloud()
+
+	services, err := c.KubeClient.CoreV1().Services(v1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
+	if nil != err {
+		t.Fatalf("Failed to list load balancer services: %v", err)
+	}
+
+	num := len(services.Items)
+	expectedNum := 12 // Count every service
+	if expectedNum != num {
+		t.Fatalf("The number of services: %v is not equal with the expected value: %v", num, expectedNum)
+	}
+
+	filterLoadBalancersFromServiceList(services)
+	num = len(services.Items)
+	expectedNum = 11 // Count of load balanacer services
+	if expectedNum != num {
+		t.Fatalf("The number of services: %v is not equal with the expected value: %v", num, expectedNum)
+	}
+
+	// Choose two "random" load balancers (4th and 9th) and set their load balancer class
+	// Filter out these load balancer services
+	services.Items[4].Spec.LoadBalancerClass = pointer.String("dummylb.io")
+	services.Items[9].Spec.LoadBalancerClass = pointer.String("dummylb.io")
+	filterLoadBalancersFromServiceList(services)
+	num = len(services.Items)
+	expectedNum = 9 // Count of load balancer services without load balancer class
+	if expectedNum != num {
+		t.Fatalf("The number of services: %v is not equal with the expected value: %v", num, expectedNum)
 	}
 }
 
