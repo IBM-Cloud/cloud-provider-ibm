@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.9.5
-	github.com/IBM/vpc-go-sdk v0.17.0
+	github.com/IBM/vpc-go-sdk v0.18.0
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.1
@@ -15,6 +15,7 @@ require (
 	k8s.io/cloud-provider v0.24.0-alpha.4
 	k8s.io/component-base v0.24.0-alpha.4
 	k8s.io/klog/v2 v2.60.1
+	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
 )
 
 require (
@@ -112,7 +113,6 @@ require (
 	k8s.io/component-helpers v0.24.0-alpha.4 // indirect
 	k8s.io/controller-manager v0.24.0-alpha.4 // indirect
 	k8s.io/kube-openapi v0.0.0-20220316025549-ddc66922ab18 // indirect
-	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.30 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
