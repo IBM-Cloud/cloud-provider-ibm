@@ -48,6 +48,7 @@ OSS_FILES := go.mod
 GOLANGCI_LINT_VERSION := 1.40.1
 GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
+HUB_RLS ?= 2.14.2
 REGISTRY ?= armada-master
 TAG ?= v1.22.8
 VPCCTL_SOURCE=$(shell cat addons/vpcctl.yml | awk '/^source:/{print $$2}')
@@ -232,8 +233,25 @@ runfvt: kubectlcli vpcctlcli
 push-images:
 	cd vagrant-kube-build/provisioning && ./push_image.sh ${ALT_REGISTRY} ${ALT_NAMESPACE} ibm-cloud-controller-manager
 
+.PHONY: hub-install
+hub-install:
+ifdef ARTIFACTORY_API_KEY
+	@echo "installing hub"
+	@curl -H "X-JFrog-Art-Api:${ARTIFACTORY_API_KEY}" -OL "https://na.artifactory.swg-devops.com/artifactory/wcp-alchemy-containers-team-github-generic-remote/github/hub/releases/download/v$(HUB_RLS)/hub-linux-amd64-$(HUB_RLS).tgz" ; \
+	tar -xzvf hub-linux-amd64-$(HUB_RLS).tgz ; \
+	rm -f hub-linux-amd64-$(HUB_RLS).tgz ; \
+	cd hub-linux-amd64-$(HUB_RLS) ; \
+	sudo ./install ; \
+	cd ..; rm -rf hub-linux-amd64-$(HUB_RLS) ; \
+	git config --global --add hub.host github.ibm.com ; \
+	git config --global user.email "iksroch1@us.ibm.com" ; \
+	git config --global user.name "iksroch1"
+else
+	@echo "hub was not installed"
+endif
+
 .PHONY: deploy
-deploy:
+deploy: hub-install
 	scripts/deploy.sh ${REGISTRY}/ibm-cloud-controller-manager ${BUILD_TAG}
 
 .PHONY: clean
