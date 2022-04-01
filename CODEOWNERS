@@ -2,13 +2,4 @@
 # the repo. Unless a later match takes precedence, these
 # owners will be requested for review when someone opens a
 # pull request.
-* @rtheis @jmcmeek @jonesbr @shalver
-
-# Owners: Documentation and Testing
-/docs/ @rtheis @jmcmeek @jonesbr @shalver @behle @ctrath @jckasper @Adam-Mihelcsik
-/test-fixtures/ @rtheis @jmcmeek @jonesbr @shalver @behle @ctrath @jckasper @Adam-Mihelcsik
-/tests/ @rtheis @jmcmeek @jonesbr @shalver @behle @ctrath @jckasper @Adam-Mihelcsik
-
-# Owners: Load Balancers
-/addons/ @behle @ctrath @jckasper @Adam-Mihelcsik
-/ibm/*loadbalancer*.go @behle @ctrath @jckasper @Adam-Mihelcsik
+* @behle @ctrath @jckasper @Adam-Mihelcsik @Szabolcs-Szoke

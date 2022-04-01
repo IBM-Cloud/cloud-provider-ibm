@@ -71,11 +71,11 @@ const (
 	lbNoIPsMessage                      = lbNoIPsBaseMessage + " Add a portable subnet to the cluster and try again."
 	lbPortableSubnetMessage             = lbNoIPsBaseMessage + " Resolve the following issues then add a portable subnet to the cluster: "
 	lbLiteClusterMessage                = "Clusters with one node must use services of type NodePort."
-	lbDocBaseURL                        = "https://cloud.ibm.com/"
-	lbDocDefaultNetworkURL              = lbDocBaseURL + "docs/containers?topic=containers-cs_troubleshoot_lb"
-	lbDocSupportedSchedulers            = lbDocBaseURL + "docs/containers?topic=containers-loadbalancer#scheduling"
-	lbDocReferenceMessage               = "See " + lbDocDefaultNetworkURL + " for details."
-	lbDocTroubleshootMessage            = "For more information read the troubleshooting cluster networking doc: " + lbDocDefaultNetworkURL
+	lbDocIKSNetworkURL                  = "https://ibm.biz/lb-debug"
+	lbDocROKSNetworkURL                 = "https://ibm.biz/oc-lb-debug"
+	lbDocSupportedSchedulers            = "https://ibm.biz/lbv2-scheduling"
+	lbDocReferenceMessage               = "See " + lbDocIKSNetworkURL + "(IKS) or " + lbDocROKSNetworkURL + " (Openshift) for more details."
+	lbDocTroubleshootMessage            = "For more information read the troubleshooting cluster networking doc: " + lbDocIKSNetworkURL + " (IKS) or " + lbDocROKSNetworkURL + " (Openshift)"
 	lbDocUnsupportedScheduler           = "For more information read the supported scheduler doc: " + lbDocSupportedSchedulers
 	lbUnsupportedScheduler              = "You have specified an unsupported scheduler: %s. Supported schedulers are: %s. " + lbDocUnsupportedScheduler
 	lbDefaultNoIPPortableSubnetErrorMsg = lbNoIPsMessage + " " + lbDocReferenceMessage
@@ -2120,6 +2120,18 @@ func replicaSetHasDesiredReplicas(clientset clientset.Interface, replicaSet *app
 	}
 }
 
+// Filter the services list to just contain the load balancers without defined load balancer class and nothing else.
+func filterLoadBalancersFromServiceList(services *v1.ServiceList) {
+	var lbItems []v1.Service
+	for i := range services.Items {
+		if services.Items[i].Spec.Type == v1.ServiceTypeLoadBalancer &&
+			services.Items[i].Spec.LoadBalancerClass == nil {
+			lbItems = append(lbItems, services.Items[i])
+		}
+	}
+	services.Items = lbItems
+}
+
 // MonitorLoadBalancers monitors load balancer services to ensure that they
 // are working properly. This is a cloud task run via ticker.
 func MonitorLoadBalancers(c *Cloud, data map[string]string) {
@@ -2134,6 +2146,11 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 		return
 	}
 
+	// Filtering out the services which type is not load blancer and also filtering out
+	// the load blanacer services which has got defined load blancer class.
+	// The ServiceList struct was modified in place so there is no returning value
+	filterLoadBalancersFromServiceList(services)
+
 	// Invoke VPC specific logic if this is a VPC cluster
 	if isProviderVpc(c.Config.Prov.ProviderType) {
 		monitorVpcLoadBalancers(c, services, data, triggerEvent)
@@ -2146,8 +2163,7 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 	// be monitored since those actions will do the appropriate error
 	// handling and event generation.
 	for i := range services.Items {
-		if services.Items[i].Spec.Type == v1.ServiceTypeLoadBalancer &&
-			0 != len(services.Items[i].Status.LoadBalancer.Ingress) &&
+		if 0 != len(services.Items[i].Status.LoadBalancer.Ingress) &&
 			0 != len(services.Items[i].Status.LoadBalancer.Ingress[0].IP) {
 
 			lbName := GetCloudProviderLoadBalancerName(&services.Items[i])
