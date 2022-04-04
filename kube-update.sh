@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+# (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -37,7 +37,7 @@ if [[ -z "${K8S_UPDATE_VERSION}" ]]; then
         K8S_SHORT_VERSION=${K8S_CURRENT_VERSION%-*}
         # Looking up update version manually for updater cron job
         MAJOR_MINOR=${K8S_SHORT_VERSION%.*}
-        K8S_UPDATE_VERSION=$(curl https://api.github.com/repos/kubernetes/kubernetes/releases | jq -r .[].name | grep "$MAJOR_MINOR" | head -1  | sed 's/^Kubernetes //g')
+        K8S_UPDATE_VERSION=$(curl https://api.github.com/repos/kubernetes/kubernetes/releases | jq -r .[].name | grep "$MAJOR_MINOR" | head -1 | sed 's/^Kubernetes //g')
         MOD_VERSION=$(go mod download -json "k8s.io/api@kubernetes-${K8S_UPDATE_VERSION#v}" | jq -r .Version)
         if [[ -z "${K8S_UPDATE_VERSION}" ]]; then
             echo "FAIL: Failed to retrieve latest kubernetes version."
@@ -78,7 +78,7 @@ git -C "${K8S_DIRECTORY}" checkout "${K8S_UPDATE_VERSION}"
 K8S_GOLANG_UPDATE_VERSION=$(grep -A 1 "name: \"golang: upstream version" "${K8S_DIRECTORY}/build/dependencies.yaml" | grep "version:" | awk '{ print $2 }')
 
 # Update files based on Kubernetes and IBM release versions.
-ALL_FILES=$(find . \( -path ./.git -o -path ./kube-update.sh -o -path './go.*' \) -prune -o \( -type f -print \) )
+ALL_FILES=$(find . \( -path ./.git -o -path ./kube-update.sh -o -path './go.*' \) -prune -o \( -type f -print \))
 # shellcheck disable=SC2086
 FILES_TO_UPDATE_FOR_K8S_VERSION=$(grep -l -F "${K8S_CURRENT_VERSION}" $ALL_FILES)
 # shellcheck disable=SC2086
@@ -112,24 +112,8 @@ COMMIT_MESSAGE="Update from ${K8S_CURRENT_VERSION} to ${K8S_UPDATE_VERSION}"
 git checkout -b "${K8S_UPDATE_VERSION}-initial"
 git commit --no-verify -m "${COMMIT_MESSAGE}"
 if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then
-    # Setup hub to allow PR's
-    # User and token come from Travis environment variables
-    mkdir -p ~/.config
-    cat >~/.config/hub <<EOF
-github.ibm.com:
-- protocol: https
-  user: $GHE_USER
-  oauth_token: $GHE_TOKEN
-EOF
-
-    # Open pull request from travis cron job
-    curl -OL https://github.com/github/hub/releases/download/v2.14.2/hub-linux-amd64-2.14.2.tgz
-    tar -xzvf hub-linux-amd64-2.14.2.tgz
-    rm -f hub-linux-amd64-2.14.2.tgz
-    cd hub-linux-amd64-2.14.2
-    sudo ./install
-    git config --global --add hub.host github.ibm.com
-
+    make hub-install
+    export GITHUB_TOKEN=${GHE_TOKEN}
     hub pull-request -b "${TRAVIS_BRANCH}" -m "${COMMIT_MESSAGE}" --push
 else
     # Otherwise push up branch for manual runs
