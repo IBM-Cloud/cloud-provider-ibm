@@ -59,7 +59,7 @@ for file in $bom_file_list; do
 done
 
 echo "Create new branch ..."
-git checkout -b "armdada-lb-${new_image_tag}"
+git checkout -b "armada-lb-${new_image_tag}"
 
 echo "Disaply changes for this PR..."
 git status
