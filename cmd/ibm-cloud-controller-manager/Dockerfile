@@ -44,6 +44,5 @@ ENV BUILD_SHA=${this_build_sha}
 
 WORKDIR /bin/
 ADD cmd/ibm-cloud-controller-manager/calicoctl /bin/
-ADD cmd/ibm-cloud-controller-manager/vpcctl /bin/
 ADD ibm-cloud-controller-manager /bin/
 ENTRYPOINT ["/bin/ibm-cloud-controller-manager"]

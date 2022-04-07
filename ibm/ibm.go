@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -26,6 +26,8 @@ import (
 
 	gcfg "gopkg.in/gcfg.v1"
 	"k8s.io/klog/v2"
+
+	"cloud.ibm.com/cloud-provider-vpc-controller/pkg/vpcctl"
 
 	"k8s.io/client-go/informers"
 	clientset "k8s.io/client-go/kubernetes"
@@ -94,6 +96,12 @@ type Provider struct {
 	// File containing VPC credentials. Required when configured to get node
 	// data from VPC.
 	G2Credentials string `gcfg:"g2Credentials"`
+	// Resource group name. Required when configured to get node
+	// data from VPC.
+	G2ResourceGroupName string `gcfg:"g2ResourceGroupName"`
+	// List of VPC subnet names. Required when configured to get node
+	// data from VPC.
+	G2VpcSubnetNames string `gcfg:"g2VpcSubnetNames"`
 }
 
 // CloudConfig is the ibm cloud provider config data.
@@ -164,6 +172,10 @@ func (c *Cloud) SetInformers(informerFactory informers.SharedInformerFactory) {
 	nodeInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		DeleteFunc: c.handleNodeDelete,
 	})
+
+	if c.isProviderVpc() {
+		vpcctl.SetInformers(informerFactory)
+	}
 }
 
 // getK8SConfig returns the k8s config for the first k8s config file found.

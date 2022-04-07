@@ -61,6 +61,7 @@ before_install:
 before_script:
   - if [[ ${TRAVIS_EVENT_TYPE} == cron && ${BUILD_JOB_NAME} == Default ]]; then ./kube-update.sh; make runanalyzedeps || true; travis_terminate 0; fi
   - make install-golangci-lint
+  - make vpcctl
 
 script:
   - make oss

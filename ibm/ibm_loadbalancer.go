@@ -1197,8 +1197,8 @@ func (c *Cloud) deleteCalicoIngressPolicy(service *v1.Service) error {
 // *v1.Service parameter as read-only and not modify it.
 func (c *Cloud) GetLoadBalancerName(ctx context.Context, clusterName string, service *v1.Service) string {
 	// For a VPC cluster, we use a slightly different load balancer name
-	if isProviderVpc(c.Config.Prov.ProviderType) {
-		return c.getVpcLoadBalancerName(service)
+	if c.isProviderVpc() {
+		return c.vpcGetLoadBalancerName(service)
 	}
 	return GetCloudProviderLoadBalancerName(service)
 }
@@ -1209,8 +1209,8 @@ func (c *Cloud) GetLoadBalancerName(ctx context.Context, clusterName string, ser
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (c *Cloud) GetLoadBalancer(ctx context.Context, clusterName string, service *v1.Service) (*v1.LoadBalancerStatus, bool, error) {
 	// Invoke VPC specific logic if this is a VPC cluster
-	if isProviderVpc(c.Config.Prov.ProviderType) {
-		return c.getVpcLoadBalancer(ctx, clusterName, service)
+	if c.isProviderVpc() {
+		return c.VpcGetLoadBalancer(ctx, clusterName, service)
 	}
 	lbName := GetCloudProviderLoadBalancerName(service)
 	klog.Infof("GetLoadBalancer(%v, %v)", lbName, clusterName)
@@ -1323,8 +1323,8 @@ func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, serv
 	}
 
 	// Invoke VPC specific logic if this is a VPC cluster
-	if isProviderVpc(c.Config.Prov.ProviderType) {
-		return c.ensureVpcLoadBalancer(ctx, clusterName, service, nodes)
+	if c.isProviderVpc() {
+		return c.VpcEnsureLoadBalancer(ctx, clusterName, service, nodes)
 	}
 
 	var lbLogName string
@@ -1908,8 +1908,8 @@ func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, serv
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (c *Cloud) UpdateLoadBalancer(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) error {
 	// Invoke VPC specific logic if this is a VPC cluster
-	if isProviderVpc(c.Config.Prov.ProviderType) {
-		return c.updateVpcLoadBalancer(ctx, clusterName, service, nodes)
+	if c.isProviderVpc() {
+		return c.VpcUpdateLoadBalancer(ctx, clusterName, service, nodes)
 	}
 	klog.Infof("UpdateLoadBalancer(%v, %v, %v)", clusterName, service, len(nodes))
 
@@ -1971,8 +1971,8 @@ func (c *Cloud) UpdateLoadBalancer(ctx context.Context, clusterName string, serv
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (c *Cloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName string, service *v1.Service) error {
 	// Invoke VPC specific logic if this is a VPC cluster
-	if isProviderVpc(c.Config.Prov.ProviderType) {
-		return c.ensureVpcLoadBalancerDeleted(ctx, clusterName, service)
+	if c.isProviderVpc() {
+		return c.VpcEnsureLoadBalancerDeleted(ctx, clusterName, service)
 	}
 	lbName := GetCloudProviderLoadBalancerName(service)
 	klog.Infof("EnsureLoadBalancerDeleted(%v, %v)", lbName, clusterName)
@@ -2152,8 +2152,8 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 	filterLoadBalancersFromServiceList(services)
 
 	// Invoke VPC specific logic if this is a VPC cluster
-	if isProviderVpc(c.Config.Prov.ProviderType) {
-		monitorVpcLoadBalancers(c, services, data, triggerEvent)
+	if c.isProviderVpc() {
+		c.VpcMonitorLoadBalancers(services, data)
 		return
 	}
 

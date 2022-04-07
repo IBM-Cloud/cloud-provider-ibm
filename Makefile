@@ -51,8 +51,6 @@ GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 HUB_RLS ?= 2.14.2
 REGISTRY ?= armada-master
 TAG ?= v1.24.0-beta.0
-VPCCTL_SOURCE=$(shell cat addons/vpcctl.yml | awk '/^source:/{print $$2}')
-VPCCTL_CHECKSUM=$(shell cat addons/vpcctl.yml | awk '/^checksum:/{print $$2}')
 
 NANCY_VERSION := 1.0.17
 
@@ -183,9 +181,8 @@ endif
 	sudo mv nancy /usr/local/bin/nancy
 
 .PHONY: containers
-containers: calicoctlcli vpcctlcli
+containers: calicoctlcli
 	cp /usr/local/bin/calicoctl cmd/ibm-cloud-controller-manager/calicoctl
-	cp /usr/local/bin/vpcctl cmd/ibm-cloud-controller-manager/vpcctl
 	docker -l debug build \
 		--build-arg IMAGE_SOURCE=${IMAGE_SOURCE} \
 		--build-arg this_build_id=${BUILD_ID} \
@@ -203,10 +200,14 @@ calicoctlcli:
 	sudo chmod 755 /usr/local/bin/calicoctl
 	sudo mkdir -p /etc/calico/ && sudo touch /etc/calico/calicoctl.cfg
 
-.PHONY: vpcctlcli
-vpcctlcli:
-	scripts/verify_file_md5.sh /usr/local/bin/vpcctl ${VPCCTL_SOURCE} ${VPCCTL_CHECKSUM}
-	sudo chmod 755 /usr/local/bin/vpcctl
+.PHONY: vpcctl
+vpcctl:
+ifdef ARTIFACTORY_API_KEY
+	@echo "Update go.mod to use alternate vpcctl library"
+	./scripts/updateVpcController.sh
+else
+	@echo "Use the existing vpcctl library"
+endif
 
 .PHONY: kubectlcli
 kubectlcli:
@@ -258,7 +259,6 @@ deploy: hub-install
 clean:
 	rm -f cover.out cover.html
 	rm -f cmd/ibm-cloud-controller-manager/calicoctl
-	rm -f cmd/ibm-cloud-controller-manager/vpcctl
 	rm -f ibm-cloud-controller-manager
 	rm -f tests/fvt/ibm_loadbalancer
 	rm -rf $(GOPATH)/src/k8s.io
