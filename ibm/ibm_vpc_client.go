@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -122,7 +122,7 @@ func (vpc *vpcClient) populateNodeMetadata(nodeName string, node *NodeMetadata) 
 
 	// Found the instance
 	if len(instances.Instances) == 1 {
-		node.InternalIP = *instances.Instances[0].PrimaryNetworkInterface.PrimaryIpv4Address
+		node.InternalIP = *instances.Instances[0].PrimaryNetworkInterface.PrimaryIP.Address
 		klog.Infof("***** InternalIP " + node.InternalIP)
 
 		node.WorkerID = *instances.Instances[0].ID
