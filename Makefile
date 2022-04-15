@@ -203,10 +203,10 @@ calicoctlcli:
 .PHONY: vpcctl
 vpcctl:
 ifdef ARTIFACTORY_API_KEY
-	@echo "Update go.mod to use alternate vpcctl library"
-	./scripts/updateVpcController.sh
+	@echo "Update pkg/vpcctl to use alternate vpcctl library"
+	./scripts/updatePackage.sh addons/vpcctl.yml
 else
-	@echo "Use the existing vpcctl library"
+	@echo "Use the existing pkg/vpcctl logic"
 endif
 
 .PHONY: kubectlcli

@@ -23,7 +23,7 @@ import (
 	"context"
 	"testing"
 
-	"cloud.ibm.com/cloud-provider-vpc-controller/pkg/vpcctl"
+	"cloud.ibm.com/cloud-provider-ibm/pkg/vpcctl"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

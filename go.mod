@@ -3,9 +3,10 @@ module cloud.ibm.com/cloud-provider-ibm
 go 1.18
 
 require (
-	cloud.ibm.com/cloud-provider-vpc-controller v0.6.0
 	github.com/IBM/go-sdk-core/v5 v5.9.5
+	github.com/IBM/platform-services-go-sdk v0.22.11
 	github.com/IBM/vpc-go-sdk v0.19.0
+	github.com/go-openapi/strfmt v0.21.2
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.1
@@ -21,7 +22,6 @@ require (
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
-	github.com/IBM/platform-services-go-sdk v0.22.11 // indirect
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
@@ -40,7 +40,6 @@ require (
 	github.com/go-openapi/errors v0.20.1 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
-	github.com/go-openapi/strfmt v0.21.2 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
@@ -125,5 +124,3 @@ replace github.com/coreos/etcd => github.com/coreos/etcd v3.3.25+incompatible
 
 // Use forked version of library with security fix cherry-picked
 replace github.com/dgrijalva/jwt-go v3.2.0+incompatible => github.com/form3tech-oss/jwt-go v3.2.1+incompatible
-
-replace cloud.ibm.com/cloud-provider-vpc-controller v0.6.0 => github.com/IBM-Cloud/cloud-provider-vpc-controller v0.6.0

@@ -16,5 +16,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ******************************************************************************
+
+# (Required) - the source github repo which will be used to retrieve GO files from
 source: github.ibm.com/alchemy-containers/armada-vpc-lb
+
+# (Required) - git release or branch name in the source github repo
 release: v0.6.0
+
+# (Required) - source directory in the github repo containing GO files
+source_dir: pkg/vpcctl
+
+# (Optional) - target directory in current repo where the GO files will be copied to
+#              if this field is not set, defaults to the same path as the source_dir
+target_dir:
+
+# (Optional) - grep search string which will be done before / after the sed commands are done on the GO logic
+grep_string: cloud.ibm.com/cloud-provider-
+
+# (Optional) - space separated list of sed commands to update the GO source files copied from source repo
+sed_commands: s/cloud-provider-vpc-controller/cloud-provider-ibm/
+
+# (Optional) - set to "true" if the local repo's go.mod needs to be updated / refreshed
+#              all other values are ignored and the local go.mod is not updated
+update_go_mod: true
+
+# (Optional) - set to "auto-detect" to adjust local go.mod with the contents of source repo's go.mod
+#              alternatively, a space separated list of go modules (format [module:version]) can be specified
+go_get_updates: auto-detect
+
+# (Required) - set to "false" to NOT create a PR for the GO files that were copied
+#              otherwise set to the branch the PR should be created for
+create_pr: false

@@ -25,8 +25,8 @@ import (
 	"os"
 	"strings"
 
-	"cloud.ibm.com/cloud-provider-vpc-controller/pkg/klog"
-	"cloud.ibm.com/cloud-provider-vpc-controller/pkg/vpcctl"
+	"cloud.ibm.com/cloud-provider-ibm/pkg/klog"
+	"cloud.ibm.com/cloud-provider-ibm/pkg/vpcctl"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/record"
 )
