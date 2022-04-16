@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.9.5
-	github.com/IBM/platform-services-go-sdk v0.22.11
+	github.com/IBM/platform-services-go-sdk v0.24.0
 	github.com/IBM/vpc-go-sdk v0.19.0
 	github.com/go-openapi/strfmt v0.21.2
 	github.com/spf13/cobra v1.4.0
@@ -96,7 +96,7 @@ require (
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
+	golang.org/x/sys v0.0.0-20220330033206-e17cdc41300f // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
