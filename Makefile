@@ -41,7 +41,7 @@ GOFILES=$(shell find . -type f -name '*.go' -not -path "./test-fixtures/*")
 SHFILES=$(shell find . -type f -name '*.sh' -not -path "./build-tools/*")
 AWKFILES=$(shell find . -type f -name '*.awk' -not -path "./build-tools/*")
 PYFILES=$(shell find . -type f -name '*.py' -not -path "./build-tools/*")
-YAML_FILES=$(shell find . -type f -name '*.y*ml' -not -path "./build-tools/*" -print | sort)
+YAML_FILES=$(shell find . -type f -name '*.y*ml' -not -path "./build-tools/*" -not -path "./travis-secret-metadata/*" -print | sort)
 INI_FILES=$(shell find . -type f -name '*.ini' -not -path "./build-tools/*")
 OSS_FILES := go.mod
 
