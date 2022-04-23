@@ -1,0 +1,9 @@
+teamName: armada-network
+teamLeadEmail: behle@us.ibm.com,adam.mihelcsik@ibm.com
+secretName: ALL_GLOBAL_GHE_API_KEY_20220420
+purposeOfSecret: |
+  iksroch1 owned key for accessing GHE
+emailOfPersonThatGenerated: adam.mihelcsik@ibm.com
+account: iksroch1@us.ibm.com
+additionalReference: key is rotated manually by login to github.ibm.com using iksroch1 account
+docLink: https://github.ibm.com/alchemy-containers/armada-network/issues/6322
