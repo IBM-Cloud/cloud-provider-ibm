@@ -19,7 +19,7 @@
 language: go
 
 go:
-  - 1.17.8
+  - 1.17.9
 
 dist: bionic
 
@@ -27,7 +27,7 @@ env:
   global:
     - IKS_PIPELINE_IAM_APIKEY="${ALL_GLOBAL_UPDATE_IKS_PIPELINE_IAM_APIKEY_20211116}"
     - registry_iam_api_key="${PROD_GLOBAL_UPDATE_ARMADA_UPDATE_BUILD_REGISTRY_API_KEY_20210423}"
-    - GHE_TOKEN="${ALL_GLOBAL_UPDATE_IKSROCH1_GHE_TOKEN_20210520}"
+    - GHE_TOKEN="${ALL_GLOBAL_GHE_API_KEY_20220420}"
     - TRAVIS_HOSTNAME="travis.ibm.com"
     - ARTIFACTORY_API_KEY_FILE="/tmp/.artifactory-api-key"
     - ARTIFACTORY_AUTH_HEADER_FILE="/tmp/.artifactory-auth-header"
@@ -86,12 +86,12 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      condition: ${TRAVIS_TAG} == v1.23.5-* && ${BUILD_JOB_NAME} == Default
-      go: 1.17.8
+      condition: ${TRAVIS_TAG} == v1.23.6-* && ${BUILD_JOB_NAME} == Default
+      go: 1.17.9
   - provider: script
     script: BUILD_TAG=${TRAVIS_TAG} make deploy
     skip_cleanup: true
     on:
       tags: true
-      go: 1.17.8
+      go: 1.17.9
       condition: ${TRAVIS_TAG} == dev-* && ${BUILD_JOB_NAME} == Default
