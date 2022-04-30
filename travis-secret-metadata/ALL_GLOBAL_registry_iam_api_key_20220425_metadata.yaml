@@ -1,0 +1,15 @@
+teamName: armada-network
+teamLeadEmail: behle@us.ibm.com,adam.mihelcsik@ibm.com
+secretName: ALL_GLOBAL_registry_iam_api_key_20220425
+purposeOfSecret: |
+  armada-master/armada registry namespace read/write key for pushing images built in this repos build process
+emailOfPersonThatGenerated: chriskim@au1.ibm.com
+account: ServiceId-a1c100f1-e2e6-4d83-b6d1-ab3cbff9a809
+additionalReference: |
+  serviceId: "ServiceId-a1c100f1-e2e6-4d83-b6d1-ab3cbff9a809"
+  serviceName: "iks-armada-master-registry-access-20210422"
+  apikeyId: "ApiKey-06d5eea8-975d-49ce-9bca-2de20a404aba"
+  apikeyName: "armada-network-build-registry-20220426"
+  apikeyDesc: "Used to push images to registries in all regions during travis razee builds"
+  apikeyCreatedAt: "2022-04-26T05:56+0000"
+docLink: https://github.ibm.com/alchemy-containers/secret-rotate-metadata/issues/5816

@@ -26,7 +26,7 @@ dist: bionic
 env:
   global:
     - IKS_PIPELINE_IAM_APIKEY="${ALL_GLOBAL_UPDATE_IKS_PIPELINE_IAM_APIKEY_20211116}"
-    - registry_iam_api_key="${PROD_GLOBAL_UPDATE_ARMADA_UPDATE_BUILD_REGISTRY_API_KEY_20210423}"
+    - registry_iam_api_key="${ALL_GLOBAL_registry_iam_api_key_20220425}"
     - GHE_TOKEN="${ALL_GLOBAL_GHE_API_KEY_20220420}"
     - TRAVIS_HOSTNAME="travis.ibm.com"
     - ARTIFACTORY_API_KEY_FILE="/tmp/.artifactory-api-key"
