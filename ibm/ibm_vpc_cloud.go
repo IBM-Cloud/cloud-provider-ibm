@@ -31,6 +31,16 @@ import (
 	"k8s.io/client-go/tools/record"
 )
 
+// envVarPublicEndPoint is an environmental variable used to select public service endpoint
+// Accepted value is "true", if any other value is set, it will be ignored.
+const envVarPublicEndPoint = "ENABLE_VPC_PUBLIC_ENDPOINT"
+
+// shouldPrivateEndpointBeEnabled - Determine if private service endpoint should be enabled
+func shouldPrivateEndpointBeEnabled() bool {
+	// If ENABLE_VPC_PUBLIC_ENDPOINT env variable is set to true, do not use private endpoints so return false
+	return strings.ToLower(os.Getenv(envVarPublicEndPoint)) != "true"
+}
+
 // GetCloudVpc - Retrieve the VPC cloud object.  Return nil if not initialized.
 func (c *Cloud) GetCloudVpc() *vpcctl.CloudVpc {
 	return vpcctl.GetCloudVpc()
@@ -100,7 +110,7 @@ func (c *Cloud) VpcEnsureLoadBalancer(ctx context.Context, clusterName string, s
 		klog.Errorf(errString)
 		return nil, fmt.Errorf(errString)
 	}
-	vpc, err := c.InitCloudVpc(true)
+	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
 		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
 		klog.Errorf(errString)
@@ -115,7 +125,7 @@ func (c *Cloud) VpcEnsureLoadBalancer(ctx context.Context, clusterName string, s
 func (c *Cloud) VpcEnsureLoadBalancerDeleted(ctx context.Context, clusterName string, service *v1.Service) error {
 	lbName := c.vpcGetLoadBalancerName(service)
 	klog.Infof("EnsureLoadBalancerDeleted(lbName:%v, Service:{%v})", lbName, c.vpcGetServiceDetails(service))
-	vpc, err := c.InitCloudVpc(true)
+	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
 		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
 		klog.Errorf(errString)
@@ -130,7 +140,7 @@ func (c *Cloud) VpcEnsureLoadBalancerDeleted(ctx context.Context, clusterName st
 func (c *Cloud) VpcGetLoadBalancer(ctx context.Context, clusterName string, service *v1.Service) (*v1.LoadBalancerStatus, bool, error) {
 	lbName := c.vpcGetLoadBalancerName(service)
 	klog.Infof("GetLoadBalancer(lbName:%v, Service:{%v})", lbName, c.vpcGetServiceDetails(service))
-	vpc, err := c.InitCloudVpc(true)
+	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
 		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
 		klog.Errorf(errString)
@@ -191,7 +201,7 @@ func (c *Cloud) VpcMonitorLoadBalancers(services *v1.ServiceList, status map[str
 		klog.Infof("No Load Balancers to monitor, returning")
 		return
 	}
-	vpc, err := c.InitCloudVpc(true)
+	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
 		klog.Errorf("Failed initializing VPC: %v", err)
 		return
@@ -208,7 +218,7 @@ func (c *Cloud) VpcUpdateLoadBalancer(ctx context.Context, clusterName string, s
 		klog.Errorf(errString)
 		return fmt.Errorf(errString)
 	}
-	vpc, err := c.InitCloudVpc(true)
+	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
 		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
 		klog.Errorf(errString)

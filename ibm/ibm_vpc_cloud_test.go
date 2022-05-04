@@ -21,6 +21,7 @@ package ibm
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"cloud.ibm.com/cloud-provider-ibm/pkg/vpcctl"
@@ -35,9 +36,18 @@ const (
 	clusterName = "clusterName"
 )
 
+func TestShouldPrivateEndpointBeEnabled(t *testing.T) {
+	result := shouldPrivateEndpointBeEnabled()
+	assert.True(t, result)
+	os.Setenv(envVarPublicEndPoint, "true")
+	defer os.Unsetenv(envVarPublicEndPoint)
+	result = shouldPrivateEndpointBeEnabled()
+	assert.False(t, result)
+}
+
 func TestCloud_InitCloudVpc(t *testing.T) {
 	c := Cloud{Config: &CloudConfig{Prov: Provider{ClusterID: cluster}}, KubeClient: fake.NewSimpleClientset()}
-	v, err := c.InitCloudVpc(true)
+	v, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	assert.Nil(t, v)
 	assert.NotNil(t, err)
 }

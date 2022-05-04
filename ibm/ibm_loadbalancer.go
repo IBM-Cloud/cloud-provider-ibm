@@ -31,6 +31,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -500,8 +501,21 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 	}
 
 	if 1 == len(lbDeployment.Spec.Template.Spec.Containers) {
-		// Update the load balancer deployment if a new image is available.
-		if 0 != strings.Compare(c.Config.LBDeployment.Image, lbDeployment.Spec.Template.Spec.Containers[0].Image) {
+		updateImage := false
+		lbDeploymentImageList := strings.Split(lbDeployment.Spec.Template.Spec.Containers[0].Image, ":")
+		configImageList := strings.Split(c.Config.LBDeployment.Image, ":")
+		// Update the load balancer deployment Container if a latest image is available.
+		if len(lbDeploymentImageList) > 1 && len(configImageList) > 1 {
+			lbDeploymentImageValue, _ := strconv.Atoi(lbDeploymentImageList[1])
+			configImageValue, _ := strconv.Atoi(configImageList[1])
+			if lbDeploymentImageValue < configImageValue {
+				updateImage = true
+			}
+		} else if c.Config.LBDeployment.Image != lbDeployment.Spec.Template.Spec.Containers[0].Image {
+			updateImage = true
+		}
+		if updateImage {
+			klog.Infof("Updating LB deployment container image to %v", c.Config.LBDeployment.Image)
 			updatesRequired = append(updatesRequired, "Image")
 			// Always use the new image.
 			lbDeployment.Spec.Template.Spec.Containers[0].Image = c.Config.LBDeployment.Image
@@ -560,9 +574,22 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 			},
 		}
 	} else {
+		updateInitImage := false
+		lbDeploymentInitImageList := strings.Split(lbDeployment.Spec.Template.Spec.InitContainers[0].Image, ":")
+		configImageList := strings.Split(c.Config.LBDeployment.Image, ":")
 		// The initContainer exists. Update the load balancer deployment initContainer if a new image is available.
-		klog.Infof("Updating initContainer image for %v", lbDeployment.Name)
-		if 0 != strings.Compare(c.Config.LBDeployment.Image, lbDeployment.Spec.Template.Spec.InitContainers[0].Image) {
+		if len(lbDeploymentInitImageList) > 1 && len(configImageList) > 1 {
+			lbDeploymentInitImageValue, _ := strconv.Atoi(lbDeploymentInitImageList[1])
+			configImageValue, _ := strconv.Atoi(configImageList[1])
+			if lbDeploymentInitImageValue < configImageValue {
+				updateInitImage = true
+			}
+		} else if c.Config.LBDeployment.Image != lbDeployment.Spec.Template.Spec.InitContainers[0].Image {
+			updateInitImage = true
+		}
+
+		if updateInitImage {
+			klog.Infof("Updating LB deployment Initcontainer image to %v", c.Config.LBDeployment.Image)
 			updatesRequired = append(updatesRequired, "InitContainer-New-Image")
 			// Always use the new image.
 			lbDeployment.Spec.Template.Spec.InitContainers[0].Image = c.Config.LBDeployment.Image
