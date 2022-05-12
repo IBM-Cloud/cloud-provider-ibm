@@ -232,6 +232,37 @@ func TestNodeAddressesCCM(t *testing.T) {
 		t.Fatalf("Unexpected provider node addresses: %v", nodeAddresses)
 	}
 
+	// testing getting node with neither internal or external IP set
+	metadata = NodeMetadata{
+		WorkerID:      "testworkerid",
+		InstanceType:  "testmachinetype",
+		FailureDomain: "testfailuredomain",
+		Region:        "testregion",
+	}
+	expectedNodeAddresses = []v1.NodeAddress{}
+	labels = map[string]string{
+		"ibm-cloud.kubernetes.io/internal-ip":  metadata.InternalIP,
+		"ibm-cloud.kubernetes.io/zone":         metadata.FailureDomain,
+		"ibm-cloud.kubernetes.io/region":       metadata.Region,
+		"ibm-cloud.kubernetes.io/worker-id":    metadata.WorkerID,
+		"ibm-cloud.kubernetes.io/machine-type": metadata.InstanceType,
+	}
+	k8snode3 := v1.Node{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   "testnode3",
+			Labels: labels},
+	}
+	_, err = fakeclient.CoreV1().Nodes().Create(context.TODO(), &k8snode3, metav1.CreateOptions{})
+	if nil != err {
+		t.Fatalf("Failed to create Node testnode2: %v", err)
+	}
+	nodeAddresses, err = i.NodeAddresses(context.Background(), "testnode3")
+	if nil != err {
+		t.Fatalf("Failed to get node addresses")
+	}
+	if !reflect.DeepEqual(expectedNodeAddresses, nodeAddresses) {
+		t.Fatalf("Unexpected provider node addresses: %v", nodeAddresses)
+	}
 }
 
 func TestNodeAddressesByProviderID(t *testing.T) {
@@ -559,5 +590,26 @@ func TestInstanceMetadata(t *testing.T) {
 	}
 	if metadata.Region != expectedMetadata.Region {
 		t.Fatalf("Region set to incorrect value of %s", metadata.Region)
+	}
+
+	labels["ibm-cloud.kubernetes.io/internal-ip"] = ""
+	labels["ibm-cloud.kubernetes.io/external-ip"] = ""
+	k8snode2 := v1.Node{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   "testnode2",
+			Labels: labels},
+	}
+
+	// testing getting valid node
+	_, err = fakeclient.CoreV1().Nodes().Create(context.TODO(), &k8snode2, metav1.CreateOptions{})
+	if nil != err {
+		t.Fatalf("Failed to create Node testnode: %v", err)
+	}
+	metadata, err = i.InstanceMetadata(context.Background(), &k8snode2)
+	if nil != err {
+		t.Fatalf("Failed to get InstanceID")
+	}
+	if len(metadata.NodeAddresses) != 0 {
+		t.Fatalf("NodeAddress set to incorrect value of %x", metadata.NodeAddresses)
 	}
 }
