@@ -89,6 +89,7 @@ if [ "${UPDATE_GO_MOD}" == "true" ]; then
             echo "... module: $module   version: $version"
             if ! grep -q "$module" go.mod; then
                 echo "go get $module $version"
+                go get "${module}@${version}"
             fi
         done
     else
@@ -100,6 +101,7 @@ if [ "${UPDATE_GO_MOD}" == "true" ]; then
             echo "... module: $module   version: $version"
             if ! grep -q "$module" go.mod; then
                 echo "go get $module $version"
+                go get "${module}@${version}"
             fi
         done
     fi
