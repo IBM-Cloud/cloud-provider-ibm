@@ -22,7 +22,10 @@ if [ "${TRAVIS_ALLOW_FAILURE}" = "false" ] && [ "${TRAVIS_BRANCH}" = "release-1.
     set +x
     echo "Authorization: token ${GHE_TOKEN}" > ghe-auth.txt
   )
-
+  if [ "${BUILD_JOB_NAME}" = "No Artifactory" ]; then
+    exit 0
+  fi
+  
   curl \
     -X POST \
     -H "Accept: application/vnd.github.v3+json" \
@@ -30,8 +33,8 @@ if [ "${TRAVIS_ALLOW_FAILURE}" = "false" ] && [ "${TRAVIS_BRANCH}" = "release-1.
     "https://github.ibm.com:443/api/v3/repos/alchemy-containers/armada-network/issues" \
     --data-binary @- << EOF
   {
-    "title":"Travis build ${TRAVIS_REPO_SLUG}#${TRAVIS_BUILD_NUMBER} failed depcheck",
-    "labels":["security", "pipeline"],
+    "title":"Travis build ${TRAVIS_REPO_SLUG}#${TRAVIS_BUILD_NUMBER} failed depcheck - ${TRAVIS_BRANCH}",
+    "labels":["security", "pipeline", "ccm"],
     "body":"The Travis build @ ${TRAVIS_BUILD_WEB_URL} has a failed dependency check."
   }
 EOF
