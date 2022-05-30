@@ -3,7 +3,7 @@ module cloud.ibm.com/cloud-provider-ibm
 go 1.18
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.10.0
+	github.com/IBM/go-sdk-core/v5 v5.10.1
 	github.com/IBM/platform-services-go-sdk v0.25.1
 	github.com/IBM/vpc-go-sdk v0.19.0
 	github.com/go-openapi/strfmt v0.21.2
@@ -11,11 +11,11 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.1
 	gopkg.in/gcfg.v1 v1.2.3
-	k8s.io/api v0.24.0
-	k8s.io/apimachinery v0.24.0
-	k8s.io/client-go v0.24.0
-	k8s.io/cloud-provider v0.24.0
-	k8s.io/component-base v0.24.0
+	k8s.io/api v0.24.1
+	k8s.io/apimachinery v0.24.1
+	k8s.io/client-go v0.24.1
+	k8s.io/cloud-provider v0.24.1
+	k8s.io/component-base v0.24.1
 	k8s.io/klog/v2 v2.60.1
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
 )
@@ -54,7 +54,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.1 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -110,9 +110,9 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	k8s.io/apiserver v0.24.0 // indirect
-	k8s.io/component-helpers v0.24.0 // indirect
-	k8s.io/controller-manager v0.24.0 // indirect
+	k8s.io/apiserver v0.24.1 // indirect
+	k8s.io/component-helpers v0.24.1 // indirect
+	k8s.io/controller-manager v0.24.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220328201542-3ee0da9b0b42 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.30 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
