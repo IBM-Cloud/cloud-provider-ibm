@@ -50,11 +50,11 @@ GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
 HUB_RLS ?= 2.14.2
 REGISTRY ?= armada-master
-TAG ?= v1.22.9
+TAG ?= v1.22.10
 VPCCTL_SOURCE=$(shell cat addons/vpcctl.yml | awk '/^source:/{print $$2}')
 VPCCTL_CHECKSUM=$(shell cat addons/vpcctl.yml | awk '/^checksum:/{print $$2}')
 
-NANCY_VERSION := 1.0.17
+NANCY_VERSION := 1.0.35
 
 WORKSPACE=$(GOPATH)/src/k8s.io
 
@@ -170,7 +170,7 @@ fvttest:
 .PHONY: runanalyzedeps
 runanalyzedeps:
 	which nancy || $(MAKE) install-nancy-dep-scanner
-	if ! go list -json -m all | nancy sleuth; then scripts/open_depcheck_issue.sh; fi
+	go list -json -deps | nancy sleuth --no-color > nancy.log 2>&1; scripts/process_nancy_log.sh $$?
 
 .PHONY: install-nancy-dep-scanner
 install-nancy-dep-scanner:
