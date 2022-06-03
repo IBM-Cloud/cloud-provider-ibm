@@ -17,6 +17,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ******************************************************************************
+cat "${TRAVIS_BUILD_DIR}/nancy.log"
+echo "Exit code from calling nancy = [$1]"
+status=""
+if [ "$1" = "0" ]; then
+    echo "Nancy dependency check was successful"
+    status="ok"
+else
+    echo "Nancy dependency check failed"
+    status="failed"
+fi
 set -e
 if [ "${TRAVIS_ALLOW_FAILURE}" = "false" ] && [ "${TRAVIS_PULL_REQUEST_BRANCH}" = "" ] && [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
     # If build is without artifactory, then exit
@@ -25,34 +35,51 @@ if [ "${TRAVIS_ALLOW_FAILURE}" = "false" ] && [ "${TRAVIS_PULL_REQUEST_BRANCH}" 
     fi
 
     # Install hub if needed
-    if ! command -v "hub" >/dev/null; then
-        make hub-install
-    fi
+    which hub || make hub-install
     export GITHUB_TOKEN=${GHE_TOKEN}
 
     # Clone the armada-network repo
     git clone --depth=1 --single-branch "https://${GHE_USER}:${GHE_TOKEN}@github.ibm.com/alchemy-containers/armada-network.git"
     cd armada-network
 
-    # Create body for new issue
+    # Updating existing issue
+    {
+        echo "Travis build ${TRAVIS_BUILD_NUMBER}: ${TRAVIS_BUILD_WEB_URL}"
+        echo
+        echo '```'
+        tail -7 "${TRAVIS_BUILD_DIR}/nancy.log"
+        echo
+        grep "pkg:golang" "${TRAVIS_BUILD_DIR}/nancy.log" || true
+        echo '```'
+        echo
+    } >"${TRAVIS_BUILD_DIR}"/update-issue.txt
+    body=$(cat "${TRAVIS_BUILD_DIR}/update-issue.txt")
+
+    # Creating new issue
     {
         echo "Travis build of armada-lb failed depcheck (${TRAVIS_BRANCH})"
         echo
-        echo "Travis build ${TRAVIS_BUILD_NUMBER}: ${TRAVIS_BUILD_WEB_URL}"
+        cat "${TRAVIS_BUILD_DIR}"/update-issue.txt
         echo
-    } >"${TRAVIS_BUILD_DIR}"/message.txt
+    } >"${TRAVIS_BUILD_DIR}"/create-issue.txt
 
     # Grab list of all depcheck issues
     hub issue -l depcheck >issues.txt
 
-    # Create new issue or add comment to existing issue
+    # Create new issue or add comment/close existing issue
     if ! grep -q "${TRAVIS_BRANCH}" issues.txt; then
-        echo "Create new issue"
-        hub issue create --file "${TRAVIS_BUILD_DIR}"/message.txt --labels "ccm,depcheck,security,${TRAVIS_BRANCH}"
+        if [ "${status}" = "failed" ]; then
+            echo "Create new issue"
+            hub issue create --file "${TRAVIS_BUILD_DIR}"/create-issue.txt --labels "ccm,depcheck,security,${TRAVIS_BRANCH}"
+        fi
     else
         echo "Update existing issue"
         num=$(grep "${TRAVIS_BRANCH}" issues.txt | awk '{print $1 }' | tr -d '#')
-        hub api "repos/alchemy-containers/armada-network/issues/${num}/comments" --raw-field "body=Travis build ${TRAVIS_BUILD_NUMBER}: ${TRAVIS_BUILD_WEB_URL}"
+        hub api "repos/alchemy-containers/armada-network/issues/${num}/comments" --raw-field body="${body}"
+        if [ "${status}" = "ok" ]; then
+            echo "Close existing issue"
+            hub issue update "${num}" -s closed
+        fi
     fi
 
     # Remove the armada-network clone

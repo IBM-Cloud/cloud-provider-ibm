@@ -52,7 +52,7 @@ HUB_RLS ?= 2.14.2
 REGISTRY ?= armada-master
 TAG ?= v1.24.1
 
-NANCY_VERSION := 1.0.17
+NANCY_VERSION := 1.0.35
 
 WORKSPACE=$(GOPATH)/src/k8s.io
 
@@ -168,7 +168,7 @@ fvttest:
 .PHONY: runanalyzedeps
 runanalyzedeps:
 	which nancy || $(MAKE) install-nancy-dep-scanner
-	if ! go list -json -m all | nancy sleuth; then scripts/open_depcheck_issue.sh; fi
+	go list -json -deps | nancy sleuth --no-color > nancy.log 2>&1; scripts/process_nancy_log.sh $$?
 
 .PHONY: install-nancy-dep-scanner
 install-nancy-dep-scanner:
