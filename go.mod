@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/IBM/go-sdk-core/v5 v5.10.1
 	github.com/IBM/platform-services-go-sdk v0.25.2
-	github.com/IBM/vpc-go-sdk v0.19.0
+	github.com/IBM/vpc-go-sdk v0.20.0
 	github.com/go-openapi/strfmt v0.21.2
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
@@ -119,8 +119,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
-
-replace github.com/coreos/etcd => github.com/coreos/etcd v3.3.25+incompatible
-
-// Use forked version of library with security fix cherry-picked
-replace github.com/dgrijalva/jwt-go v3.2.0+incompatible => github.com/form3tech-oss/jwt-go v3.2.1+incompatible
