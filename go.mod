@@ -10,8 +10,10 @@ require (
 	github.com/google/uuid v1.1.5 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/prometheus/client_golang v1.11.1 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
+	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/gcfg.v1 v1.2.3
 	gopkg.in/warnings.v0 v0.1.2 // indirect
@@ -23,8 +25,3 @@ require (
 	k8s.io/klog/v2 v2.9.0
 	k8s.io/utils v0.0.0-20211116205334-6203023598ed
 )
-
-replace github.com/coreos/etcd => github.com/coreos/etcd v3.3.25+incompatible
-
-// Use forked version of library with security fix cherry-picked
-replace github.com/dgrijalva/jwt-go v3.2.0+incompatible => github.com/form3tech-oss/jwt-go v3.2.1+incompatible
