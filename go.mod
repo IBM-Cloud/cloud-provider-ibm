@@ -7,7 +7,7 @@ require (
 	github.com/IBM/vpc-go-sdk v0.20.0
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.7.3
 	gopkg.in/gcfg.v1 v1.2.3
 	k8s.io/api v0.23.8
 	k8s.io/apimachinery v0.23.8
