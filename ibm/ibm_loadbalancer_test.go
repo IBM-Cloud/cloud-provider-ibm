@@ -1986,6 +1986,55 @@ func TestGetLoadBalancer(t *testing.T) {
 	}
 }
 
+func TestEnsureLoadBalancerNodePortAllocation(t *testing.T) {
+	// Test for the case of not supporting "Disabling Loadbalancer NodePort allocation" in VPC clusters.
+	var err error
+	var status *v1.LoadBalancerStatus
+	const (
+		VPCCluster     = "VPCClusterID"
+		VPCClusterName = "VPCClusterName"
+	)
+
+	service := createTestLoadBalancerService("testLBNodePortDisable", "192.168.10.51", true, true)
+	lbNodePortAllocation := false
+	service.Spec.AllocateLoadBalancerNodePorts = &lbNodePortAllocation
+
+	c := Cloud{
+		Config:     &CloudConfig{Prov: Provider{ClusterID: VPCCluster, ProviderType: lbVpcNextGenProvider}},
+		KubeClient: fake.NewSimpleClientset(service),
+		Recorder:   NewCloudEventRecorderV1("ibm", fake.NewSimpleClientset().CoreV1().Events("")),
+	}
+
+	node1, node2, _, _ := createTestCloudNodes()
+	nodes := []*v1.Node{node1, node2}
+
+	// The service should not support "Disabling NodePort allocation" in VPC cluster and should return error.
+	status, err = c.EnsureLoadBalancer(context.Background(), VPCClusterName, service, nodes)
+
+	if status != nil || err == nil {
+		t.Fatalf("Unexpected error ensuring load balancer with disabling loadbalancer nodeport allocation: %v, %v", status, err)
+	}
+
+	// The service should be removed from the monitoring loadbalancer services list. Check the above loadbalancer service is removed from the list with unsupported configuration.
+	services, err := c.KubeClient.CoreV1().Services(v1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
+	if nil != err {
+		t.Fatalf("Failed to list load balancer services: %v", err)
+	}
+
+	num := len(services.Items)
+	expectedNum := 1 // Count of load balanacer services
+	if expectedNum != num {
+		t.Fatalf("The number of services: %v is not equal with the expected value: %v", num, expectedNum)
+	}
+
+	c.filterLoadBalancersFromServiceList(services)
+	num = len(services.Items)
+	expectedNum = 0 // Count of load balanacer services
+	if expectedNum != num {
+		t.Fatalf("The number of services: %v is not equal with the expected value: %v", num, expectedNum)
+	}
+}
+
 func TestEnsureLoadBalancer(t *testing.T) {
 	var err error
 	var status *v1.LoadBalancerStatus
@@ -3622,7 +3671,7 @@ func TestFilterLoadBalancersFromServiceList(t *testing.T) {
 		t.Fatalf("The number of services: %v is not equal with the expected value: %v", num, expectedNum)
 	}
 
-	filterLoadBalancersFromServiceList(services)
+	c.filterLoadBalancersFromServiceList(services)
 	num = len(services.Items)
 	expectedNum = 11 // Count of load balanacer services
 	if expectedNum != num {
@@ -3633,7 +3682,7 @@ func TestFilterLoadBalancersFromServiceList(t *testing.T) {
 	// Filter out these load balancer services
 	services.Items[4].Spec.LoadBalancerClass = pointer.String("dummylb.io")
 	services.Items[9].Spec.LoadBalancerClass = pointer.String("dummylb.io")
-	filterLoadBalancersFromServiceList(services)
+	c.filterLoadBalancersFromServiceList(services)
 	num = len(services.Items)
 	expectedNum = 9 // Count of load balancer services without load balancer class
 	if expectedNum != num {

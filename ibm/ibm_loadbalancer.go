@@ -1341,7 +1341,7 @@ func isUpdateSourceIPRequired(lbDeployment *apps.Deployment, service *v1.Service
 func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) (*v1.LoadBalancerStatus, error) {
 
 	// Verify that the load balancer service configuration is supported.
-	err := isServiceConfigurationSupported(service)
+	err := c.isServiceConfigurationSupported(service)
 	if err != nil {
 		return nil, c.Recorder.LoadBalancerServiceWarningEvent(
 			service, CreatingCloudLoadBalancerFailed,
@@ -2148,11 +2148,12 @@ func replicaSetHasDesiredReplicas(clientset clientset.Interface, replicaSet *app
 }
 
 // Filter the services list to just contain the load balancers without defined load balancer class and nothing else.
-func filterLoadBalancersFromServiceList(services *v1.ServiceList) {
+func (c *Cloud) filterLoadBalancersFromServiceList(services *v1.ServiceList) {
 	var lbItems []v1.Service
 	for i := range services.Items {
+		err := c.isServiceConfigurationSupported(&services.Items[i])
 		if services.Items[i].Spec.Type == v1.ServiceTypeLoadBalancer &&
-			services.Items[i].Spec.LoadBalancerClass == nil {
+			services.Items[i].Spec.LoadBalancerClass == nil && err == nil {
 			lbItems = append(lbItems, services.Items[i])
 		}
 	}
@@ -2176,7 +2177,7 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 	// Filtering out the services which type is not load blancer and also filtering out
 	// the load blanacer services which has got defined load blancer class.
 	// The ServiceList struct was modified in place so there is no returning value
-	filterLoadBalancersFromServiceList(services)
+	c.filterLoadBalancersFromServiceList(services)
 
 	// Invoke VPC specific logic if this is a VPC cluster
 	if c.isProviderVpc() {
@@ -2336,9 +2337,12 @@ func sliceContains(stringSlice []string, searchString string) bool {
 	return false
 }
 
-func isServiceConfigurationSupported(service *v1.Service) error {
+func (c *Cloud) isServiceConfigurationSupported(service *v1.Service) error {
 	var hasTCP bool
 	var hasUDP bool
+	if c.isProviderVpc() && service.Spec.AllocateLoadBalancerNodePorts != nil && !*service.Spec.AllocateLoadBalancerNodePorts {
+		return fmt.Errorf("NodePort allocation is required")
+	}
 
 	for _, port := range service.Spec.Ports {
 		switch port.Protocol {
