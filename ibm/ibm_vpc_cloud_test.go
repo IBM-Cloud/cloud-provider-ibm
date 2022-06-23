@@ -262,3 +262,20 @@ func TestCloud_VpcUpdateLoadBalancer(t *testing.T) {
 	err = cloud.VpcUpdateLoadBalancer(context.Background(), clusterName, service, []*v1.Node{node})
 	assert.Nil(t, err)
 }
+
+func TestCloud_WatchCloudCredential(t *testing.T) {
+	cloud := Cloud{
+		Config: &CloudConfig{Prov: Provider{ClusterID: "clusterID", ProviderType: vpcctl.VpcProviderTypeGen2}},
+	}
+
+	// WatchCloudCredential failed, no cloud credential file
+	err := cloud.WatchCloudCredential()
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "No cloud credential file to watch")
+
+	// WatchCloudCredential failed, cloud credential file does not exist
+	cloud.Config.Prov.G2Credentials = "/tmp/file_does_not_exist"
+	err = cloud.WatchCloudCredential()
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "no such file")
+}

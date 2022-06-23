@@ -25,6 +25,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/fsnotify/fsnotify"
+
 	"cloud.ibm.com/cloud-provider-ibm/pkg/klog"
 	"cloud.ibm.com/cloud-provider-ibm/pkg/vpcctl"
 	v1 "k8s.io/api/core/v1"
@@ -59,11 +61,11 @@ func (c *Cloud) InitCloudVpc(enablePrivateEndpoint bool) (*vpcctl.CloudVpc, erro
 		return nil, err
 	}
 	// Allocate a new VPC Cloud object and save it if successful
-	var recoder record.EventRecorder
+	var recorder record.EventRecorder
 	if c.Recorder != nil {
-		recoder = c.Recorder.Recorder
+		recorder = c.Recorder.Recorder
 	}
-	return vpcctl.NewCloudVpc(c.KubeClient, config, recoder)
+	return vpcctl.NewCloudVpc(c.KubeClient, config, recorder)
 }
 
 // isProviderVpc - Is the current cloud provider running in VPC environment?
@@ -92,11 +94,17 @@ func (c *Cloud) NewConfigVpc(enablePrivateEndpoint bool) (*vpcctl.ConfigVpc, err
 	}
 	// If the G2Credentials is set, then look up the API key
 	if c.Config.Prov.G2Credentials != "" {
-		apiKey, err := os.ReadFile(c.Config.Prov.G2Credentials)
+		klog.Infof("Reading cloud credential from: %v", c.Config.Prov.G2Credentials)
+		fileData, err := os.ReadFile(c.Config.Prov.G2Credentials)
 		if err != nil {
 			return nil, fmt.Errorf("Failed to read credentials from %s: %v", c.Config.Prov.G2Credentials, err)
 		}
-		config.APIKeySecret = strings.TrimSpace(string(apiKey))
+		config.APIKeySecret = strings.TrimSpace(string(fileData))
+		// If there are spaces in the API key, then reset it
+		if strings.Contains(config.APIKeySecret, " ") {
+			klog.Infof("API key read from file is not valid: [%v]", config.APIKeySecret)
+			config.APIKeySecret = ""
+		}
 	}
 	return config, nil
 }
@@ -226,4 +234,47 @@ func (c *Cloud) VpcUpdateLoadBalancer(ctx context.Context, clusterName string, s
 	}
 	// Update the VPC load balancer
 	return vpc.EnsureLoadBalancerUpdated(lbName, service, nodes)
+}
+
+// WatchCloudCredential watches for changes to the cloud credentials and resets the VPC settings
+func (c *Cloud) WatchCloudCredential() error {
+	if c.Config.Prov.G2Credentials == "" {
+		return fmt.Errorf("No cloud credential file to watch")
+	}
+	klog.Infof("Watch the cloud credential file: %v", c.Config.Prov.G2Credentials)
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return fmt.Errorf("Failed to create watcher for cloud credential file: %v", err)
+	}
+	// Go function to handle updates
+	go func() {
+		for {
+			select {
+			case event := <-watcher.Events:
+				klog.Infof("Credential watch event: %v", event)
+				// Write event == file was updated. Don't care about other events
+				if event.Op&fsnotify.Write == fsnotify.Write {
+					fileData, err := os.ReadFile(c.Config.Prov.G2Credentials)
+					if err != nil {
+						klog.Warningf("Failed to read credentials from %s: %v", c.Config.Prov.G2Credentials, err)
+					} else if cred := strings.TrimSpace(string(fileData)); strings.Contains(cred, " ") {
+						klog.Infof("Cloud credential is not valid: [%s]", cred)
+					} else {
+						klog.Infof("Reset the cloud credentials")
+						vpcctl.ResetCloudVpc()
+						if c.Metadata != nil && c.Metadata.vpcClient != nil {
+							c.Metadata.vpcClient = nil
+						}
+					}
+				}
+			case err := <-watcher.Errors:
+				klog.Infof("Credential watch error: %v", err)
+			}
+		}
+	}()
+	err = watcher.Add(c.Config.Prov.G2Credentials)
+	if err != nil {
+		return fmt.Errorf("Failed to add credential file to watch: %v", err)
+	}
+	return nil
 }
