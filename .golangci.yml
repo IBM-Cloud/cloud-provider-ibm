@@ -1,6 +1,6 @@
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2021 All Rights Reserved.
+# (C) Copyright IBM Corp. 2022 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -19,7 +19,6 @@
 linters:
   disable-all: true
   enable:
-    - golint
     - gofmt
     - gosec
     - gosimple
@@ -28,7 +27,6 @@ linters:
     - govet
     - misspell
     - varcheck
-    - structcheck
     - ineffassign
     - deadcode
     - gocritic

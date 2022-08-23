@@ -46,10 +46,12 @@ if [ "${TRAVIS_ALLOW_FAILURE}" = "false" ] && [ "${TRAVIS_PULL_REQUEST_BRANCH}" 
     {
         echo "Travis build ${TRAVIS_BUILD_NUMBER}: ${TRAVIS_BUILD_WEB_URL}"
         echo
+        # shellcheck disable=SC2016
         echo '```'
         tail -7 "${TRAVIS_BUILD_DIR}/nancy.log"
         echo
         grep "pkg:golang" "${TRAVIS_BUILD_DIR}/nancy.log" || true
+        # shellcheck disable=SC2016
         echo '```'
         echo
     } >"${TRAVIS_BUILD_DIR}"/update-issue.txt
@@ -83,6 +85,6 @@ if [ "${TRAVIS_ALLOW_FAILURE}" = "false" ] && [ "${TRAVIS_PULL_REQUEST_BRANCH}" 
     fi
 
     # Remove the armada-network clone
-    cd ..
+    cd "${TRAVIS_BUILD_DIR}"
     rm -rf armada-network
 fi

@@ -37,6 +37,11 @@ if [[ -z "${K8S_UPDATE_VERSION}" ]]; then
         K8S_SHORT_VERSION=${K8S_CURRENT_VERSION%-*}
         # Looking up update version manually for updater cron job
         MAJOR_MINOR=${K8S_SHORT_VERSION%.*}
+        # Verify TAG from Makefile matches git branch (first cron run on new release)
+        BRANCH_MAJOR_MINOR="v${TRAVIS_BRANCH#"release-"}"
+        if [[ "${MAJOR_MINOR}" != "${BRANCH_MAJOR_MINOR}" ]]; then
+            MAJOR_MINOR=${BRANCH_MAJOR_MINOR}
+        fi
         K8S_UPDATE_VERSION=$(curl https://api.github.com/repos/kubernetes/kubernetes/releases | jq -r .[].name | grep "$MAJOR_MINOR" | head -1 | sed 's/^Kubernetes //g')
         MOD_VERSION=$(go mod download -json "k8s.io/api@kubernetes-${K8S_UPDATE_VERSION#v}" | jq -r .Version)
         if [[ -z "${K8S_UPDATE_VERSION}" ]]; then
@@ -58,10 +63,6 @@ if [[ -z "${K8S_UPDATE_VERSION}" ]]; then
     fi
 fi
 
-# Get the IBM current and update versions based on the Kubernetes versions.
-IBM_CURRENT_VERSION=$(echo "${K8S_CURRENT_VERSION}" | cut -c 2- | awk -F. '{ print "release-"$1"."$2 }')
-IBM_UPDATE_VERSION=$(echo "${K8S_UPDATE_VERSION}" | cut -c 2- | awk -F. '{ print "release-"$1"."$2 }')
-
 echo "INFO: Starting Kubernetes update from version ${K8S_CURRENT_VERSION} to ${K8S_UPDATE_VERSION} ..."
 make clean
 
@@ -81,17 +82,10 @@ K8S_GOLANG_UPDATE_VERSION=$(grep -A 1 "name: \"golang: upstream version" "${K8S_
 ALL_FILES=$(find . \( -path ./.git -o -path ./kube-update.sh -o -path './go.*' \) -prune -o \( -type f -print \))
 # shellcheck disable=SC2086
 FILES_TO_UPDATE_FOR_K8S_VERSION=$(grep -l -F "${K8S_CURRENT_VERSION}" $ALL_FILES)
-# shellcheck disable=SC2086
-FILES_TO_UPDATE_FOR_IBM_VERSION=$(grep -l -F "${IBM_CURRENT_VERSION}" $ALL_FILES)
 for FILE_TO_UPDATE_FOR_K8S_VERSION in $FILES_TO_UPDATE_FOR_K8S_VERSION; do
     sed -i -e "s/${K8S_CURRENT_VERSION}/${K8S_UPDATE_VERSION}/g" "${FILE_TO_UPDATE_FOR_K8S_VERSION}"
     git add "${FILE_TO_UPDATE_FOR_K8S_VERSION}"
     echo "INFO: Updated Kubernetes version in ${FILE_TO_UPDATE_FOR_K8S_VERSION}"
-done
-for FILE_TO_UPDATE_FOR_IBM_VERSION in $FILES_TO_UPDATE_FOR_IBM_VERSION; do
-    sed -i -e "s/${IBM_CURRENT_VERSION}/${IBM_UPDATE_VERSION}/g" "${FILE_TO_UPDATE_FOR_IBM_VERSION}"
-    git add "${FILE_TO_UPDATE_FOR_IBM_VERSION}"
-    echo "INFO: Updated IBM version in ${FILE_TO_UPDATE_FOR_IBM_VERSION}"
 done
 
 if [[ "${K8S_GOLANG_CURRENT_VERSION}" != "${K8S_GOLANG_UPDATE_VERSION}" ]]; then

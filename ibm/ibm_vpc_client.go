@@ -38,6 +38,11 @@ type vpcClient struct {
 
 // newVpcSdkClient initializes a new sdk client and can be overridden by testing
 var newVpcSdkClient = func(provider Provider) (*vpcv1.VpcV1, error) {
+	// check id used to allocate worker nodes
+	if provider.AccountID != provider.G2WorkerServiceAccountID {
+		return nil, errors.New("Cluster nodes allocated under different account")
+	}
+
 	// read VPC credentials from mounted secret
 	credential, err := readCredential(provider)
 	if err != nil {
