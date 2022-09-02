@@ -87,7 +87,8 @@ var td testData
 /*
 ibm_loadbalancer tests the ibm cloud provider LoadBalancer CRUD operations
 by creating or deleting a "test" cloud load balancer based on its existence.
-    $ ./ibm_loadbalancer --logtostderr=true
+
+	$ ./ibm_loadbalancer --logtostderr=true
 */
 func main() {
 	var exist bool

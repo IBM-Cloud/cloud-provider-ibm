@@ -52,7 +52,6 @@ const (
 // Example: 9 node cluster, spread across 3 zones (A, B, and C), with 3 nodes in each zone. The service is updated with the "zone" annotation
 // which states only Zone-A should be allowed. The 6 pool members in the other zones need to be deleted from the pool. The 6 delete
 // operations (30 sec/each) would take roughly 3 minutes. A single REPLACE-POOL-MEMBERS would only take 30 seconds.
-//
 func (c *CloudVpc) checkForMultiplePoolMemberUpdates(updatesRequired []string) []string {
 	// Determine how many pool member updates are being done to each of the load balancer pools
 	poolUpdates := map[string]int{}

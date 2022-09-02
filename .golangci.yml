@@ -26,7 +26,5 @@ linters:
     - unused
     - govet
     - misspell
-    - varcheck
     - ineffassign
-    - deadcode
     - gocritic
