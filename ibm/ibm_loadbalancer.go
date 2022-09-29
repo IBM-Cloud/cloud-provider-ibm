@@ -2337,18 +2337,14 @@ func sliceContains(stringSlice []string, searchString string) bool {
 }
 
 func (c *Cloud) isServiceConfigurationSupported(service *v1.Service) error {
-	var hasTCP bool
-	var hasUDP bool
+
 	if c.isProviderVpc() && service.Spec.AllocateLoadBalancerNodePorts != nil && !*service.Spec.AllocateLoadBalancerNodePorts {
 		return fmt.Errorf("NodePort allocation is required")
 	}
 
 	for _, port := range service.Spec.Ports {
 		switch port.Protocol {
-		case v1.ProtocolTCP:
-			hasTCP = true
-		case v1.ProtocolUDP:
-			hasUDP = true
+		case v1.ProtocolTCP, v1.ProtocolUDP:
 		default:
 			return fmt.Errorf("%s protocol", port.Protocol)
 		}
@@ -2357,11 +2353,6 @@ func (c *Cloud) isServiceConfigurationSupported(service *v1.Service) error {
 			return fmt.Errorf("application protocol")
 		}
 	}
-
-	if hasTCP && hasUDP {
-		return fmt.Errorf("mixed protocol")
-	}
-
 	return nil
 }
 
