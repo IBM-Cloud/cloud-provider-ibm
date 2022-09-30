@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.10.2
-	github.com/IBM/vpc-go-sdk v0.25.0
+	github.com/IBM/vpc-go-sdk v0.26.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
