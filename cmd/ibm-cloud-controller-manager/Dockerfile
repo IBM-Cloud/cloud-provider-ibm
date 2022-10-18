@@ -24,7 +24,7 @@
 # distroless images, see https://github.com/GoogleContainerTools/distroless.
 # The Kubernetes version update process will keep this image up-to-date.
 ARG IMAGE_SOURCE=gcr.io
-FROM $IMAGE_SOURCE/distroless/static@sha256:380318dd91fd3bea73ae5fe1eb4d795ef7923f576e6f5f8d4de6ef1ea18ed540
+FROM $IMAGE_SOURCE/distroless/static@sha256:d8afc7d6973f357162e2283551cf3347b2bb847a03d24510ee837f289505f8e3
 
 # Add Labels to image to show build details
 ARG this_build_id=unknown
