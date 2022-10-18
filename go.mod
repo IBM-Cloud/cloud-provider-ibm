@@ -4,19 +4,19 @@ go 1.18
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.10.2
-	github.com/IBM/platform-services-go-sdk v0.28.5
-	github.com/IBM/vpc-go-sdk v0.26.0
-	github.com/fsnotify/fsnotify v1.5.4
+	github.com/IBM/platform-services-go-sdk v0.28.6
+	github.com/IBM/vpc-go-sdk v0.27.0
+	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-openapi/strfmt v0.21.3
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.0
 	gopkg.in/gcfg.v1 v1.2.3
-	k8s.io/api v0.24.6
-	k8s.io/apimachinery v0.24.6
-	k8s.io/client-go v0.24.6
-	k8s.io/cloud-provider v0.24.6
-	k8s.io/component-base v0.24.6
+	k8s.io/api v0.24.7
+	k8s.io/apimachinery v0.24.7
+	k8s.io/client-go v0.24.7
+	k8s.io/cloud-provider v0.24.7
+	k8s.io/component-base v0.24.7
 	k8s.io/klog/v2 v2.80.1
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
 )
@@ -95,9 +95,9 @@ require (
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
+	golang.org/x/sys v0.0.0-20220908164124-27713097b956 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/text v0.3.8 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220107163113-42d7afdf6368 // indirect
@@ -109,11 +109,11 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiserver v0.24.6 // indirect
-	k8s.io/component-helpers v0.24.6 // indirect
-	k8s.io/controller-manager v0.24.6 // indirect
+	k8s.io/apiserver v0.24.7 // indirect
+	k8s.io/component-helpers v0.24.7 // indirect
+	k8s.io/controller-manager v0.24.7 // indirect
 	k8s.io/kube-openapi v0.0.0-20220328201542-3ee0da9b0b42 // indirect
-	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.30 // indirect
+	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.33 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
