@@ -1,6 +1,6 @@
 module cloud.ibm.com/cloud-provider-ibm
 
-go 1.18
+go 1.19
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.10.2
@@ -18,7 +18,7 @@ require (
 	k8s.io/cloud-provider v0.26.0-alpha.2
 	k8s.io/component-base v0.26.0-alpha.2
 	k8s.io/klog/v2 v2.80.1
-	k8s.io/utils v0.0.0-20220922133306-665eaaec4324
+	k8s.io/utils v0.0.0-20221012122500-cfd413dd9e85
 )
 
 require (
