@@ -91,7 +91,7 @@ if [[ "${DOCKER_IMAGE_TAG}" = dev-* ]]; then
     } >"${TRAVIS_BUILD_DIR}"/message.txt
 else
     kube_branch="release-${kube_major}.${kube_minor}"
-    pr_option=""
+    pr_option="--labels pull-request-ready"
     {
         echo "Update ${image_name} to ${new_image_tag}"
         echo
