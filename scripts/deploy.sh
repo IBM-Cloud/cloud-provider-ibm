@@ -70,6 +70,7 @@ if [[ "${DOCKER_IMAGE_TAG}" = dev-* ]]; then
     dev_branch=${new_image_tag#"dev-"}
     dev_branch=${dev_branch%-*}
     pr_option="--draft"
+    pr_labels="DNM"
     echo "${DOCKER_IMAGE_TAG} is a dev image"
     {
         echo "DNM: Test BOM for ${image_name} - ${new_image_tag}"
@@ -91,7 +92,8 @@ if [[ "${DOCKER_IMAGE_TAG}" = dev-* ]]; then
     } >"${TRAVIS_BUILD_DIR}"/message.txt
 else
     kube_branch="release-${kube_major}.${kube_minor}"
-    pr_option="--labels pull-request-ready"
+    pr_option=""
+    pr_labels="pull-request-ready"
     {
         echo "Update ${image_name} to ${new_image_tag}"
         echo
@@ -109,4 +111,4 @@ git commit --file "${TRAVIS_BUILD_DIR}"/message.txt
 
 echo "Creating pull request..."
 export GITHUB_TOKEN=${GHE_TOKEN}
-hub pull-request --file "${TRAVIS_BUILD_DIR}"/message.txt --push "${pr_option}"
+hub pull-request --file "${TRAVIS_BUILD_DIR}"/message.txt --push "${pr_option}" --labels "${pr_labels}"
