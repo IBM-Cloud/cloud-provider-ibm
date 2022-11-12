@@ -2349,9 +2349,6 @@ func (c *Cloud) isServiceConfigurationSupported(service *v1.Service) error {
 			return fmt.Errorf("%s protocol", port.Protocol)
 		}
 
-		if port.AppProtocol != nil {
-			return fmt.Errorf("application protocol")
-		}
 	}
 	return nil
 }
