@@ -17,11 +17,11 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/gcfg.v1 v1.2.3
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	k8s.io/api v0.22.15
-	k8s.io/apimachinery v0.22.15
-	k8s.io/client-go v0.22.15
-	k8s.io/cloud-provider v0.22.15
-	k8s.io/component-base v0.22.15
+	k8s.io/api v0.22.16
+	k8s.io/apimachinery v0.22.16
+	k8s.io/client-go v0.22.16
+	k8s.io/cloud-provider v0.22.16
+	k8s.io/component-base v0.22.16
 	k8s.io/klog/v2 v2.9.0
 	k8s.io/utils v0.0.0-20211116205334-6203023598ed
 )
