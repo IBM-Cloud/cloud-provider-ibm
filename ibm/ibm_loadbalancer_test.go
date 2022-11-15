@@ -31,8 +31,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	scheduling "k8s.io/api/scheduling/v1"
@@ -71,6 +69,7 @@ func getLoadBalancerService(lbName string) *v1.Service {
 
 func getLoadBalancerMixedService(lbName string) *v1.Service {
 	s := getLoadBalancerService(lbName)
+	s.Spec.LoadBalancerIP = "192.168.10.54"
 	s.Spec.Ports = []v1.ServicePort{
 		{
 			Port:     80,
@@ -280,7 +279,7 @@ func createTestCloudProviderVlanIPConfigMaps() (*v1.ConfigMap, *v1.ConfigMap, *v
 			{"ip": "192.168.10.16", "subnet_id": "44", "vlan_id": "4", "is_public": true, "zone": "dal10"},
 			{"ip": "10.10.10.30", "subnet_id": "55", "vlan_id": "5", "is_public": false, "zone": "dal10"}],
 		"vlans":[
-			{"id": "1", "subnets":[{"id": "11", "ips": ["192.168.10.30", "192.168.10.31", "192.168.10.32", "192.168.10.33", "192.168.10.34", "192.168.10.35", "192.168.10.36", "192.168.10.37", "192.168.10.38", "192.168.10.39","192.168.10.50","192.168.10.51","192.168.10.52","192.168.10.53"], "is_public": true}], "zone": "dal09"},
+			{"id": "1", "subnets":[{"id": "11", "ips": ["192.168.10.30", "192.168.10.31", "192.168.10.32", "192.168.10.33", "192.168.10.34", "192.168.10.35", "192.168.10.36", "192.168.10.37", "192.168.10.38", "192.168.10.39","192.168.10.50","192.168.10.51","192.168.10.52","192.168.10.53","192.168.10.54", "192.168.10.55"], "is_public": true}], "zone": "dal09"},
 			{"id": "2", "subnets":[{"id": "22", "ips": ["10.10.10.21", "10.10.10.22"], "is_public": false}], "zone": "dal09"},
 			{"id": "3", "subnets":[{"id": "33", "ips": ["2001:db8::1"], "is_public": true}], "zone": "dal09"},
 			{"id": "4", "subnets":[{"id": "44", "ips": ["192.168.10.40", "192.168.10.41", "192.168.10.42", "192.168.10.43", "192.168.10.44", "192.168.10.45"], "is_public": true}], "zone": "dal10"},
@@ -1849,13 +1848,14 @@ func TestPopulateAvailableCloudProviderVlanIPConfig(t *testing.T) {
 
 	// Public, unreserved cloud provider VLAN IPs exist
 	expectedCloudProviderVLANs := map[string][]string{
-		"1": {"192.168.10.30", "192.168.10.31", "192.168.10.32", "192.168.10.33", "192.168.10.34", "192.168.10.35", "192.168.10.36", "192.168.10.37", "192.168.10.38", "192.168.10.39", "192.168.10.50", "192.168.10.51", "192.168.10.52", "192.168.10.53"},
+		"1": {"192.168.10.30", "192.168.10.31", "192.168.10.32", "192.168.10.33", "192.168.10.34", "192.168.10.35", "192.168.10.36", "192.168.10.37", "192.168.10.38", "192.168.10.39", "192.168.10.50", "192.168.10.51", "192.168.10.52", "192.168.10.53", "192.168.10.54", "192.168.10.55"},
 		"3": {"2001:db8::1"},
 		"4": {"192.168.10.40", "192.168.10.41", "192.168.10.42", "192.168.10.43", "192.168.10.44", "192.168.10.45"},
 	}
 	expectedCloudProviderIPs := map[string]string{
 		"192.168.10.30": "1", "192.168.10.31": "1", "192.168.10.32": "1", "192.168.10.33": "1", "192.168.10.34": "1", "192.168.10.35": "1", "192.168.10.36": "1", "192.168.10.37": "1", "192.168.10.38": "1", "192.168.10.39": "1",
-		"192.168.10.50": "1", "192.168.10.51": "1", "192.168.10.52": "1", "192.168.10.53": "1", "192.168.10.40": "4", "192.168.10.41": "4", "192.168.10.42": "4", "192.168.10.43": "4", "192.168.10.44": "4", "192.168.10.45": "4",
+		"192.168.10.50": "1", "192.168.10.51": "1", "192.168.10.52": "1", "192.168.10.53": "1", "192.168.10.54": "1", "192.168.10.55": "1", "192.168.10.40": "4", "192.168.10.41": "4", "192.168.10.42": "4", "192.168.10.43": "4",
+		"192.168.10.44": "4", "192.168.10.45": "4",
 	}
 	verifyPopulateAvailableCloudProviderVlanIPConfig(
 		t, c, PublicIP, UnreservedIP,
@@ -2149,12 +2149,10 @@ func TestEnsureLoadBalancer(t *testing.T) {
 		t.Fatalf("Unexpected error updating load balancer deployment keepalived Init container Image: %v", d.Spec.Template.Spec.Containers[0].Image)
 	}
 
-	// MixedProtocol (i.e. both TCP and UDP ports) is NOT supportd for now
+	// MixedProtocol (i.e. both TCP and UDP ports)
 	status, err = c.EnsureLoadBalancer(context.Background(), clusterName, getLoadBalancerMixedService("testMixed"), nil)
 	if nil == status && err != nil {
-		assert.Contains(t, err.Error(), "mixed protocol")
-	} else {
-		t.Fatalf("MixedProtocol did not return error")
+		t.Fatalf("Unexpected error while creating a LB with mixed protocol: %v, %v", status, err)
 	}
 
 	// Duplicate load balancers exist
@@ -2267,7 +2265,7 @@ func TestEnsureLoadBalancer(t *testing.T) {
 		t.Fatalf("Unexpected ensure load balancer 'sctp-protocol' created: %v, %v", status, err)
 	}
 
-	// Ensure application protocol load balancer fails
+	// Ensure application protocol load balancer passes
 	lbService = getLoadBalancerService("app-protocol")
 	lbService.Spec.Ports = []v1.ServicePort{{
 		Name:        "app",
@@ -2276,8 +2274,8 @@ func TestEnsureLoadBalancer(t *testing.T) {
 		AppProtocol: strPtr("https"),
 	}}
 	status, err = c.EnsureLoadBalancer(context.Background(), clusterName, lbService, nil)
-	if nil != status || nil == err {
-		t.Fatalf("Unexpected ensure load balancer 'app-protocol' created: %v, %v", status, err)
+	if nil == status || nil != err {
+		t.Fatalf("Unexpected error ensure load balancer 'app-protocol' created: %v, %v", status, err)
 	}
 
 	// Request IPVS LB service
