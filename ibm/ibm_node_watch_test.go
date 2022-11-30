@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -25,7 +25,6 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/fake"
 )
 
@@ -48,10 +47,9 @@ func TestNodeWatch(t *testing.T) {
 	c, k8sclient := getNodeWatchTestCloud()
 	var err error
 	var expectedInstanceID string
-	var instanceID string
 	var labels map[string]string
 	var nodeName string = "original-internal-ip"
-	expectedInstanceID = "testAccount///testCluster/original-worker-id"
+	expectedInstanceID = "ibm://testAccount///testCluster/original-worker-id"
 	labels = map[string]string{
 		"ibm-cloud.kubernetes.io/internal-ip":  nodeName,
 		"ibm-cloud.kubernetes.io/external-ip":  "test-external-ip",
@@ -69,18 +67,18 @@ func TestNodeWatch(t *testing.T) {
 	if nil != err {
 		t.Fatalf("Failed to create Node: %v", err)
 	}
-	instanceID, err = c.InstanceID(context.TODO(), types.NodeName(nodeName))
+	metadata, err := c.InstanceMetadata(context.Background(), &k8snode)
 	if nil != err {
 		t.Fatalf("Got an error getting instanceID: %v", err)
 	}
-	if instanceID != expectedInstanceID {
+	if metadata.ProviderID != expectedInstanceID {
 		t.Fatal("InstanceID not correct for original node.")
 	}
 
 	// delete node
 	k8sclient.CoreV1().Nodes().Delete(context.TODO(), nodeName, metav1.DeleteOptions{})
 	c.handleNodeDelete(&k8snode)
-	_, err = c.InstanceID(context.TODO(), types.NodeName(nodeName))
+	_, err = c.InstanceMetadata(context.Background(), &k8snode)
 	if nil == err {
 		t.Fatalf("Did not get expected error after deleting node.")
 	}
@@ -92,7 +90,7 @@ func TestNodeWatch(t *testing.T) {
 	}
 	k8sclient.CoreV1().Nodes().Delete(context.TODO(), nodeName, metav1.DeleteOptions{})
 	c.handleNodeDelete(&k8snode)
-	expectedInstanceID = "testAccount///testCluster/replaced-worker-id"
+	expectedInstanceID = "ibm://testAccount///testCluster/replaced-worker-id"
 	labels["ibm-cloud.kubernetes.io/worker-id"] = "replaced-worker-id"
 	k8snode = corev1.Node{
 		ObjectMeta: metav1.ObjectMeta{
@@ -103,11 +101,11 @@ func TestNodeWatch(t *testing.T) {
 	if nil != err {
 		t.Fatalf("Failed to create Node: %v", err)
 	}
-	instanceID, err = c.InstanceID(context.TODO(), types.NodeName(nodeName))
+	metadata, err = c.InstanceMetadata(context.Background(), &k8snode)
 	if nil != err {
 		t.Fatalf("Got an error getting instanceID: %v", err)
 	}
-	if instanceID != expectedInstanceID {
+	if metadata.ProviderID != expectedInstanceID {
 		t.Fatal("InstanceID not correct for replaced node.")
 	}
 }

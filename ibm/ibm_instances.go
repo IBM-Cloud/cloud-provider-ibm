@@ -32,55 +32,12 @@ import (
 Instances cloud provider interface must be implemented.
 */
 func (c *Cloud) Instances() (cloudprovider.Instances, bool) {
-	return c, false
+	return nil, false
 }
 
 // NodeAddresses returns the addresses of the specified instance.
-// TODO(roberthbailey): This currently is only used in such a way that it
-// returns the address of the calling instance. We should do a rename to
-// make this clearer.
 func (c *Cloud) NodeAddresses(ctx context.Context, name types.NodeName) ([]v1.NodeAddress, error) {
-	// 1) in kubelet: run the old way
-	// 2) in controller-manager: get from node labels
-
-	if c.Metadata == nil {
-		// Default: Use input for node addresses
-		nodeInternalIP := string(name)
-		nodeExternalIP := string(name)
-
-		// Override: If available, get external IP from provider configuration.
-		providerInternalIP := c.Config.Prov.InternalIP
-		providerExternalIP := c.Config.Prov.ExternalIP
-		if providerInternalIP != "" && providerExternalIP != "" && nodeInternalIP == providerInternalIP {
-			nodeExternalIP = providerExternalIP
-		}
-
-		// Build and return node nodeaddresses.
-		return []v1.NodeAddress{
-			{Type: v1.NodeInternalIP, Address: nodeInternalIP},
-			{Type: v1.NodeExternalIP, Address: nodeExternalIP},
-		}, nil
-	}
-	nodeMd, err := c.Metadata.GetNodeMetadata(string(name))
-	if err != nil {
-		var addrs []v1.NodeAddress
-		return addrs, err
-	}
-	// ExternalIP may not be provided by metadata for private-only nodes, but
-	// we will return one in case external consumers depend on it.
-	externalIP := nodeMd.ExternalIP
-	if len(externalIP) == 0 {
-		externalIP = nodeMd.InternalIP
-	}
-	// Build and return node nodeaddresses - if they are non-empty
-	nodeAddress := []v1.NodeAddress{}
-	if len(nodeMd.InternalIP) > 0 {
-		nodeAddress = append(nodeAddress, v1.NodeAddress{Type: v1.NodeInternalIP, Address: nodeMd.InternalIP})
-	}
-	if len(externalIP) > 0 {
-		nodeAddress = append(nodeAddress, v1.NodeAddress{Type: v1.NodeExternalIP, Address: externalIP})
-	}
-	return nodeAddress, nil
+	return []v1.NodeAddress{}, cloudprovider.NotImplemented
 }
 
 // NodeAddressesByProviderID returns the addresses of the specified instance.
@@ -88,7 +45,6 @@ func (c *Cloud) NodeAddresses(ctx context.Context, name types.NodeName) ([]v1.No
 // ProviderID is a unique identifier of the node. This will not be called
 // from the node whose nodeaddresses are being queried. i.e. local metadata
 // services cannot be used in this method to obtain nodeaddresses
-// Deprecated: Remove once all calls are migrated to InstanceMetadataByProviderID
 func (c *Cloud) NodeAddressesByProviderID(ctx context.Context, providerID string) ([]v1.NodeAddress, error) {
 	return []v1.NodeAddress{}, cloudprovider.NotImplemented
 }
@@ -97,47 +53,15 @@ func (c *Cloud) NodeAddressesByProviderID(ctx context.Context, providerID string
 // Note that if the instance does not exist, we must return ("", cloudprovider.InstanceNotFound)
 // cloudprovider.InstanceNotFound should NOT be returned for instances that exist but are stopped/sleeping
 func (c *Cloud) InstanceID(ctx context.Context, nodeName types.NodeName) (string, error) {
-	// 1) in kubelet: return ProviderID from config file
-	// 2) in controller-manager: get from node labels
-
-	var p string
-	if c.Metadata == nil {
-		p = c.Config.Prov.ProviderID
-		// providerID will be set for cruiser workers in the config from bootstrap process
-		if p != "////" {
-			return p, nil
-		}
-		// ProviderID will be empty for carrier workers, therefore just return nodename
-		return string(nodeName), nil
-	}
-	// construct provider id from config and node metadata
-	p = ""
-	nodeMd, err := c.Metadata.GetNodeMetadata(string(nodeName))
-	if nil == err {
-		// provider id = "accountid/org(empty)/space(empty)/clusterid/workerid"
-		p = fmt.Sprintf("%s///%s/%s", c.Config.Prov.AccountID, c.Config.Prov.ClusterID, nodeMd.WorkerID)
-	}
-	return p, err
+	return "", cloudprovider.NotImplemented
 }
 
 // InstanceType returns the type of the specified instance.
 func (c *Cloud) InstanceType(ctx context.Context, name types.NodeName) (string, error) {
-	// 1) in kubelet: 	return InstanceType from config file
-	// 2) in controller-manager: get from node labels
-
-	if c.Metadata == nil {
-		return c.Config.Prov.InstanceType, nil
-	}
-	var instanceType string
-	nodeMd, err := c.Metadata.GetNodeMetadata(string(name))
-	if nil == err {
-		instanceType = nodeMd.InstanceType
-	}
-	return instanceType, err
+	return "", cloudprovider.NotImplemented
 }
 
 // InstanceTypeByProviderID returns the type of the specified instance.
-// Deprecated: Remove once all calls are migrated to InstanceMetadataByProviderID
 func (c *Cloud) InstanceTypeByProviderID(ctx context.Context, providerID string) (string, error) {
 	return "", cloudprovider.NotImplemented
 }
@@ -151,29 +75,19 @@ func (c *Cloud) AddSSHKeyToAllInstances(ctx context.Context, user string, keyDat
 // CurrentNodeName returns the name of the node we are currently running on
 // On most clouds (e.g. GCE) this is the hostname, so we provide the hostname
 func (c *Cloud) CurrentNodeName(ctx context.Context, hostname string) (types.NodeName, error) {
-	return types.NodeName(hostname), nil
+	return "", cloudprovider.NotImplemented
 }
 
 // InstanceExistsByProviderID returns true if the instance for the given provider exists.
 // If false is returned with no error, the instance will be immediately deleted by the cloud controller manager.
 // This method should still return true for instances that exist but are stopped/sleeping.
-// Deprecated: Remove once all calls are migrated to InstanceMetadataByProviderID
 func (c *Cloud) InstanceExistsByProviderID(ctx context.Context, providerID string) (bool, error) {
-	// NOTE(rtheis): Returning an error causes Kubernetes to add unnecessary
-	// error messages to the logs. To avoid this noise, we'll continue assuming
-	// the instance exists, but no longer return cloudprovider.NotImplemented
-	// error.
-	return true, nil
+	return false, cloudprovider.NotImplemented
 }
 
 // InstanceShutdownByProviderID returns true if the instance is shutdown in cloudprovider.
 func (c *Cloud) InstanceShutdownByProviderID(ctx context.Context, providerID string) (bool, error) {
 	return false, cloudprovider.NotImplemented
-}
-
-// InstanceMetadataByProviderID returns the instance's metadata.
-func (c *Cloud) InstanceMetadataByProviderID(ctx context.Context, providerID string) (*cloudprovider.InstanceMetadata, error) {
-	return nil, cloudprovider.NotImplemented
 }
 
 /*
