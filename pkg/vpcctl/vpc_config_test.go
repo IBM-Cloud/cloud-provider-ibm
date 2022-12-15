@@ -251,16 +251,14 @@ func TestCloudVpc_FilterNodesByEdgeLabel(t *testing.T) {
 	assert.Equal(t, outNodes[0].Name, mockNode2.Name)
 }
 
-func TestCloudVpc_FilterNodesByServiceZone(t *testing.T) {
+func TestCloudVpc_FilterNodesByZone(t *testing.T) {
 	// No annotation on the service, match both of the nodes
-	mockService := &v1.Service{}
 	inNodes := []*v1.Node{mockNode1, mockNode2}
-	outNodes := mockCloud.filterNodesByServiceZone(inNodes, mockService)
+	outNodes := mockCloud.filterNodesByZone(inNodes, "")
 	assert.Equal(t, len(outNodes), 2)
 
 	// Add the zone annotation to the service, re-calc matching nodes
-	mockService.Annotations = map[string]string{serviceAnnotationZone: "zoneA"}
-	outNodes = mockCloud.filterNodesByServiceZone(inNodes, mockService)
+	outNodes = mockCloud.filterNodesByZone(inNodes, "zoneA")
 	assert.Equal(t, len(outNodes), 1)
 	assert.Equal(t, outNodes[0].Name, mockNode1.Name)
 }
@@ -386,16 +384,6 @@ func TestCloudVpc_getSubnetIDs(t *testing.T) {
 	assert.Equal(t, result[1], "subnet2")
 }
 
-func TestCloudVpc_IsServicePublic(t *testing.T) {
-	service := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: "echo-server", Namespace: "default"}}
-	result := mockCloud.isServicePublic(service)
-	assert.Equal(t, result, true)
-
-	service.ObjectMeta.Annotations = map[string]string{serviceAnnotationIPType: servicePrivateLB}
-	result = mockCloud.isServicePublic(service)
-	assert.Equal(t, result, false)
-}
-
 func TestCloudVpc_validateService(t *testing.T) {
 	service := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{Name: "echo-server", Namespace: "default",
@@ -413,7 +401,7 @@ func TestCloudVpc_validateService(t *testing.T) {
 	service.ObjectMeta.Annotations[serviceAnnotationEnableFeatures] = "generic-option"
 	service.Spec.Ports[0].Protocol = v1.ProtocolTCP
 	options, err = mockCloud.validateService(service)
-	assert.Equal(t, options, "generic-option")
+	assert.Equal(t, options.enabledFeatures, "generic-option")
 	assert.Nil(t, err)
 }
 
@@ -477,19 +465,22 @@ func TestCloudVpc_ValidateServiceTypeNotUpdated(t *testing.T) {
 	}
 
 	// validateServiceTypeNotUpdated, success - annotation not set
-	err := mockCloud.validateServiceTypeNotUpdated(service, lb)
+	options := mockCloud.getServiceOptions(service)
+	err := mockCloud.validateServiceTypeNotUpdated(options, lb)
 	assert.Nil(t, err)
 
 	// validateServiceTypeNotUpdated, success - lb public, service private
 	service.ObjectMeta.Annotations[serviceAnnotationIPType] = servicePrivateLB
-	err = mockCloud.validateServiceTypeNotUpdated(service, lb)
+	options = mockCloud.getServiceOptions(service)
+	err = mockCloud.validateServiceTypeNotUpdated(options, lb)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "setting can not be changed")
 
 	// validateServiceTypeNotUpdated, success - lb private, service public
 	lb.IsPublic = false
 	service.ObjectMeta.Annotations[serviceAnnotationIPType] = servicePublicLB
-	err = mockCloud.validateServiceTypeNotUpdated(service, lb)
+	options = mockCloud.getServiceOptions(service)
+	err = mockCloud.validateServiceTypeNotUpdated(options, lb)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "setting can not be changed")
 	lb.IsPublic = true

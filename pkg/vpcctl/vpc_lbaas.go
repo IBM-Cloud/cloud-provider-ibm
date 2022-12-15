@@ -272,16 +272,12 @@ func (c *CloudVpc) checkPoolForServiceChanges(updatesRequired []string, pool *Vp
 		poolName := genLoadBalancerPoolName(kubePort)
 		updatePool := false
 		replacePoolMembers := false
+		options := c.getServiceOptions(service)
+		proxyProtocolRequested := options.isProxyProtocol()
 		switch {
 		case poolName != pool.Name:
 			updatePool = true
 			replacePoolMembers = true
-
-		// case pool.SessionPersistence != desiredPersistence:
-		// 	updatePool = true
-
-		// case pool.Algorithm != desiredScheduler:
-		// 	updatePool = true
 
 		case service.Spec.ExternalTrafficPolicy == v1.ServiceExternalTrafficPolicyTypeLocal && service.Spec.HealthCheckNodePort > 0 &&
 			(pool.HealthMonitor.Type != LoadBalancerProtocolHTTP || pool.HealthMonitor.Port != int64(service.Spec.HealthCheckNodePort)):
@@ -289,6 +285,12 @@ func (c *CloudVpc) checkPoolForServiceChanges(updatesRequired []string, pool *Vp
 
 		case service.Spec.ExternalTrafficPolicy == v1.ServiceExternalTrafficPolicyTypeCluster &&
 			(pool.HealthMonitor.Type != LoadBalancerProtocolTCP || pool.HealthMonitor.Port != int64(kubePort.NodePort)):
+			updatePool = true
+
+		case proxyProtocolRequested && pool.ProxyProtocol != LoadBalancerProxyProtocolV1:
+			updatePool = true
+
+		case !proxyProtocolRequested && pool.ProxyProtocol != LoadBalancerProxyProtocolDisabled:
 			updatePool = true
 		}
 
@@ -326,8 +328,8 @@ func (c *CloudVpc) CreateLoadBalancer(lbName string, service *v1.Service, nodes 
 		return nil, fmt.Errorf("None of the configured VPC subnets (%s) were found", c.Config.SubnetNames)
 	}
 	subnetList := c.getSubnetIDs(clusterSubnets)
-	serviceSubnets := c.getServiceSubnets(service)
-	serviceZone := c.getServiceZone(service)
+	serviceSubnets := options.getServiceSubnets()
+	serviceZone := options.getServiceZone()
 	if serviceSubnets != "" {
 		vpcID := clusterSubnets[0].Vpc.ID
 		subnetList, err = c.validateServiceSubnets(service, serviceSubnets, vpcID, vpcSubnets)
@@ -344,7 +346,7 @@ func (c *CloudVpc) CreateLoadBalancer(lbName string, service *v1.Service, nodes 
 	if filterLabel != "" {
 		nodes = c.findNodesMatchingLabelValue(nodes, filterLabel, filterValue)
 	} else {
-		nodes = c.filterNodesByServiceZone(nodes, service)
+		nodes = c.filterNodesByZone(nodes, serviceZone)
 		nodes = c.filterNodesByEdgeLabel(nodes)
 	}
 	if len(nodes) == 0 {
@@ -363,16 +365,8 @@ func (c *CloudVpc) CreateLoadBalancer(lbName string, service *v1.Service, nodes 
 	}
 	klog.Infof("Pools: %+v", poolList)
 
-	// Determine if we are creating public or private load balancer
-	publicLB := c.isServicePublic(service)
-
-	// Determine if service has externalTrafficPolicy:Local
-	//   0  = externalTrafficPolicy: Cluster
-	//  >0  = externalTrafficPolicy: Local
-	healthCheckNodePort := c.getServiceHealthCheckNodePort(service)
-
 	// Create the load balancer
-	lb, err := c.Sdk.CreateLoadBalancer(lbName, publicLB, nodeList, poolList, subnetList, healthCheckNodePort, options)
+	lb, err := c.Sdk.CreateLoadBalancer(lbName, nodeList, poolList, subnetList, options)
 	if err != nil {
 		return nil, err
 	}
@@ -380,7 +374,7 @@ func (c *CloudVpc) CreateLoadBalancer(lbName string, service *v1.Service, nodes 
 }
 
 // createLoadBalancerListener - create a VPC load balancer listener
-func (c *CloudVpc) createLoadBalancerListener(lb *VpcLoadBalancer, poolName, options string) error {
+func (c *CloudVpc) createLoadBalancerListener(lb *VpcLoadBalancer, poolName string) error {
 	poolID := ""
 	for _, pool := range lb.Pools {
 		if poolName == pool.Name {
@@ -391,18 +385,18 @@ func (c *CloudVpc) createLoadBalancerListener(lb *VpcLoadBalancer, poolName, opt
 	if poolID == "" {
 		return fmt.Errorf("Unable to create listener. Pool %s not found", poolName)
 	}
-	_, err := c.Sdk.CreateLoadBalancerListener(lb.ID, poolName, poolID, options)
+	_, err := c.Sdk.CreateLoadBalancerListener(lb.ID, poolName, poolID)
 	return err
 }
 
 // createLoadBalancerPool - create a VPC load balancer pool
-func (c *CloudVpc) createLoadBalancerPool(lb *VpcLoadBalancer, poolName string, nodeList []string, healthCheckPort int, options string) error {
-	_, err := c.Sdk.CreateLoadBalancerPool(lb.ID, poolName, nodeList, healthCheckPort, options)
+func (c *CloudVpc) createLoadBalancerPool(lb *VpcLoadBalancer, poolName string, nodeList []string, options *ServiceOptions) error {
+	_, err := c.Sdk.CreateLoadBalancerPool(lb.ID, poolName, nodeList, options)
 	return err
 }
 
 // createLoadBalancerPoolMember - create a VPC load balancer pool member
-func (c *CloudVpc) createLoadBalancerPoolMember(lb *VpcLoadBalancer, args, options string) error {
+func (c *CloudVpc) createLoadBalancerPoolMember(lb *VpcLoadBalancer, args string) error {
 	argsArray := strings.Fields(args)
 	if lb == nil || len(argsArray) != 3 {
 		return fmt.Errorf("Required argument is missing")
@@ -410,7 +404,7 @@ func (c *CloudVpc) createLoadBalancerPoolMember(lb *VpcLoadBalancer, args, optio
 	poolName := argsArray[0]
 	poolID := argsArray[1]
 	nodeID := argsArray[2]
-	_, err := c.Sdk.CreateLoadBalancerPoolMember(lb.ID, poolName, poolID, nodeID, options)
+	_, err := c.Sdk.CreateLoadBalancerPoolMember(lb.ID, poolName, poolID, nodeID)
 	return err
 }
 
@@ -482,14 +476,14 @@ func (c *CloudVpc) GetLoadBalancerStatus(service *v1.Service, lb *VpcLoadBalance
 }
 
 // replaceLoadBalancerPoolMembers - replace the load balancer pool members
-func (c *CloudVpc) replaceLoadBalancerPoolMembers(lb *VpcLoadBalancer, args string, nodeList []string, options string) error {
+func (c *CloudVpc) replaceLoadBalancerPoolMembers(lb *VpcLoadBalancer, args string, nodeList []string) error {
 	argsArray := strings.Fields(args)
 	if lb == nil || len(argsArray) != 2 {
 		return fmt.Errorf("Required argument is missing")
 	}
 	poolName := argsArray[0]
 	poolID := argsArray[1]
-	_, err := c.Sdk.ReplaceLoadBalancerPoolMembers(lb.ID, poolName, poolID, nodeList, options)
+	_, err := c.Sdk.ReplaceLoadBalancerPoolMembers(lb.ID, poolName, poolID, nodeList)
 	return err
 }
 
@@ -512,7 +506,7 @@ func (c *CloudVpc) UpdateLoadBalancer(lb *VpcLoadBalancer, service *v1.Service, 
 
 	// If the service has been changed from public to private (or vice-versa)
 	// If the service has been changed to a network load balancer (or vice versa)
-	err = c.validateServiceTypeNotUpdated(service, lb)
+	err = c.validateServiceTypeNotUpdated(options, lb)
 	if err != nil {
 		return nil, err
 	}
@@ -529,17 +523,12 @@ func (c *CloudVpc) UpdateLoadBalancer(lb *VpcLoadBalancer, service *v1.Service, 
 		return nil, err
 	}
 
-	// Determine if service has externalTrafficPolicy:Local
-	//   0  = externalTrafficPolicy: Cluster
-	//  >0  = externalTrafficPolicy: Local
-	healthCheckNodePort := c.getServiceHealthCheckNodePort(service)
-
 	// Verify that there are nodes available to associate with this load balancer
 	filterLabel, filterValue := c.getServiceNodeSelectorFilter(service)
 	if filterLabel != "" {
 		nodes = c.findNodesMatchingLabelValue(nodes, filterLabel, filterValue)
 	} else {
-		nodes = c.filterNodesByServiceZone(nodes, service)
+		nodes = c.filterNodesByZone(nodes, options.getServiceZone())
 		nodes = c.filterNodesByEdgeLabel(nodes)
 	}
 	if len(nodes) == 0 {
@@ -668,11 +657,11 @@ func (c *CloudVpc) UpdateLoadBalancer(lb *VpcLoadBalancer, service *v1.Service, 
 		args := strings.TrimSpace(strings.TrimPrefix(update, action))
 		switch action {
 		case actionCreateListener:
-			err = c.createLoadBalancerListener(lb, args, options)
+			err = c.createLoadBalancerListener(lb, args)
 		case actionCreatePool:
-			err = c.createLoadBalancerPool(lb, args, nodeList, healthCheckNodePort, options)
+			err = c.createLoadBalancerPool(lb, args, nodeList, options)
 		case actionCreatePoolMember:
-			err = c.createLoadBalancerPoolMember(lb, args, options)
+			err = c.createLoadBalancerPoolMember(lb, args)
 		case actionDeleteListener:
 			err = c.deleteLoadBalancerListener(lb, args)
 		case actionDeletePool:
@@ -680,9 +669,9 @@ func (c *CloudVpc) UpdateLoadBalancer(lb *VpcLoadBalancer, service *v1.Service, 
 		case actionDeletePoolMember:
 			err = c.deleteLoadBalancerPoolMember(lb, args)
 		case actionUpdatePool:
-			err = c.updateLoadBalancerPool(lb, args, pools, healthCheckNodePort, options)
+			err = c.updateLoadBalancerPool(lb, args, pools, options)
 		case actionReplacePoolMembers:
-			err = c.replaceLoadBalancerPoolMembers(lb, args, nodeList, options)
+			err = c.replaceLoadBalancerPoolMembers(lb, args, nodeList)
 		default:
 			err = fmt.Errorf("Unsupported update operation: %s", update)
 		}
@@ -698,7 +687,7 @@ func (c *CloudVpc) UpdateLoadBalancer(lb *VpcLoadBalancer, service *v1.Service, 
 }
 
 // updateLoadBalancerPool - create a VPC load balancer pool
-func (c *CloudVpc) updateLoadBalancerPool(lb *VpcLoadBalancer, args string, pools []*VpcLoadBalancerPool, healthCheckPort int, options string) error {
+func (c *CloudVpc) updateLoadBalancerPool(lb *VpcLoadBalancer, args string, pools []*VpcLoadBalancerPool, options *ServiceOptions) error {
 	argsArray := strings.Fields(args)
 	if lb == nil || len(argsArray) != 2 {
 		return fmt.Errorf("Required argument is missing")
@@ -715,7 +704,7 @@ func (c *CloudVpc) updateLoadBalancerPool(lb *VpcLoadBalancer, args string, pool
 	if existingPool == nil {
 		return fmt.Errorf("Existing pool nof found for pool ID: %s", poolID)
 	}
-	_, err := c.Sdk.UpdateLoadBalancerPool(lb.ID, poolName, existingPool, healthCheckPort, options)
+	_, err := c.Sdk.UpdateLoadBalancerPool(lb.ID, poolName, existingPool, options)
 	return err
 }
 

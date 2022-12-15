@@ -42,6 +42,7 @@ const (
 
 	serviceAnnotationEnableFeatures = "service.kubernetes.io/ibm-load-balancer-cloud-provider-enable-features"
 	serviceAnnotationIPType         = "service.kubernetes.io/ibm-load-balancer-cloud-provider-ip-type"
+	serviceAnnotationLbName         = "service.kubernetes.io/ibm-load-balancer-cloud-provider-vpc-lb-name"
 	serviceAnnotationNodeSelector   = "service.kubernetes.io/ibm-load-balancer-cloud-provider-vpc-node-selector"
 	serviceAnnotationSubnets        = "service.kubernetes.io/ibm-load-balancer-cloud-provider-vpc-subnets"
 	serviceAnnotationZone           = "service.kubernetes.io/ibm-load-balancer-cloud-provider-zone"
@@ -183,9 +184,8 @@ func (c *CloudVpc) filterNodesByEdgeLabel(nodes []*v1.Node) []*v1.Node {
 	return edgeNodes
 }
 
-// filterNodesByServiceZone - remove all nodes that don't satisfy service zone annotation
-func (c *CloudVpc) filterNodesByServiceZone(nodes []*v1.Node, service *v1.Service) []*v1.Node {
-	zone := c.getServiceZone(service)
+// filterNodesByZone - remove all nodes that don't match the specified zone
+func (c *CloudVpc) filterNodesByZone(nodes []*v1.Node, zone string) []*v1.Node {
 	if zone != "" {
 		return c.findNodesMatchingLabelValue(nodes, nodeLabelZone, zone)
 	}
@@ -314,11 +314,6 @@ func (c *CloudVpc) getServiceSubnets(service *v1.Service) string {
 	return strings.ReplaceAll(service.ObjectMeta.Annotations[serviceAnnotationSubnets], " ", "")
 }
 
-// getServiceZone - retrieve the zone annotation
-func (c *CloudVpc) getServiceZone(service *v1.Service) string {
-	return strings.ReplaceAll(service.ObjectMeta.Annotations[serviceAnnotationZone], " ", "")
-}
-
 // getSubnetIDs - get the IDs for all of the subnets that were passed in
 func (c *CloudVpc) getSubnetIDs(subnets []*VpcSubnet) []string {
 	subnetIDs := []string{}
@@ -346,19 +341,13 @@ func (c *CloudVpc) isServicePortEqualPoolName(kubePort v1.ServicePort, poolName 
 		strings.EqualFold(poolName.Protocol, string(kubePort.Protocol))
 }
 
-// isServicePublic - is the Kube service a public load balancer
-func (c *CloudVpc) isServicePublic(service *v1.Service) bool {
-	value := service.ObjectMeta.Annotations[serviceAnnotationIPType]
-	return value == "" || value == servicePublicLB
-}
-
 // validateService - validate the service and the requested features on the service
-func (c *CloudVpc) validateService(service *v1.Service) (string, error) {
-	options := c.getServiceEnabledFeatures(service)
+func (c *CloudVpc) validateService(service *v1.Service) (*ServiceOptions, error) {
+	options := c.getServiceOptions(service)
 	// Only TCP is supported
 	for _, kubePort := range service.Spec.Ports {
 		if kubePort.Protocol != v1.ProtocolTCP {
-			return "", fmt.Errorf("Service %s/%s is a %s load balancer. Only TCP is supported",
+			return nil, fmt.Errorf("Service %s/%s is a %s load balancer. Only TCP is supported",
 				service.ObjectMeta.Namespace, service.ObjectMeta.Name, kubePort.Protocol)
 		}
 	}
@@ -437,8 +426,8 @@ func (c *CloudVpc) validateServiceSubnetsNotUpdated(service *v1.Service, lb *Vpc
 }
 
 // Validate that the public/private annotation on the service was not updated
-func (c *CloudVpc) validateServiceTypeNotUpdated(service *v1.Service, lb *VpcLoadBalancer) error {
-	if c.isServicePublic(service) != lb.IsPublic {
+func (c *CloudVpc) validateServiceTypeNotUpdated(options *ServiceOptions, lb *VpcLoadBalancer) error {
+	if options.isPublic() != lb.IsPublic {
 		lbType := servicePrivateLB
 		if lb.IsPublic {
 			lbType = servicePublicLB

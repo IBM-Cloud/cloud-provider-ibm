@@ -160,14 +160,7 @@ func (c *Cloud) VpcGetLoadBalancer(ctx context.Context, clusterName string, serv
 
 // vpcGetLoadBalancerName - Returns the name of the load balancer
 func (c *Cloud) vpcGetLoadBalancerName(service *v1.Service) string {
-	clusterID := c.Config.Prov.ClusterID
-	serviceID := strings.ReplaceAll(string(service.UID), "-", "")
-	ret := vpcctl.VpcLbNamePrefix + "-" + clusterID + "-" + serviceID
-	// Limit the LB name to 63 characters
-	if len(ret) > 63 {
-		ret = ret[:63]
-	}
-	return ret
+	return vpcctl.GenerateLoadBalancerName(service, c.Config.Prov.ClusterID)
 }
 
 // vpcGetServiceDetails - Returns the string of the Kube LB service key fields

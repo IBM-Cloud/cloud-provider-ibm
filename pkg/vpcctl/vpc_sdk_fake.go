@@ -145,7 +145,7 @@ func (c *CloudVpc) SetFakeSdkError(methodName string) {
 }
 
 // CreateLoadBalancer - create a load balancer
-func (v *VpcSdkFake) CreateLoadBalancer(lbName string, public bool, nodeList, poolList, subnetList []string, healthCheckPort int, options string) (*VpcLoadBalancer, error) {
+func (v *VpcSdkFake) CreateLoadBalancer(lbName string, nodeList, poolList, subnetList []string, options *ServiceOptions) (*VpcLoadBalancer, error) {
 	if v.Error["CreateLoadBalancer"] != nil {
 		return nil, v.Error["CreateLoadBalancer"]
 	}
@@ -156,7 +156,7 @@ func (v *VpcSdkFake) CreateLoadBalancer(lbName string, public bool, nodeList, po
 }
 
 // CreateLoadBalancerListener - create a load balancer listener
-func (v *VpcSdkFake) CreateLoadBalancerListener(lbID, poolName, poolID, options string) (*VpcLoadBalancerListener, error) {
+func (v *VpcSdkFake) CreateLoadBalancerListener(lbID, poolName, poolID string) (*VpcLoadBalancerListener, error) {
 	if v.Error["CreateLoadBalancerListener"] != nil {
 		return nil, v.Error["CreateLoadBalancerListener"]
 	}
@@ -164,7 +164,7 @@ func (v *VpcSdkFake) CreateLoadBalancerListener(lbID, poolName, poolID, options 
 }
 
 // CreateLoadBalancerPool - create a load balancer pool
-func (v *VpcSdkFake) CreateLoadBalancerPool(lbID, poolName string, nodeList []string, healthCheckPort int, options string) (*VpcLoadBalancerPool, error) {
+func (v *VpcSdkFake) CreateLoadBalancerPool(lbID, poolName string, nodeList []string, options *ServiceOptions) (*VpcLoadBalancerPool, error) {
 	if v.Error["CreateLoadBalancerPool"] != nil {
 		return nil, v.Error["CreateLoadBalancerPool"]
 	}
@@ -172,7 +172,7 @@ func (v *VpcSdkFake) CreateLoadBalancerPool(lbID, poolName string, nodeList []st
 }
 
 // CreateLoadBalancerPoolMember - create a load balancer pool member
-func (v *VpcSdkFake) CreateLoadBalancerPoolMember(lbID, poolName, poolID, nodeID, options string) (*VpcLoadBalancerPoolMember, error) {
+func (v *VpcSdkFake) CreateLoadBalancerPoolMember(lbID, poolName, poolID, nodeID string) (*VpcLoadBalancerPoolMember, error) {
 	if v.Error["CreateLoadBalancerPoolMember"] != nil {
 		return nil, v.Error["CreateLoadBalancerPoolMember"]
 	}
@@ -269,7 +269,7 @@ func (v *VpcSdkFake) ListSubnets() ([]*VpcSubnet, error) {
 }
 
 // ReplaceLoadBalancerPoolMembers - update list of load balancer pool members
-func (v *VpcSdkFake) ReplaceLoadBalancerPoolMembers(lbID, poolName, poolID string, nodeList []string, options string) ([]*VpcLoadBalancerPoolMember, error) {
+func (v *VpcSdkFake) ReplaceLoadBalancerPoolMembers(lbID, poolName, poolID string, nodeList []string) ([]*VpcLoadBalancerPoolMember, error) {
 	members := []*VpcLoadBalancerPoolMember{}
 	if v.Error["ReplaceLoadBalancerPoolMembers"] != nil {
 		return nil, v.Error["ReplaceLoadBalancerPoolMembers"]
@@ -279,7 +279,7 @@ func (v *VpcSdkFake) ReplaceLoadBalancerPoolMembers(lbID, poolName, poolID strin
 }
 
 // UpdateLoadBalancerPool - update a load balancer pool
-func (v *VpcSdkFake) UpdateLoadBalancerPool(lbID, newPoolName string, existingPool *VpcLoadBalancerPool, healthCheckPort int, options string) (*VpcLoadBalancerPool, error) {
+func (v *VpcSdkFake) UpdateLoadBalancerPool(lbID, newPoolName string, existingPool *VpcLoadBalancerPool, options *ServiceOptions) (*VpcLoadBalancerPool, error) {
 	if v.Error["UpdateLoadBalancerPool"] != nil {
 		return nil, v.Error["UpdateLoadBalancerPool"]
 	}

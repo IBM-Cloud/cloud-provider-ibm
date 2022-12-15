@@ -25,6 +25,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestExtractPortsFromPoolName(t *testing.T) {
@@ -68,6 +69,54 @@ func TestGenLoadBalancerPoolName(t *testing.T) {
 	kubePort := v1.ServicePort{Protocol: "TCP", Port: 80, NodePort: 31234}
 	result := genLoadBalancerPoolName(kubePort)
 	assert.Equal(t, result, "tcp-80-31234")
+}
+
+func TestNewServiceOptions(t *testing.T) {
+	options := newServiceOptions()
+	assert.NotNil(t, options)
+	assert.Empty(t, options.annotations)
+	assert.Equal(t, options.enabledFeatures, "")
+	assert.Equal(t, options.healthCheckNodePort, 0)
+}
+
+func TestGetServiceOptions(t *testing.T) {
+	mockCloud := &CloudVpc{}
+	mockService := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Annotations: map[string]string{
+				serviceAnnotationEnableFeatures: LoadBalancerOptionProxyProtocol,
+				serviceAnnotationIPType:         servicePrivateLB,
+				serviceAnnotationSubnets:        "vpc-subnets",
+				serviceAnnotationZone:           "us-south-1",
+			}},
+		Spec: v1.ServiceSpec{
+			ExternalTrafficPolicy: v1.ServiceExternalTrafficPolicyTypeLocal,
+			HealthCheckNodePort:   36963,
+		}}
+
+	// getServiceOptions called with no service
+	options := mockCloud.getServiceOptions(nil)
+	assert.NotNil(t, options)
+	assert.Empty(t, options.annotations)
+	assert.Equal(t, options.enabledFeatures, "")
+	assert.Equal(t, options.healthCheckNodePort, 0)
+	assert.Equal(t, options.getHealthCheckNodePort(), 0)
+	assert.Equal(t, options.getServiceSubnets(), "")
+	assert.Equal(t, options.getServiceZone(), "")
+	assert.False(t, options.isProxyProtocol())
+	assert.True(t, options.isPublic())
+
+	// getServiceOptions called with a mock service (nlb, sDNLB, proxy-protocol, private ...)
+	options = mockCloud.getServiceOptions(mockService)
+	assert.NotNil(t, options)
+	assert.Equal(t, len(options.annotations), 4)
+	assert.Equal(t, options.enabledFeatures, options.annotations[serviceAnnotationEnableFeatures])
+	assert.Equal(t, options.healthCheckNodePort, 36963)
+	assert.Equal(t, options.getHealthCheckNodePort(), 36963)
+	assert.Equal(t, options.getServiceSubnets(), "vpc-subnets")
+	assert.Equal(t, options.getServiceZone(), "us-south-1")
+	assert.True(t, options.isProxyProtocol())
+	assert.False(t, options.isPublic())
 }
 
 func TestIsVpcOptionEnabled(t *testing.T) {

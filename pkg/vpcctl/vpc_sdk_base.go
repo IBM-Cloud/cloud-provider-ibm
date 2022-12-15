@@ -31,10 +31,10 @@ import (
 
 // CloudVpcSdk interface for SDK operations
 type CloudVpcSdk interface {
-	CreateLoadBalancer(lbName string, public bool, nodeList, poolList, subnetList []string, healthCheckPort int, options string) (*VpcLoadBalancer, error)
-	CreateLoadBalancerListener(lbID, poolName, poolID, options string) (*VpcLoadBalancerListener, error)
-	CreateLoadBalancerPool(lbID, poolName string, nodeList []string, healthCheckPort int, options string) (*VpcLoadBalancerPool, error)
-	CreateLoadBalancerPoolMember(lbID, poolName, poolID, nodeID, options string) (*VpcLoadBalancerPoolMember, error)
+	CreateLoadBalancer(lbName string, nodeList, poolList, subnetList []string, options *ServiceOptions) (*VpcLoadBalancer, error)
+	CreateLoadBalancerListener(lbID, poolName, poolID string) (*VpcLoadBalancerListener, error)
+	CreateLoadBalancerPool(lbID, poolName string, nodeList []string, options *ServiceOptions) (*VpcLoadBalancerPool, error)
+	CreateLoadBalancerPoolMember(lbID, poolName, poolID, nodeID string) (*VpcLoadBalancerPoolMember, error)
 	DeleteLoadBalancer(lbID string) error
 	DeleteLoadBalancerListener(lbID, listenerID string) error
 	DeleteLoadBalancerPool(lbID, poolID string) error
@@ -46,8 +46,8 @@ type CloudVpcSdk interface {
 	ListLoadBalancerPools(lbID string) ([]*VpcLoadBalancerPool, error)
 	ListLoadBalancerPoolMembers(lbID, poolID string) ([]*VpcLoadBalancerPoolMember, error)
 	ListSubnets() ([]*VpcSubnet, error)
-	ReplaceLoadBalancerPoolMembers(lbID, poolName, poolID string, nodeList []string, options string) ([]*VpcLoadBalancerPoolMember, error)
-	UpdateLoadBalancerPool(lbID, newPoolName string, existingPool *VpcLoadBalancerPool, healthCheckPort int, options string) (*VpcLoadBalancerPool, error)
+	ReplaceLoadBalancerPoolMembers(lbID, poolName, poolID string, nodeList []string) ([]*VpcLoadBalancerPoolMember, error)
+	UpdateLoadBalancerPool(lbID, newPoolName string, existingPool *VpcLoadBalancerPool, options *ServiceOptions) (*VpcLoadBalancerPool, error)
 }
 
 // NewVpcSdkProvider - name of SDK interface
@@ -104,6 +104,59 @@ func extractProtocolPortsFromPoolName(poolName string) (string, int, int, error)
 // genLoadBalancerPoolName - generate the VPC pool name for a specific Kubernetes service port
 func genLoadBalancerPoolName(kubePort v1.ServicePort) string {
 	return fmt.Sprintf("%s-%d-%d", strings.ToLower(string(kubePort.Protocol)), kubePort.Port, kubePort.NodePort)
+}
+
+// ServiceOptions - options from Kubernetes Load Balancer service and methods to access those fields
+type ServiceOptions struct {
+	annotations         map[string]string
+	enabledFeatures     string
+	healthCheckNodePort int
+}
+
+// newServiceOptions - return blank/empty service option
+func newServiceOptions() *ServiceOptions {
+	return &ServiceOptions{annotations: map[string]string{}}
+}
+
+// getServiceOptions - create service options from the Kubernetes service
+func (c *CloudVpc) getServiceOptions(service *v1.Service) *ServiceOptions {
+	if service == nil {
+		return newServiceOptions()
+	}
+	return &ServiceOptions{
+		annotations:         service.Annotations,
+		enabledFeatures:     c.getServiceEnabledFeatures(service),
+		healthCheckNodePort: c.getServiceHealthCheckNodePort(service),
+	}
+}
+
+// getHealthCheckNodePort - retrieve the health check node port value
+//
+//	 0  = externalTrafficPolicy: Cluster
+//	>0  = externalTrafficPolicy: Local
+func (options *ServiceOptions) getHealthCheckNodePort() int {
+	return options.healthCheckNodePort
+}
+
+// getServiceSubnets - retrieve the vpc-subnets annotation
+func (options *ServiceOptions) getServiceSubnets() string {
+	return strings.ReplaceAll(options.annotations[serviceAnnotationSubnets], " ", "")
+}
+
+// getServiceZone - retrieve the zone annotation
+func (options *ServiceOptions) getServiceZone() string {
+	return strings.ReplaceAll(options.annotations[serviceAnnotationZone], " ", "")
+}
+
+// isProxyProtocol - return true if service has proxy-protocol enabled
+func (options *ServiceOptions) isProxyProtocol() bool {
+	return isVpcOptionEnabled(options.enabledFeatures, LoadBalancerOptionProxyProtocol)
+}
+
+// isPublic - return true if service is public LB
+func (options *ServiceOptions) isPublic() bool {
+	value := options.annotations[serviceAnnotationIPType]
+	return value == "" || value == servicePublicLB
 }
 
 // isVpcOptionEnabled - check to see if item string is in the comma separated list
@@ -185,10 +238,28 @@ const (
 	LoadBalancerAlgorithmWeightedRoundRobin = "weighted_round_robin"
 )
 
+// Constants associated with the LoadBalancerPool.ProxyProtocol property.
+// The PROXY protocol setting for this pool:
+// - `v1`: Enabled with version 1 (human-readable header format)
+// - `v2`: Enabled with version 2 (binary header format)
+// - `disabled`: Disabled
+//
+// Supported by load balancers in the `application` family (otherwise always `disabled`).
+const (
+	LoadBalancerProxyProtocolDisabled = "disabled"
+	LoadBalancerProxyProtocolV1       = "v1"
+	LoadBalancerProxyProtocolV2       = "v2"
+)
+
 // Constants associated with the LoadBalancerPoolSessionPersistence.Type property.
 // The session persistence type.
 const (
 	LoadBalancerSessionPersistenceSourceIP = "source_ip"
+)
+
+// Constants that can control the behavior of the VPC LoadBalancer
+const (
+	LoadBalancerOptionProxyProtocol = "proxy-protocol"
 )
 
 // VpcObjectReference ...
@@ -449,6 +520,15 @@ type VpcLoadBalancerPool struct {
 	// The provisioning status of this pool.
 	// ProvisioningStatus *string `json:"provisioning_status" validate:"required"`
 	ProvisioningStatus string
+
+	// The PROXY protocol setting for this pool:
+	// - `v1`: Enabled with version 1 (human-readable header format)
+	// - `v2`: Enabled with version 2 (binary header format)
+	// - `disabled`: Disabled
+	//
+	// Supported by load balancers in the `application` family (otherwise always `disabled`).
+	// ProxyProtocol *string `json:"proxy_protocol" validate:"required"`
+	ProxyProtocol string
 
 	// The session persistence of this pool.
 	// SessionPersistence *LoadBalancerPoolSessionPersistenceTemplate `json:"session_persistence,omitempty"`

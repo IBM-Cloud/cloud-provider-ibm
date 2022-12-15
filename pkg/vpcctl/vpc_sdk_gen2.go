@@ -97,7 +97,7 @@ func convertResourceGroupNameToID(c *ConfigVpc) error {
 }
 
 // CreateLoadBalancer - create a load balancer
-func (v *VpcSdkGen2) CreateLoadBalancer(lbName string, public bool, nodeList, poolList, subnetList []string, healthCheckPort int, options string) (*VpcLoadBalancer, error) {
+func (v *VpcSdkGen2) CreateLoadBalancer(lbName string, nodeList, poolList, subnetList []string, options *ServiceOptions) (*VpcLoadBalancer, error) {
 	// For each of the ports in the Kubernetes service
 	listeners := []sdk.LoadBalancerListenerPrototypeLoadBalancerContext{}
 	pools := []sdk.LoadBalancerPoolPrototype{}
@@ -108,10 +108,15 @@ func (v *VpcSdkGen2) CreateLoadBalancer(lbName string, public bool, nodeList, po
 		}
 		pool := sdk.LoadBalancerPoolPrototype{
 			Algorithm:     core.StringPtr(sdk.LoadBalancerPoolPrototypeAlgorithmRoundRobinConst),
-			HealthMonitor: v.genLoadBalancerHealthMonitor(poolNameFields.NodePort, healthCheckPort),
+			HealthMonitor: v.genLoadBalancerHealthMonitor(poolNameFields.NodePort, options.getHealthCheckNodePort()),
 			Members:       v.genLoadBalancerMembers(poolNameFields.NodePort, nodeList),
 			Name:          core.StringPtr(poolName),
 			Protocol:      core.StringPtr(poolNameFields.Protocol),
+			ProxyProtocol: core.StringPtr(sdk.LoadBalancerPoolProxyProtocolDisabledConst),
+		}
+		// Set proxy protocol if it was requested on the service annotation (we don't support v2)
+		if options.isProxyProtocol() {
+			pool.ProxyProtocol = core.StringPtr(sdk.LoadBalancerPoolProxyProtocolV1Const)
 		}
 		pools = append(pools, pool)
 		listener := sdk.LoadBalancerListenerPrototypeLoadBalancerContext{
@@ -131,7 +136,7 @@ func (v *VpcSdkGen2) CreateLoadBalancer(lbName string, public bool, nodeList, po
 
 	// Initialize all of the create options
 	createOptions := &sdk.CreateLoadBalancerOptions{
-		IsPublic:      core.BoolPtr(public),
+		IsPublic:      core.BoolPtr(options.isPublic()),
 		Subnets:       subnetIds,
 		Listeners:     listeners,
 		Name:          core.StringPtr(lbName),
@@ -151,7 +156,7 @@ func (v *VpcSdkGen2) CreateLoadBalancer(lbName string, public bool, nodeList, po
 }
 
 // CreateLoadBalancerListener - create a load balancer listener
-func (v *VpcSdkGen2) CreateLoadBalancerListener(lbID, poolName, poolID, options string) (*VpcLoadBalancerListener, error) {
+func (v *VpcSdkGen2) CreateLoadBalancerListener(lbID, poolName, poolID string) (*VpcLoadBalancerListener, error) {
 	// Extract values from poolName
 	poolNameFields, err := extractFieldsFromPoolName(poolName)
 	if err != nil {
@@ -176,7 +181,7 @@ func (v *VpcSdkGen2) CreateLoadBalancerListener(lbID, poolName, poolID, options 
 }
 
 // CreateLoadBalancerPool - create a load balancer pool
-func (v *VpcSdkGen2) CreateLoadBalancerPool(lbID, poolName string, nodeList []string, healthCheckPort int, options string) (*VpcLoadBalancerPool, error) {
+func (v *VpcSdkGen2) CreateLoadBalancerPool(lbID, poolName string, nodeList []string, options *ServiceOptions) (*VpcLoadBalancerPool, error) {
 	// Extract values from poolName
 	poolNameFields, err := extractFieldsFromPoolName(poolName)
 	if err != nil {
@@ -186,7 +191,7 @@ func (v *VpcSdkGen2) CreateLoadBalancerPool(lbID, poolName string, nodeList []st
 	createOptions := &sdk.CreateLoadBalancerPoolOptions{
 		LoadBalancerID: core.StringPtr(lbID),
 		Algorithm:      core.StringPtr(sdk.CreateLoadBalancerPoolOptionsAlgorithmRoundRobinConst),
-		HealthMonitor:  v.genLoadBalancerHealthMonitor(poolNameFields.NodePort, healthCheckPort),
+		HealthMonitor:  v.genLoadBalancerHealthMonitor(poolNameFields.NodePort, options.getHealthCheckNodePort()),
 		Members:        v.genLoadBalancerMembers(poolNameFields.NodePort, nodeList),
 		Name:           core.StringPtr(poolName),
 		Protocol:       core.StringPtr(poolNameFields.Protocol),
@@ -201,7 +206,7 @@ func (v *VpcSdkGen2) CreateLoadBalancerPool(lbID, poolName string, nodeList []st
 }
 
 // CreateLoadBalancerPoolMember - create a load balancer pool member
-func (v *VpcSdkGen2) CreateLoadBalancerPoolMember(lbID, poolName, poolID, nodeID, options string) (*VpcLoadBalancerPoolMember, error) {
+func (v *VpcSdkGen2) CreateLoadBalancerPoolMember(lbID, poolName, poolID, nodeID string) (*VpcLoadBalancerPoolMember, error) {
 	// Extract values from poolName
 	poolNameFields, err := extractFieldsFromPoolName(poolName)
 	if err != nil {
@@ -525,6 +530,7 @@ func (v *VpcSdkGen2) mapLoadBalancerPool(item sdk.LoadBalancerPool) *VpcLoadBala
 		Name:               SafePointerString(item.Name),
 		Protocol:           SafePointerString(item.Protocol),
 		ProvisioningStatus: SafePointerString(item.ProvisioningStatus),
+		ProxyProtocol:      SafePointerString(item.ProxyProtocol),
 		SessionPersistence: "None",
 	}
 	if item.HealthMonitor != nil {
@@ -605,7 +611,7 @@ func (v *VpcSdkGen2) mapSubnet(item sdk.Subnet) *VpcSubnet {
 }
 
 // ReplaceLoadBalancerPoolMembers - update a load balancer pool members
-func (v *VpcSdkGen2) ReplaceLoadBalancerPoolMembers(lbID, poolName, poolID string, nodeList []string, options string) ([]*VpcLoadBalancerPoolMember, error) {
+func (v *VpcSdkGen2) ReplaceLoadBalancerPoolMembers(lbID, poolName, poolID string, nodeList []string) ([]*VpcLoadBalancerPoolMember, error) {
 	// Extract values from poolName
 	poolNameFields, err := extractFieldsFromPoolName(poolName)
 	if err != nil {
@@ -632,16 +638,23 @@ func (v *VpcSdkGen2) ReplaceLoadBalancerPoolMembers(lbID, poolName, poolID strin
 }
 
 // UpdateLoadBalancerPool - update a load balancer pool
-func (v *VpcSdkGen2) UpdateLoadBalancerPool(lbID, newPoolName string, existingPool *VpcLoadBalancerPool, healthCheckPort int, options string) (*VpcLoadBalancerPool, error) {
+func (v *VpcSdkGen2) UpdateLoadBalancerPool(lbID, newPoolName string, existingPool *VpcLoadBalancerPool, options *ServiceOptions) (*VpcLoadBalancerPool, error) {
 	// Extract values from poolName
 	poolNameFields, err := extractFieldsFromPoolName(newPoolName)
 	if err != nil {
 		return nil, err
 	}
+	proxyProtocolRequested := options.isProxyProtocol()
 	updatePool := &sdk.LoadBalancerPoolPatch{
 		// Algorithm:  core.StringPtr(algorithm),
-		HealthMonitor: v.genLoadBalancerHealthMonitorUpdate(poolNameFields.NodePort, healthCheckPort),
+		HealthMonitor: v.genLoadBalancerHealthMonitorUpdate(poolNameFields.NodePort, options.getHealthCheckNodePort()),
 		Name:          core.StringPtr(newPoolName),
+	}
+	if proxyProtocolRequested && existingPool.ProxyProtocol != sdk.LoadBalancerPoolProxyProtocolV1Const {
+		updatePool.ProxyProtocol = core.StringPtr(sdk.LoadBalancerPoolProxyProtocolV1Const)
+	}
+	if !proxyProtocolRequested && existingPool.ProxyProtocol != sdk.LoadBalancerPoolProxyProtocolDisabledConst {
+		updatePool.ProxyProtocol = core.StringPtr(sdk.LoadBalancerPoolProxyProtocolDisabledConst)
 	}
 	updatePatch, err := updatePool.AsPatch()
 	if err != nil {
