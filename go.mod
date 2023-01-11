@@ -3,8 +3,8 @@ module cloud.ibm.com/cloud-provider-ibm
 go 1.17
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.10.2
-	github.com/IBM/vpc-go-sdk v0.28.0
+	github.com/IBM/go-sdk-core/v5 v5.10.3
+	github.com/IBM/vpc-go-sdk v0.29.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.1
