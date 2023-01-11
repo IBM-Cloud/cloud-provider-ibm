@@ -48,9 +48,7 @@ echo "Clone the source repo: ${SOURCE_REPO} ..."
 git clone --depth=1 --no-single-branch --branch "${RELEASE}" "https://${GHE_USER}:${GHE_TOKEN}@${SOURCE_REPO}.git"
 
 # Determine commit of the source repo
-cd "${REPO_BASE}"
-SOURCE_COMMIT=$(git rev-parse --short HEAD)
-cd ..
+SOURCE_COMMIT=$(cd "${REPO_BASE}"; git rev-parse --short HEAD)
 
 # Copy over the source files
 echo "Copy over the package files ..."
