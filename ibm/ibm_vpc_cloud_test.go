@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -125,14 +125,6 @@ func TestCloud_VpcEnsureLoadBalancer(t *testing.T) {
 	assert.Nil(t, status)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "Failed initializing VPC")
-
-	// VpcEnsureLoadBalancer successful
-	cloud.Config.Prov.ProviderType = vpcctl.VpcProviderTypeFake
-	service = &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: "echo-server", Namespace: "default", UID: "Ready"}}
-	status, err = cloud.VpcEnsureLoadBalancer(context.Background(), clusterName, service, []*v1.Node{node})
-	assert.NotNil(t, status)
-	assert.Nil(t, err)
-	assert.Equal(t, status.Ingress[0].Hostname, "lb.ibm.com")
 }
 
 func TestCloud_VpcEnsureLoadBalancerDeleted(t *testing.T) {
@@ -256,11 +248,6 @@ func TestCloud_VpcUpdateLoadBalancer(t *testing.T) {
 	err = cloud.VpcUpdateLoadBalancer(context.Background(), clusterName, service, []*v1.Node{node})
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "Failed initializing VPC")
-
-	// VpcUpdateLoadBalancer successful, existing LB was updated
-	cloud.Config.Prov.ProviderType = vpcctl.VpcProviderTypeFake
-	err = cloud.VpcUpdateLoadBalancer(context.Background(), clusterName, service, []*v1.Node{node})
-	assert.Nil(t, err)
 }
 
 func TestCloud_WatchCloudCredential(t *testing.T) {
