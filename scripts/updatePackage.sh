@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2022 All Rights Reserved.
+# (C) Copyright IBM Corp. 2022, 2023 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -25,7 +25,9 @@ RELEASE=$(awk '/^release:/{print $2}' "${ADDON_FILE}")
 SOURCE_DIR=$(awk '/^source_dir:/{print $2}' "${ADDON_FILE}")
 TARGET_DIR=$(awk '/^target_dir:/{print $2}' "${ADDON_FILE}")
 GREP_STRING=$(awk '/^grep_string:/{print $2}' "${ADDON_FILE}")
-SED_COMMANDS=$(awk '/^sed_commands:/{print $2}' "${ADDON_FILE}")
+SED_COMMAND_1=$(grep '^sed_command_1:' "${ADDON_FILE}" | cut -d':' -f2)
+SED_COMMAND_2=$(grep '^sed_command_2:' "${ADDON_FILE}" | cut -d':' -f2)
+SED_COMMAND_3=$(grep '^sed_command_3:' "${ADDON_FILE}" | cut -d':' -f2)
 UPDATE_GO_MOD=$(awk '/^update_go_mod:/{print $2}' "${ADDON_FILE}")
 GO_GET_UPDATES=$(awk '/^go_get_updates:/{print $2}' "${ADDON_FILE}")
 CREATE_PR=$(awk '/^create_pr:/{print $2}' "${ADDON_FILE}")
@@ -45,7 +47,10 @@ git config --global url."git@github.ibm.com:".insteadOf "https://github.ibm.com/
 echo "Clone the source repo: ${SOURCE_REPO} ..."
 git clone --depth=1 --no-single-branch --branch "${RELEASE}" "https://${GHE_USER}:${GHE_TOKEN}@${SOURCE_REPO}.git"
 
-# Copy over the soure files
+# Determine commit of the source repo
+SOURCE_COMMIT=$(cd "${REPO_BASE}"; git rev-parse --short HEAD)
+
+# Copy over the source files
 echo "Copy over the package files ..."
 rm -f "${TARGET_DIR}"/*.go
 cp "${REPO_BASE}/${SOURCE_DIR}"/*.go "${TARGET_DIR}"
@@ -58,11 +63,17 @@ if [ -n "${GREP_STRING}" ]; then
     grep "${GREP_STRING}" "${TARGET_DIR}"/*.go
     echo
 fi
-# Update the GO source code based on sed command
+# Update the GO source code using sed commands
 for file in "${TARGET_DIR}"/*.go; do
-    for sed_cmd in ${SED_COMMANDS}; do
-        sed -i "${sed_cmd}" "$file"
-    done
+    if [ -n "${SED_COMMAND_1}" ]; then
+        sed -i "${SED_COMMAND_1}" "$file"
+    fi
+    if [ -n "${SED_COMMAND_2}" ]; then
+        sed -i "${SED_COMMAND_2}" "$file"
+    fi
+    if [ -n "${SED_COMMAND_3}" ]; then
+        sed -i "${SED_COMMAND_3}" "$file"
+    fi
 done
 if [ -n "${GREP_STRING}" ]; then
     echo "After sed commands are done:"
@@ -115,7 +126,7 @@ if [ "${UPDATE_GO_MOD}" == "true" ]; then
     go mod tidy
     echo
 
-    # Display the udpates that were done to the go.mod
+    # Display the updates that were done to the go.mod
     echo "Changes to go.mod for new package logic"
     git diff go.mod
     echo
@@ -128,9 +139,12 @@ fi
 if [ "${CREATE_PR}" != "false" ]; then
     make hub-install
 
+    # Example branch name: "update-armada-lb-release-1.24-80f1016"
     echo "Create new branch ..."
-    git checkout -b "update-${REPO_BASE}-${RELEASE}"
+    git checkout -b "update-${REPO_BASE}-${RELEASE}-${SOURCE_COMMIT}"
+    echo
 
+    # Add files to the commit
     for file in "${TARGET_DIR}"/*.go; do
         git add "$file"
     done
@@ -138,18 +152,30 @@ if [ "${CREATE_PR}" != "false" ]; then
         git add go.mod
         git add go.sum
     fi
+
+    # Check to see if PR is needed
+    git status
+    if ! git status | grep -q "${TARGET_DIR}"; then
+        echo "None of the ${TARGET_DIR} GO files need to get updated"
+        exit 0
+    fi
+
+    # Example commit message: "Update pkg/vpcctl with armada-lb:release-1.24 commit 80f1016"
     {
-        echo "Update ${TARGET_DIR} with ${REPO_BASE}:${RELEASE}"
+        echo "Update ${TARGET_DIR} with ${REPO_BASE}:${RELEASE} commit ${SOURCE_COMMIT}"
         echo
     } >"${TRAVIS_BUILD_DIR}"/message.txt
 
-    echo "Comitting changes..."
+    echo "Committing changes..."
     git commit --file "${TRAVIS_BUILD_DIR}"/message.txt
 
     echo "Creating pull request..."
     export GITHUB_TOKEN=${GHE_TOKEN}
-    hub pull-request --file "${TRAVIS_BUILD_DIR}"/message.txt --push "${CREATE_PR}"
+    hub pull-request --file "${TRAVIS_BUILD_DIR}"/message.txt --push -b "${CREATE_PR}"
+    echo
+    echo "Pull request successfully created"
+    echo
+else
+    echo "The files in ${TARGET_DIR} have been successfully updated"
+    echo
 fi
-
-echo "The files in ${TARGET_DIR} have been successfully updated"
-echo
