@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.12.0
-	github.com/IBM/vpc-go-sdk v0.29.0
+	github.com/IBM/vpc-go-sdk v0.30.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.1
@@ -15,7 +15,7 @@ require (
 	k8s.io/cloud-provider v0.23.15
 	k8s.io/component-base v0.23.15
 	k8s.io/klog/v2 v2.80.1
-	k8s.io/utils v0.0.0-20211116205334-6203023598ed
+	k8s.io/utils v0.0.0-20230115233650-391b47cb4029
 )
 
 require (
