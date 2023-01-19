@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -128,8 +128,13 @@ func (c *CloudVpc) checkListenerForExtPortDeletedFromService(updatesRequired []s
 			return updatesRequired
 		}
 	}
+	// Make sure "" is not passed as the pool name
+	poolName := listener.DefaultPool.Name
+	if poolName == "" {
+		poolName = "unknown"
+	}
 	// Port for this listener must have been deleted. Delete the listener
-	updatesRequired = append(updatesRequired, fmt.Sprintf("%s %s %s", actionDeleteListener, listener.DefaultPool.Name, listener.ID))
+	updatesRequired = append(updatesRequired, fmt.Sprintf("%s %s %s", actionDeleteListener, poolName, listener.ID))
 	return updatesRequired
 }
 
