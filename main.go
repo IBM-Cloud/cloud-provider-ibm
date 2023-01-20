@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2019, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2019, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -18,8 +18,8 @@
 *******************************************************************************/
 
 // References:
-// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.26.0/staging/src/k8s.io/cloud-provider/app/controllermanager.go
-// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.26.0/staging/src/k8s.io/cloud-provider/sample/basic_main.go
+// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.26.1/staging/src/k8s.io/cloud-provider/app/controllermanager.go
+// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.26.1/staging/src/k8s.io/cloud-provider/sample/basic_main.go
 
 package main
 
