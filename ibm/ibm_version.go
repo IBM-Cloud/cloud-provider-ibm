@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -31,7 +31,7 @@ var (
 )
 
 // Version is overwritten during builds.
-var Version = "v1.23.15"
+var Version = "v1.23.16"
 
 func PrintVersionAndExitIfRequested() {
 	if versionFlag {
