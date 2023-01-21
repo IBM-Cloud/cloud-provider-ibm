@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -22,7 +22,7 @@ package ibm
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -1409,7 +1409,7 @@ func TestCreateCalicoCfg(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error while calling createCalicoCfg() %v", err)
 	}
-	calicoCtlCfgBytes, err := ioutil.ReadFile(calicoCtlCfgFile)
+	calicoCtlCfgBytes, err := os.ReadFile(calicoCtlCfgFile)
 	if err != nil {
 		t.Fatalf("Could not read calicoctl config file: %v. error is: %v", calicoCtlCfgFile, err)
 	}
@@ -1425,7 +1425,7 @@ func TestCreateCalicoCfg(t *testing.T) {
 	}
 	colonIndex := strings.Index(calicoCtlCfgLines[5], ": ") + 2
 	keyFileName := calicoCtlCfgLines[5][colonIndex:]
-	keyFileBytes, err := ioutil.ReadFile(keyFileName)
+	keyFileBytes, err := os.ReadFile(keyFileName)
 	if err != nil {
 		t.Fatalf("Could not read calicoctl key file: %v. error is: %v", keyFileName, err)
 	}
@@ -1438,7 +1438,7 @@ func TestCreateCalicoCfg(t *testing.T) {
 	}
 	colonIndex = strings.Index(calicoCtlCfgLines[6], ": ") + 2
 	certFileName := calicoCtlCfgLines[6][colonIndex:]
-	certFileBytes, err := ioutil.ReadFile(certFileName)
+	certFileBytes, err := os.ReadFile(certFileName)
 	if err != nil {
 		t.Fatalf("Could not read calicoctl cert file: %v. error is: %v", certFileName, err)
 	}
@@ -1451,7 +1451,7 @@ func TestCreateCalicoCfg(t *testing.T) {
 	}
 	colonIndex = strings.Index(calicoCtlCfgLines[7], ": ") + 2
 	caCertFileName := calicoCtlCfgLines[7][colonIndex:]
-	caCertFileBytes, err := ioutil.ReadFile(caCertFileName)
+	caCertFileBytes, err := os.ReadFile(caCertFileName)
 	if err != nil {
 		t.Fatalf("Could not read calicoctl CA cert file: %v. error is: %v", caCertFileName, err)
 	}
@@ -1469,12 +1469,12 @@ func TestCreateCalicoKDDCfg(t *testing.T) {
 		t.Fatalf("Error while calling createCalicoCfg() %v", err)
 	}
 
-	actualCalicoCfg, err := ioutil.ReadFile(calicoCfgFile)
+	actualCalicoCfg, err := os.ReadFile(calicoCfgFile)
 	if err != nil {
 		t.Fatalf("Could not read created calicoctl config file: %v. error is: %v", calicoCfgFile, err)
 	}
 
-	expectedCalicoCfg, _ := ioutil.ReadFile("../test-fixtures/kdd-calico-config.yaml")
+	expectedCalicoCfg, _ := os.ReadFile("../test-fixtures/kdd-calico-config.yaml")
 	if string(actualCalicoCfg) != strings.TrimSpace(string(expectedCalicoCfg)) {
 		t.Errorf("FAILURE: unable to generate expected yaml. expected \n%+v, actual \n%+v", string(expectedCalicoCfg), string(actualCalicoCfg))
 	}
@@ -1538,7 +1538,7 @@ func TestCreateCalicoExecDummy(t *testing.T) {
 		args = args[1:]
 	}
 
-	b, err := ioutil.ReadAll(os.Stdin)
+	b, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		t.Fatalf("unable to read calico policy yaml: %v", err)
 	}

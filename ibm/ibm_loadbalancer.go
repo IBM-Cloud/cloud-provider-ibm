@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -24,7 +24,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"os"
 	"os/exec"
@@ -1007,7 +1006,7 @@ func (c *Cloud) createCalicoCfg() (string, error) {
 	*/
 
 	var caliCfgYaml string
-	calicoCfgFile, err := ioutil.TempFile("", "calicfg")
+	calicoCfgFile, err := os.CreateTemp("", "calicfg")
 	if err != nil {
 		klog.Error("Unable to create temp calico configuration file")
 		return "", err
@@ -1039,19 +1038,19 @@ spec:
 			return "", err
 		}
 
-		caFile, err := ioutil.TempFile("", "ca")
+		caFile, err := os.CreateTemp("", "ca")
 		if err != nil {
 			klog.Error("Unable to create temp calico ca file")
 			return "", err
 		}
 
-		certFile, err := ioutil.TempFile("", "cert")
+		certFile, err := os.CreateTemp("", "cert")
 		if err != nil {
 			klog.Error("Unable to create temp calico cert file")
 			return "", err
 		}
 
-		keyFile, err := ioutil.TempFile("", "key")
+		keyFile, err := os.CreateTemp("", "key")
 		if err != nil {
 			klog.Error("Unable to create temp calico key file")
 			return "", err
@@ -1107,7 +1106,7 @@ spec:
 }
 
 func cleanupCalicoCfg(calicoCfgFile string) error {
-	calicoCtlCfgBytes, err := ioutil.ReadFile(filepath.Clean(calicoCfgFile))
+	calicoCtlCfgBytes, err := os.ReadFile(filepath.Clean(calicoCfgFile))
 	if err != nil {
 		klog.Error("Unable to read Calico config temp file")
 		return err

@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -87,7 +87,8 @@ var td testData
 /*
 ibm_loadbalancer tests the ibm cloud provider LoadBalancer CRUD operations
 by creating or deleting a "test" cloud load balancer based on its existence.
-    $ ./ibm_loadbalancer --logtostderr=true
+
+	$ ./ibm_loadbalancer --logtostderr=true
 */
 func main() {
 	var exist bool
