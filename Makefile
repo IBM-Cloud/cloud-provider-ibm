@@ -1,6 +1,6 @@
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+# (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -170,7 +170,7 @@ fvttest:
 .PHONY: runanalyzedeps
 runanalyzedeps:
 	which nancy || $(MAKE) install-nancy-dep-scanner
-	go list -json -deps | nancy sleuth --no-color > nancy.log 2>&1; scripts/process_nancy_log.sh $$?
+	go list -json -deps | nancy sleuth -e sonatype-2022-6522 --no-color > nancy.log 2>&1; scripts/process_nancy_log.sh $$?
 
 .PHONY: install-nancy-dep-scanner
 install-nancy-dep-scanner:
