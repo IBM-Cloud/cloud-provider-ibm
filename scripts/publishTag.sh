@@ -39,7 +39,7 @@ shift $((OPTIND-1))
 EXISTING_TAG=$(git tag --list --points-at HEAD)
 if [[ -n "${EXISTING_TAG}" && "${FORCE_TAG}" != "true" ]]; then
     echo "INFO: Current commit already tagged as ${EXISTING_TAG}. Use -f to force another tag."
-    exit 0
+    exit 1
 fi
 
 # Set default tag.
