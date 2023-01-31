@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2019, 2022 All Rights Reserved.
+# (C) Copyright IBM Corp. 2019, 2023 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -39,7 +39,7 @@ shift $((OPTIND-1))
 EXISTING_TAG=$(git tag --list --points-at HEAD)
 if [[ -n "${EXISTING_TAG}" && "${FORCE_TAG}" != "true" ]]; then
     echo "INFO: Current commit already tagged as ${EXISTING_TAG}. Use -f to force another tag."
-    exit 0
+    exit 1
 fi
 
 # Set default tag.
