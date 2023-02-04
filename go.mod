@@ -15,7 +15,7 @@ require (
 	k8s.io/cloud-provider v0.23.16
 	k8s.io/component-base v0.23.16
 	k8s.io/klog/v2 v2.90.0
-	k8s.io/utils v0.0.0-20230115233650-391b47cb4029
+	k8s.io/utils v0.0.0-20230202215443-34013725500c
 )
 
 require (
