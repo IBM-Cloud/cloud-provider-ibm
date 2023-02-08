@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -160,14 +160,7 @@ func (c *Cloud) VpcGetLoadBalancer(ctx context.Context, clusterName string, serv
 
 // vpcGetLoadBalancerName - Returns the name of the load balancer
 func (c *Cloud) vpcGetLoadBalancerName(service *v1.Service) string {
-	clusterID := c.Config.Prov.ClusterID
-	serviceID := strings.ReplaceAll(string(service.UID), "-", "")
-	ret := vpcctl.VpcLbNamePrefix + "-" + clusterID + "-" + serviceID
-	// Limit the LB name to 63 characters
-	if len(ret) > 63 {
-		ret = ret[:63]
-	}
-	return ret
+	return vpcctl.GenerateLoadBalancerName(service, c.Config.Prov.ClusterID)
 }
 
 // vpcGetServiceDetails - Returns the string of the Kube LB service key fields
