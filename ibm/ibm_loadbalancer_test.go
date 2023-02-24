@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -1599,7 +1599,7 @@ func TestDeleteCalicoPublicIngressPolicy(t *testing.T) {
 		cs = append(cs, parms...)
 		// #nosec G204 unit test code usage that wouldn't be exploited
 		cmd := exec.Command(os.Args[0], cs...)
-		cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", "POLICY_TYPE=PUBLIC"}
+		cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", "POLICY_TYPE=PUBLIC", "GOCOVERDIR=."}
 
 		policyNameParm = parms[3]
 		return cmd
@@ -1646,7 +1646,7 @@ func TestDeleteCalicoPrivateIngressPolicy(t *testing.T) {
 		cs = append(cs, parms...)
 		// #nosec G204 unit test code usage that wouldn't be exploited
 		cmd := exec.Command(os.Args[0], cs...)
-		cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", "POLICY_TYPE=PRIVATE"}
+		cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", "POLICY_TYPE=PRIVATE", "GOCOVERDIR=."}
 
 		policyNameParm = parms[3]
 		return cmd

@@ -55,9 +55,9 @@ function exit_build {
 apt-get install -y make
 if ! hash go 2>/dev/null; then
     # Add apt-repository ppa:ubuntu-lxc/lxd-stable
-    curl -O https://dl.google.com/go/go1.19.5.linux-amd64.tar.gz
+    curl -O https://dl.google.com/go/go1.20.linux-amd64.tar.gz
     if [[ $? -ne 0 ]]; then exit_build ; fi
-    tar -C /usr/local -xzf go1.19.5.linux-amd64.tar.gz
+    tar -C /usr/local -xzf go1.20.linux-amd64.tar.gz
     if [[ $? -ne 0 ]]; then exit_build ; fi
     if [ ! -n "$(grep "/usr/local/go/bin" /etc/profile)" ]; then
         echo 'export PATH=$PATH:/usr/local/go/bin' >> /etc/profile
@@ -141,7 +141,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node.vm.provision "shell", inline: $setup_build
     node.vm.provision "shell", path: "provisioning/build.sh", privileged: false, args: "#{build_steps}"
     node.vm.provider PROVIDER do |nodeopts|
-      nodeopts.memory = "4096"
+      nodeopts.memory = "8192"
       nodeopts.cpus = 2
       if PROVIDER == "libvirt" and VAGRANT_VERSION >= VAGRANT_2_2
         nodeopts.qemu_use_session = false
