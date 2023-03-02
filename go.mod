@@ -3,7 +3,7 @@ module cloud.ibm.com/cloud-provider-ibm
 go 1.20
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.13.0
+	github.com/IBM/go-sdk-core/v5 v5.13.1
 	github.com/IBM/platform-services-go-sdk v0.32.0
 	github.com/IBM/vpc-go-sdk v0.32.0
 	github.com/fsnotify/fsnotify v1.6.0
@@ -17,7 +17,7 @@ require (
 	k8s.io/client-go v0.27.0-alpha.2
 	k8s.io/cloud-provider v0.27.0-alpha.2
 	k8s.io/component-base v0.27.0-alpha.2
-	k8s.io/klog/v2 v2.90.0
+	k8s.io/klog/v2 v2.90.1
 	k8s.io/utils v0.0.0-20230220204549-a5ecb0141aa5
 )
 
