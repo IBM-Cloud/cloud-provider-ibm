@@ -19,7 +19,7 @@
 language: go
 
 go:
-  - 1.19.5
+  - 1.19.6
 
 dist: bionic
 
@@ -87,19 +87,19 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      condition: ${TRAVIS_TAG} == v1.26.1-* && ${BUILD_JOB_NAME} == Default
-      go: 1.19.5
+      condition: ${TRAVIS_TAG} == v1.26.2-* && ${BUILD_JOB_NAME} == Default
+      go: 1.19.6
   - provider: script
     script: BUILD_TAG=${TRAVIS_TAG} make deploy
     skip_cleanup: true
     on:
       tags: true
-      go: 1.19.5
+      go: 1.19.6
       condition: ${TRAVIS_TAG} == dev-* && ${BUILD_JOB_NAME} == Default
   - provider: script
     script: ./scripts/publishTag.sh
     skip_cleanup: true
     on:
       branch: release-1.26
-      go: 1.19.5
+      go: 1.19.6
       condition: ${TRAVIS_COMMIT_MESSAGE} =~ push_build && ${BUILD_JOB_NAME} == Default
