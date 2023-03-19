@@ -12,11 +12,11 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.2
 	gopkg.in/gcfg.v1 v1.2.3
-	k8s.io/api v0.24.11
-	k8s.io/apimachinery v0.24.11
-	k8s.io/client-go v0.24.11
-	k8s.io/cloud-provider v0.24.11
-	k8s.io/component-base v0.24.11
+	k8s.io/api v0.24.12
+	k8s.io/apimachinery v0.24.12
+	k8s.io/client-go v0.24.12
+	k8s.io/cloud-provider v0.24.12
+	k8s.io/component-base v0.24.12
 	k8s.io/klog/v2 v2.90.1
 	k8s.io/utils v0.0.0-20230313181309-38a27ef9d749
 )
@@ -109,9 +109,9 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiserver v0.24.11 // indirect
-	k8s.io/component-helpers v0.24.11 // indirect
-	k8s.io/controller-manager v0.24.11 // indirect
+	k8s.io/apiserver v0.24.12 // indirect
+	k8s.io/component-helpers v0.24.12 // indirect
+	k8s.io/controller-manager v0.24.12 // indirect
 	k8s.io/kube-openapi v0.0.0-20220328201542-3ee0da9b0b42 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.35 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
