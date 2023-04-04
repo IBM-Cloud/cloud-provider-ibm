@@ -29,7 +29,6 @@ env:
     - registry_iam_api_key="${ALL_GLOBAL_registry_iam_api_key_20220425}"
     - GHE_TOKEN="${ALL_GLOBAL_GHE_API_KEY_20220420}"
     - TRAVIS_HOSTNAME="travis.ibm.com"
-    - ARTIFACTORY_API_KEY_FILE="/tmp/.artifactory-api-key"
     - ARTIFACTORY_AUTH_HEADER_FILE="/tmp/.artifactory-auth-header"
 
 sudo: required
@@ -45,7 +44,7 @@ jobs:
     - name: "Default"
       env: BUILD_JOB_NAME="Default"
     - name: "No Artifactory"
-      env: BUILD_JOB_NAME="No Artifactory" IKS_PIPELINE_IAM_APIKEY=""
+      env: BUILD_JOB_NAME="No Artifactory" ARTIFACTORY_AUTH_HEADER_FILE=""
 
 before_install:
   - echo "${TRAVIS_BUILD_WEB_URL}" && export TRAVIS_BUILD_WEB_URL=$(echo "$TRAVIS_BUILD_WEB_URL" | sed "s/:\/\/\//:\/\/${TRAVIS_HOSTNAME}\//") && echo "${TRAVIS_BUILD_WEB_URL}"
@@ -56,7 +55,6 @@ before_install:
   - pyenv global system 3.8
   - echo "StrictHostKeyChecking no" > ~/.ssh/config
   - make setup-build
-  - if [[ -n ${IKS_PIPELINE_IAM_APIKEY} ]]; then export ARTIFACTORY_API_KEY=$(cat "${ARTIFACTORY_API_KEY_FILE}"); fi
 
 before_script:
   - if [[ ${TRAVIS_EVENT_TYPE} == cron && ${BUILD_JOB_NAME} == Default ]]; then ./kube-update.sh; make runanalyzedeps || true; travis_terminate 0; fi
@@ -100,6 +98,6 @@ deploy:
     script: ./scripts/publishTag.sh
     skip_cleanup: true
     on:
-      branch: release-1.26
+      branch: release-1.27
       go: 1.20.2
       condition: ${TRAVIS_COMMIT_MESSAGE} =~ push_build && ${BUILD_JOB_NAME} == Default
