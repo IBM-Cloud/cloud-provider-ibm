@@ -55,7 +55,6 @@ before_install:
   - pyenv global system 3.8
   - echo "StrictHostKeyChecking no" > ~/.ssh/config
   - make setup-build
-  - if [[ -n ${ARTIFACTORY_AUTH_HEADER_FILE} ]]; then export ARTIFACTORY_JFRT_TOKEN=$(cat "${ARTIFACTORY_TOKEN_PATH}"); fi
 
 before_script:
   - if [[ ${TRAVIS_EVENT_TYPE} == cron && ${BUILD_JOB_NAME} == Default ]]; then ./kube-update.sh; make runanalyzedeps || true; travis_terminate 0; fi

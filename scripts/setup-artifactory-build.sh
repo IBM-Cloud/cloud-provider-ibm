@@ -22,7 +22,7 @@ curl -s https://s3.us.cloud-object-storage.appdomain.cloud/armada-build-tools-pr
 ./build-tools/install.sh
 # shellcheck disable=SC1091
 source ./build-tools/JFrog/setJfrtToken.sh
-export ARTIFACTORY_TOKEN_PATH="/tmp/ARTIFACTORY_TOKEN"
+export ARTIFACTORY_TOKEN_PATH="/tmp/.artifactory-token-path"
 echo "${ARTIFACTORY_JFRT_TOKEN}" > ${ARTIFACTORY_TOKEN_PATH}
 docker login wcp-alchemy-containers-team-access-redhat-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER_NAME}" --password-stdin <<< "${ARTIFACTORY_JFRT_TOKEN}"
 docker login wcp-alchemy-containers-team-gcr-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER_NAME}" --password-stdin <<< "${ARTIFACTORY_JFRT_TOKEN}"

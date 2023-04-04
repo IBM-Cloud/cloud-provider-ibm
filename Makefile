@@ -73,7 +73,7 @@ all: oss fmt lint lint-sh lint-copyright vet test coverage commands fvttest cont
 .PHONY: setup-artifactory-build
 setup-artifactory-build:
 ifdef ARTIFACTORY_AUTH_HEADER_FILE
-	export ARTIFACTORY_TOKEN_PATH="/tmp/ARTIFACTORY_TOKEN"
+	export ARTIFACTORY_TOKEN_PATH="/tmp/.artifactory-token-path"
 	scripts/setup-artifactory-build.sh
 else
 	echo "Skipping artifactory build setup."
