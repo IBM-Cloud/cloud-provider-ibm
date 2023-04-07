@@ -45,7 +45,7 @@ git config --global url."git@github.ibm.com:".insteadOf "https://github.ibm.com/
 
 # Clone the source repo
 echo "Clone the source repo: ${SOURCE_REPO} ..."
-git clone --depth=1 --no-single-branch --branch "${RELEASE}" "https://${GHE_USER}:${GHE_TOKEN}@${SOURCE_REPO}.git"
+git clone --depth=1 --single-branch --branch "${RELEASE}" "https://${GHE_USER}:${GHE_TOKEN}@${SOURCE_REPO}.git"
 
 # Determine commit of the source repo
 SOURCE_COMMIT=$(cd "${REPO_BASE}"; git rev-parse --short HEAD)
