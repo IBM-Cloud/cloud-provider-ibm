@@ -4,11 +4,11 @@ go 1.19
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.13.1
-	github.com/IBM/platform-services-go-sdk v0.35.0
+	github.com/IBM/platform-services-go-sdk v0.35.1
 	github.com/IBM/vpc-go-sdk v0.35.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-openapi/strfmt v0.21.7
-	github.com/spf13/cobra v1.6.1
+	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.2
 	gopkg.in/gcfg.v1 v1.2.3
@@ -18,7 +18,7 @@ require (
 	k8s.io/cloud-provider v0.25.8
 	k8s.io/component-base v0.25.8
 	k8s.io/klog/v2 v2.90.1
-	k8s.io/utils v0.0.0-20230313181309-38a27ef9d749
+	k8s.io/utils v0.0.0-20230406110748-d93618cff8a2
 )
 
 require (
@@ -56,7 +56,7 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.2 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
-	github.com/inconshreveable/mousetrap v1.0.1 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect

@@ -34,9 +34,12 @@ image_name=$(echo "${DOCKER_IMAGE_NAME}" | cut -d'/' -f2)
 new_image_tag=${DOCKER_IMAGE_TAG}
 
 # Clone the armada-ansible repo
-git clone --depth=1 --no-single-branch "https://${GHE_USER}:${GHE_TOKEN}@github.ibm.com/alchemy-containers/armada-ansible.git"
+git clone --filter=blob:none --depth=1 --sparse "https://${GHE_USER}:${GHE_TOKEN}@github.ibm.com/alchemy-containers/armada-ansible.git"
+cd armada-ansible
+git sparse-checkout add .github
+git sparse-checkout add common/bom/next
+cd common/bom/next
 
-cd armada-ansible/common/bom/next
 bom_file_list=$(grep "^${bom_image}:" ./* | grep ":v${kube_major}.${kube_minor}." | cut -d':' -f1)
 
 for file in $bom_file_list; do
@@ -73,7 +76,7 @@ if [[ "${DOCKER_IMAGE_TAG}" = dev-* ]]; then
     pr_labels="DNM"
     echo "${DOCKER_IMAGE_TAG} is a dev image"
     {
-        echo "DNM: Test BOM for ${image_name} - ${new_image_tag}"
+        echo "[DNM] Test BOM for ${image_name} - ${new_image_tag}"
         echo
         echo "### Do not merge. Test only."
         echo
@@ -118,7 +121,7 @@ cd "${TRAVIS_BUILD_DIR}"
 if grep -q "Update vpcctl" "${TRAVIS_BUILD_DIR}/message.txt"; then
 
     # Clone the armada-network repo and kick off Jenkins job
-    git clone --depth=1 --no-single-branch "https://${GHE_USER}:${GHE_TOKEN}@github.ibm.com/alchemy-containers/armada-network.git"
+    git clone --depth=1 --single-branch "https://${GHE_USER}:${GHE_TOKEN}@github.ibm.com/alchemy-containers/armada-network.git"
     cd armada-network/tools/jenkins-cli
     go run main.go -action createTestBOM -ansibleBranch "armada-lb-${new_image_tag}" -clusterVersion "${kube_major}.${kube_minor}" -user "${JENKINS_USER}" -token "${JENKINS_TOKEN}"
 fi
