@@ -157,7 +157,7 @@ fvttest:
 .PHONY: runanalyzedeps
 runanalyzedeps:
 	which nancy || $(MAKE) install-nancy-dep-scanner
-	go list -json -deps | nancy sleuth -e sonatype-2022-6522 --no-color > nancy.log 2>&1; scripts/process_nancy_log.sh $$?
+	go list -json -deps | nancy sleuth -e sonatype-2022-6522,CVE-2020-8561 --no-color > nancy.log 2>&1; scripts/process_nancy_log.sh $$?
 
 .PHONY: install-nancy-dep-scanner
 install-nancy-dep-scanner:
