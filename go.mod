@@ -4,10 +4,10 @@ go 1.19
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.13.4
-	github.com/IBM/vpc-go-sdk v0.37.0
+	github.com/IBM/vpc-go-sdk v0.38.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	gopkg.in/gcfg.v1 v1.2.3
 	k8s.io/api v0.23.17
 	k8s.io/apimachinery v0.23.17
