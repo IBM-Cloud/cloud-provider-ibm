@@ -1581,7 +1581,7 @@ func TestDeleteCalicoPublicIngressPolicy(t *testing.T) {
 		cmd := exec.Command(os.Args[0], cs...)
 		cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", "POLICY_TYPE=PUBLIC"}
 
-		policyNameParm = parms[3]
+		policyNameParm = parms[4]
 		return cmd
 	}
 
@@ -1601,7 +1601,7 @@ func TestDeleteCalicoPublicIngressPolicy(t *testing.T) {
 		cmd := exec.Command(os.Args[0], cs...)
 		cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", "POLICY_TYPE=PUBLIC", "GOCOVERDIR=."}
 
-		policyNameParm = parms[3]
+		policyNameParm = parms[4]
 		return cmd
 	}
 
@@ -1628,7 +1628,7 @@ func TestDeleteCalicoPrivateIngressPolicy(t *testing.T) {
 		cmd := exec.Command(os.Args[0], cs...)
 		cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", "POLICY_TYPE=PRIVATE"}
 
-		policyNameParm = parms[3]
+		policyNameParm = parms[4]
 		return cmd
 	}
 
@@ -1648,7 +1648,7 @@ func TestDeleteCalicoPrivateIngressPolicy(t *testing.T) {
 		cmd := exec.Command(os.Args[0], cs...)
 		cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", "POLICY_TYPE=PRIVATE", "GOCOVERDIR=."}
 
-		policyNameParm = parms[3]
+		policyNameParm = parms[4]
 		return cmd
 	}
 
