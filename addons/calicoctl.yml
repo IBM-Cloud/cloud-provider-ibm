@@ -1,6 +1,6 @@
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2021 All Rights Reserved.
+# (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ******************************************************************************
-source_git: https://github.com/projectcalico/calicoctl/releases/download/${CALICOCTL_VERSION}/calicoctl
-source_artifactory: https://na.artifactory.swg-devops.com/artifactory/wcp-alchemy-containers-team-github-generic-remote/projectcalico/calicoctl/releases/download/${CALICOCTL_VERSION}/calicoctl
-checksum: c3bdf21202232b8fc3b3a2232c8c2e55
-version: v3.19.3
+source_git: https://github.com/projectcalico/calico/releases/download/${CALICOCTL_VERSION}/calicoctl-linux-amd64
+source_artifactory: https://na.artifactory.swg-devops.com/artifactory/wcp-alchemy-containers-team-github-generic-remote/projectcalico/calico/releases/download/${CALICOCTL_VERSION}/calicoctl-linux-amd64
+checksum: 9ee5af5751d88e8e52144780db1bc85c
+version: v3.25.1
