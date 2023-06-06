@@ -1178,7 +1178,7 @@ spec:
         - ` + fmt.Sprint(port.Port)
 	}
 
-	caliCmd := execCommand("calicoctl", "apply", "--config", calicoCfgFileName, "-f", "-")
+	caliCmd := execCommand("calicoctl", "--allow-version-mismatch", "apply", "--config", calicoCfgFileName, "-f", "-")
 	stdin, err := caliCmd.StdinPipe()
 	if err != nil {
 		klog.Error("Unable to open calico stdin pipe")
@@ -1207,7 +1207,7 @@ func (c *Cloud) deleteCalicoIngressPolicy(service *v1.Service) error {
 	}
 
 	policyName := "allow-lb-" + GetCloudProviderLoadBalancerName(service)
-	caliCmd := execCommand("calicoctl", "delete", "--skip-not-exists", "globalNetworkPolicy", policyName, "--config", calicoCfgFileName)
+	caliCmd := execCommand("calicoctl", "--allow-version-mismatch", "delete", "--skip-not-exists", "globalNetworkPolicy", policyName, "--config", calicoCfgFileName)
 	// 'err': contains the error information about the cmd. For example the status code.
 	// 'stdoutStderr': holds the details such as the actual error message that is returned
 	stdoutStderr, err := caliCmd.CombinedOutput()
