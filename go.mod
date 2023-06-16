@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.13.4
-	github.com/IBM/platform-services-go-sdk v0.39.0
+	github.com/IBM/platform-services-go-sdk v0.40.0
 	github.com/IBM/vpc-go-sdk v0.38.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-openapi/strfmt v0.21.7
@@ -12,11 +12,11 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4
 	gopkg.in/gcfg.v1 v1.2.3
-	k8s.io/api v0.25.10
-	k8s.io/apimachinery v0.25.10
-	k8s.io/client-go v0.25.10
-	k8s.io/cloud-provider v0.25.10
-	k8s.io/component-base v0.25.10
+	k8s.io/api v0.25.11
+	k8s.io/apimachinery v0.25.11
+	k8s.io/client-go v0.25.11
+	k8s.io/cloud-provider v0.25.11
+	k8s.io/component-base v0.25.11
 	k8s.io/klog/v2 v2.100.1
 	k8s.io/utils v0.0.0-20230505201702-9f6742963106
 )
@@ -109,9 +109,9 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiserver v0.25.10 // indirect
-	k8s.io/component-helpers v0.25.10 // indirect
-	k8s.io/controller-manager v0.25.10 // indirect
+	k8s.io/apiserver v0.25.11 // indirect
+	k8s.io/component-helpers v0.25.11 // indirect
+	k8s.io/controller-manager v0.25.11 // indirect
 	k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.37 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
