@@ -49,7 +49,7 @@ GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
 HUB_RLS ?= 2.14.2
 REGISTRY ?= armada-master
-TAG ?= v1.26.5
+TAG ?= v1.26.6
 
 NANCY_VERSION := 1.0.39
 
