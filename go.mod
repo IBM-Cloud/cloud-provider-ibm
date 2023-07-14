@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/IBM/go-sdk-core/v5 v5.13.4
 	github.com/IBM/platform-services-go-sdk v0.40.0
-	github.com/IBM/vpc-go-sdk v0.39.0
+	github.com/IBM/vpc-go-sdk v0.40.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-openapi/strfmt v0.21.7
 	github.com/spf13/cobra v1.7.0
@@ -18,7 +18,7 @@ require (
 	k8s.io/cloud-provider v0.25.11
 	k8s.io/component-base v0.25.11
 	k8s.io/klog/v2 v2.100.1
-	k8s.io/utils v0.0.0-20230505201702-9f6742963106
+	k8s.io/utils v0.0.0-20230711102312-30195339c3c7
 )
 
 require (
