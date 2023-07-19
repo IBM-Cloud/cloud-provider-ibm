@@ -30,9 +30,10 @@ import (
 	"cloud.ibm.com/cloud-provider-ibm/ibm"
 	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/cloud-provider"
+	cloudprovider "k8s.io/cloud-provider"
 	"k8s.io/cloud-provider/app"
 	"k8s.io/cloud-provider/app/config"
+	"k8s.io/cloud-provider/names"
 	"k8s.io/cloud-provider/options"
 	"k8s.io/component-base/cli"
 	cliflag "k8s.io/component-base/cli/flag"
@@ -73,7 +74,7 @@ the cloud specific control loops shipped with Kubernetes.`,
 			ibm.PrintVersionAndExitIfRequested()
 			cliflag.PrintFlags(cmd.Flags())
 
-			c, err := s.Config(app.ControllerNames(initFuncConstructor), app.ControllersDisabledByDefault.List(), app.AllWebhooks, app.DisabledByDefaultWebhooks)
+			c, err := s.Config(app.ControllerNames(initFuncConstructor), app.ControllersDisabledByDefault.List(), names.CCMControllerAliases(), app.AllWebhooks, app.DisabledByDefaultWebhooks)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				return err
@@ -100,7 +101,7 @@ the cloud specific control loops shipped with Kubernetes.`,
 	}
 
 	fs := cmd.Flags()
-	namedFlagSets := s.Flags(app.ControllerNames(initFuncConstructor), app.ControllersDisabledByDefault.List(), app.AllWebhooks, app.DisabledByDefaultWebhooks)
+	namedFlagSets := s.Flags(app.ControllerNames(initFuncConstructor), app.ControllersDisabledByDefault.List(), names.CCMControllerAliases(), app.AllWebhooks, app.DisabledByDefaultWebhooks)
 	ibm.AddVersionFlag(namedFlagSets.FlagSet("global"))
 	globalflag.AddGlobalFlags(namedFlagSets.FlagSet("global"), cmd.Name())
 
