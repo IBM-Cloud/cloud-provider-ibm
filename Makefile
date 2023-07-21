@@ -17,6 +17,7 @@
 # limitations under the License.
 # ******************************************************************************
 GO111MODULE := on
+GOCOVERDIR := .
 
 CALICOCTL_VERSION=$(shell cat addons/calicoctl.yml | awk '/^version:/{print $$2}')
 CALICOCTL_CHECKSUM=$(shell cat addons/calicoctl.yml | awk '/^checksum:/{print $$2}')
@@ -44,12 +45,12 @@ YAML_FILES=$(shell find . -type f -name '*.y*ml' -not -path "./build-tools/*" -n
 INI_FILES=$(shell find . -type f -name '*.ini' -not -path "./build-tools/*")
 OSS_FILES := go.mod
 
-GOLANGCI_LINT_VERSION := 1.50.0
+GOLANGCI_LINT_VERSION := 1.51.2
 GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
 HUB_RLS ?= 2.14.2
 REGISTRY ?= armada-master
-TAG ?= v1.24.15
+TAG ?= v1.24.16
 
 NANCY_VERSION := 1.0.35
 
@@ -112,7 +113,7 @@ lint:
 ifdef GOLANGCI_LINT_EXISTS
 	# NOTE(cjschaef): golangci-lint can take a while to run, bump deadline
 	echo "Running gosec"
-	golangci-lint run --deadline 5m -e exitAfterDefer
+	golangci-lint run -v --timeout 5m
 else
 	@echo "golangci-lint is not installed"
 	exit 1
