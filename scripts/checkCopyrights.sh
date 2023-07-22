@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+# (C) Copyright IBM Corp. 2017, 2023 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -40,6 +40,9 @@ function lint_file() {
 
     # Skip copyright checks for select test files.
     if [[ "${file}" == "test-fixtures/kdd-calico-config.yaml" ]]; then
+        return
+    fi
+    if [[ "${file}" == "test-fixtures/kdd-calico-config_for_pkg_classic.yaml" ]]; then
         return
     fi
 

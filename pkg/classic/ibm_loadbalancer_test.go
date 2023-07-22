@@ -17,7 +17,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-package ibm
+package classic
 
 import (
 	"context"
@@ -627,7 +627,7 @@ func getTestCloud() (*Cloud, string, *fake.Clientset) {
 
 	// Build test cloud.
 	cc.Global.Version = "1.0.0"
-	cc.Kubernetes.ConfigFilePaths = []string{"../test-fixtures/kubernetes/k8s-config"}
+	cc.Kubernetes.ConfigFilePaths = []string{"../../test-fixtures/kubernetes/k8s-config"}
 	cc.LBDeployment.Image = "registry.ng.bluemix.net/armada-master/keepalived:1328"
 	cc.LBDeployment.Application = "keepalived"
 	cc.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
@@ -1460,8 +1460,6 @@ func TestCreateCalicoCfg(t *testing.T) {
 	}
 }
 
-/*
-Disabled test due https://github.ibm.com/alchemy-containers/armada-lb/pull/3553#issuecomment-60137015
 func TestCreateCalicoKDDCfg(t *testing.T) {
 	c, _, _ := getTestCloud()
 	c.Config.Kubernetes.CalicoDatastore = "KDD"
@@ -1476,13 +1474,12 @@ func TestCreateCalicoKDDCfg(t *testing.T) {
 		t.Fatalf("Could not read created calicoctl config file: %v. error is: %v", calicoCfgFile, err)
 	}
 
-	expectedCalicoCfg, _ := os.ReadFile("../test-fixtures/kdd-calico-config.yaml")
+	expectedCalicoCfg, _ := os.ReadFile("../../test-fixtures/kdd-calico-config_for_pkg_classic.yaml")
 	if string(actualCalicoCfg) != strings.TrimSpace(string(expectedCalicoCfg)) {
 		t.Errorf("FAILURE: unable to generate expected yaml. expected \n%+v, actual \n%+v", string(expectedCalicoCfg), string(actualCalicoCfg))
 	}
 
 }
-*/
 
 func TestCreateCalicoPublicIngressPolicy(t *testing.T) {
 	var err error
@@ -3251,7 +3248,7 @@ func TestEnsureLoadBalancerGatewayEdge(t *testing.T) {
 
 	// Build test cloud.
 	cc.Global.Version = "1.0.0"
-	cc.Kubernetes.ConfigFilePaths = []string{"../test-fixtures/kubernetes/k8s-config"}
+	cc.Kubernetes.ConfigFilePaths = []string{"../../test-fixtures/kubernetes/k8s-config"}
 	cc.LBDeployment.Image = "registry.ng.bluemix.net/armada-master/keepalived:1328"
 	cc.LBDeployment.Application = "keepalived"
 	cc.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
