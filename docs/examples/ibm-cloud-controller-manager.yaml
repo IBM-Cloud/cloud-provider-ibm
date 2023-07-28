@@ -70,7 +70,7 @@ spec:
       terminationGracePeriodSeconds: 90
       containers:
         - name: ibm-cloud-controller-manager
-          image: registry.ng.bluemix.net/armada-master/ibm-cloud-controller-manager:v1.28.0-beta.0-1
+          image: registry.ng.bluemix.net/armada-master/ibm-cloud-controller-manager:v1.28.0-rc.0-1
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsNonRoot: true
