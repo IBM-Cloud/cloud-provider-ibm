@@ -82,15 +82,18 @@ func (c *Cloud) NewConfigVpc(enablePrivateEndpoint bool) (*vpcctl.ConfigVpc, err
 	}
 	// Initialize config based on values in the cloud provider
 	config := &vpcctl.ConfigVpc{
-		AccountID:         c.Config.Prov.AccountID,
-		ClusterID:         c.Config.Prov.ClusterID,
-		EnablePrivate:     enablePrivateEndpoint,
-		ProviderType:      c.Config.Prov.ProviderType,
-		Region:            c.Config.Prov.Region,
-		ResourceGroupName: c.Config.Prov.G2ResourceGroupName,
-		SubnetNames:       c.Config.Prov.G2VpcSubnetNames,
-		WorkerAccountID:   c.Config.Prov.G2WorkerServiceAccountID,
-		VpcName:           c.Config.Prov.G2VpcName,
+		AccountID:           c.Config.Prov.AccountID,
+		ClusterID:           c.Config.Prov.ClusterID,
+		EnablePrivate:       enablePrivateEndpoint,
+		IamEndpointOverride: c.Config.Prov.IamEndpointOverride,
+		ProviderType:        c.Config.Prov.ProviderType,
+		Region:              c.Config.Prov.Region,
+		ResourceGroupName:   c.Config.Prov.G2ResourceGroupName,
+		RmEndpointOverride:  c.Config.Prov.RmEndpointOverride,
+		SubnetNames:         c.Config.Prov.G2VpcSubnetNames,
+		WorkerAccountID:     c.Config.Prov.G2WorkerServiceAccountID,
+		VpcName:             c.Config.Prov.G2VpcName,
+		VpcEndpointOverride: c.Config.Prov.G2EndpointOverride,
 	}
 	// If the G2Credentials is set, then look up the API key
 	if c.Config.Prov.G2Credentials != "" {

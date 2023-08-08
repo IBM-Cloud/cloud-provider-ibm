@@ -102,6 +102,12 @@ type Provider struct {
 	// List of VPC subnet names. Required when configured to get node
 	// data from VPC.
 	G2VpcSubnetNames string `gcfg:"g2VpcSubnetNames"`
+	// Optional: VPC RIaaS endpoint override URL
+	G2EndpointOverride string `gcfg:"g2EndpointOverride"`
+	// Optional: IAM endpoint override URL
+	IamEndpointOverride string `gcfg:"iamEndpointOverride"`
+	// Optional: Resource Manager endpoint override URL
+	RmEndpointOverride string `gcfg:"rmEndpointOverride"`
 }
 
 // CloudConfig is the ibm cloud provider config data.

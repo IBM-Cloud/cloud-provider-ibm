@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -70,6 +70,10 @@ func convertResourceGroupNameToID(c *ConfigVpc) error {
 	url := resourcemanagerv2.DefaultServiceURL
 	if strings.Contains(c.endpointURL, "iaasdev.cloud.ibm.com") {
 		url = "https://resource-controller.test.cloud.ibm.com"
+	}
+	// If resource manager endpoint override was configured, use it instead
+	if c.RmEndpointOverride != "" {
+		url = c.RmEndpointOverride
 	}
 	// Create resource manager client
 	authenticator := &core.IamAuthenticator{ApiKey: c.APIKeySecret, URL: c.tokenExchangeURL}

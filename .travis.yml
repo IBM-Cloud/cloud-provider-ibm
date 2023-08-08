@@ -98,6 +98,6 @@ deploy:
     script: ./scripts/publishTag.sh
     skip_cleanup: true
     on:
-      branch: release-1.27
+      branch: release-1.28
       go: 1.20.6
       condition: ${TRAVIS_COMMIT_MESSAGE} =~ push_build && ${BUILD_JOB_NAME} == Default

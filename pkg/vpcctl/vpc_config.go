@@ -86,16 +86,19 @@ func SetInformers(informerFactory informers.SharedInformerFactory) {
 // ConfigVpc is the VPC configuration information
 type ConfigVpc struct {
 	// Externalized config settings from caller
-	AccountID         string
-	APIKeySecret      string
-	ClusterID         string
-	EnablePrivate     bool
-	ProviderType      string
-	Region            string
-	ResourceGroupName string
-	SubnetNames       string
-	WorkerAccountID   string // Not used, ignored
-	VpcName           string
+	AccountID           string
+	APIKeySecret        string
+	ClusterID           string
+	EnablePrivate       bool
+	IamEndpointOverride string
+	ProviderType        string
+	Region              string
+	ResourceGroupName   string
+	RmEndpointOverride  string
+	SubnetNames         string
+	WorkerAccountID     string // Not used, ignored
+	VpcName             string
+	VpcEndpointOverride string
 	// Internal config settings
 	endpointURL      string
 	resourceGroupID  string
@@ -104,6 +107,10 @@ type ConfigVpc struct {
 
 // getIamEndpoint - retrieve the correct IAM endpoint for the current config
 func (c *ConfigVpc) getIamEndpoint() string {
+	// If iam endpoint override was configured, use it instead
+	if c.IamEndpointOverride != "" {
+		return c.IamEndpointOverride
+	}
 	if strings.Contains(c.Region, "stage") {
 		if c.EnablePrivate {
 			return iamStagePrivateTokenExchangeURL
@@ -118,6 +125,10 @@ func (c *ConfigVpc) getIamEndpoint() string {
 
 // getVpcEndpoint - retrieve the correct VPC endpoint for the current config
 func (c *ConfigVpc) getVpcEndpoint() string {
+	// If vpc endpoint override was configured, use it instead
+	if c.VpcEndpointOverride != "" {
+		return c.VpcEndpointOverride
+	}
 	endpoint := vpcEndpointIaaSProdURL
 	if strings.Contains(c.Region, "stage") {
 		endpoint = vpcEndpointIaaSStageURL

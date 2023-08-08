@@ -84,7 +84,6 @@ const (
 	lbPriorityClassName                 = "ibm-app-cluster-critical"
 	clusterInfoCM                       = "cluster-info"
 	lbIPVSInvlaidExternalTrafficPolicy  = "Cluster networking is not supported for IPVS-based load balancers. Set 'externalTrafficPolicy' to 'Local', and try again."
-	lbVpcClassicProvider                = "gc"
 	lbVpcNextGenProvider                = "g2"
 	updateCooldownPeriod                = 60
 )
@@ -2330,10 +2329,7 @@ func isFeatureEnabledDeployment(lbDeployment *apps.Deployment, feature string) b
 }
 
 func isProviderVpc(provider string) bool {
-	if provider == lbVpcClassicProvider || provider == lbVpcNextGenProvider {
-		return true
-	}
-	return false
+	return provider == lbVpcNextGenProvider
 }
 
 func getSchedulingAlgorithm(service *v1.Service) string {

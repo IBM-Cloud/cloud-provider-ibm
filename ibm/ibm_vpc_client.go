@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -54,6 +54,11 @@ var newVpcSdkClient = func(provider Provider) (*vpcv1.VpcV1, error) {
 		ApiKey: credential, // pragma: allowlist secret
 	}
 
+	// If the IAM endpoint override was specified in the config, update the URL
+	if provider.IamEndpointOverride != "" {
+		authenticator.URL = provider.IamEndpointOverride
+	}
+
 	// Virtual Private Cloud (VPC) API
 	sdk, err := vpcv1.NewVpcV1(&vpcv1.VpcV1Options{
 		Authenticator: authenticator,
@@ -62,16 +67,26 @@ var newVpcSdkClient = func(provider Provider) (*vpcv1.VpcV1, error) {
 		return nil, err
 	}
 
-	// Get Region and Set Service URL
-	region, _, err := sdk.GetRegion(sdk.NewGetRegionOptions(provider.Region))
-	if err != nil {
-		return nil, err
-	}
+	// If the VPC RIaaS endpoint override was specified in the config, update the URL
+	if provider.G2EndpointOverride != "" {
+		// Set the Service URL
+		err = sdk.SetServiceURL(provider.G2EndpointOverride + "/v1")
+		if err != nil {
+			return nil, err
+		}
 
-	// Set the Service URL
-	err = sdk.SetServiceURL(*region.Endpoint + "/v1")
-	if err != nil {
-		return nil, err
+	} else {
+		// Get Region and Set Service URL
+		region, _, err := sdk.GetRegion(sdk.NewGetRegionOptions(provider.Region))
+		if err != nil {
+			return nil, err
+		}
+
+		// Set the Service URL
+		err = sdk.SetServiceURL(*region.Endpoint + "/v1")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return sdk, nil

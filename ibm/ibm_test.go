@@ -239,6 +239,9 @@ func TestGetCloudConfig(t *testing.T) {
 	}
 	// Build off previous expected configuration with select overrides.
 	ecc.Kubernetes.ConfigFilePaths = nil
+	ecc.Prov.G2EndpointOverride = "https://us-south.iaas.cloud.ibm.com"
+	ecc.Prov.IamEndpointOverride = "https://iam.cloud.ibm.com"
+	ecc.Prov.RmEndpointOverride = "https://resource-controller.cloud.ibm.com"
 	verifyCloudConfig(t, cc, &ecc)
 
 	// Verify nil cloud config.
