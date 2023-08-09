@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2022, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -120,7 +120,7 @@ func (c *Cloud) InstanceShutdown(ctx context.Context, node *v1.Node) (bool, erro
 // for a given node. In cases where node.spec.providerID is empty, implementations can use other
 // properties of the node like its name, labels and annotations.
 func (c *Cloud) InstanceMetadata(ctx context.Context, node *v1.Node) (*cloudprovider.InstanceMetadata, error) {
-	nodeMD, err := c.Metadata.GetNodeMetadata(node.Name)
+	nodeMD, err := c.Metadata.GetNodeMetadata(node.Name, c.Config.Kubernetes.SetNetworkUnavailable)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2019, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2019, 2022, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -28,6 +28,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
+	cloudproviderapi "k8s.io/cloud-provider/api"
+	nodeutil "k8s.io/component-helpers/node/util"
 )
 
 func TestMetadataService(t *testing.T) {
@@ -40,7 +42,7 @@ func TestMetadataService(t *testing.T) {
 	var cmp bool
 
 	// ask for node that is not defined
-	_, err = mdService.GetNodeMetadata("nosuchnode")
+	_, err = mdService.GetNodeMetadata("nosuchnode", false)
 	if nil == err {
 		t.Fatalf("Did not get an error for non-existent node")
 	}
@@ -75,9 +77,77 @@ func TestMetadataService(t *testing.T) {
 	if nil != err {
 		t.Fatalf("Failed to create Node goodnode: %v", err)
 	}
-	node, err = mdService.GetNodeMetadata("goodnode")
+	node, err = mdService.GetNodeMetadata("goodnode", false)
 	if nil != err {
 		t.Fatalf("Got an error for goodnode: %v", err)
+	}
+	// verify that the network unavailable node condition is not set, as it wasn't requseted in the call to GetNodeMetadata
+	nodeFromServer, err := k8sclient.CoreV1().Nodes().Get(context.TODO(), "goodnode", metav1.GetOptions{})
+	if nil != err {
+		t.Fatalf("Failed to get Node goodnode: %v", err)
+	}
+	_, networkUnavailableCondition := nodeutil.GetNodeCondition(&nodeFromServer.Status, corev1.NodeNetworkUnavailable)
+	if networkUnavailableCondition != nil {
+		t.Fatalf("The network unavailable node condition should not be set: it wasn't requseted in the call to GetNodeMetadata")
+	}
+	cmp = reflect.DeepEqual(expectedMetadata, node)
+	if !cmp {
+		t.Fatal("NodeMetadata not correct for 'goodnode'.")
+	}
+
+	// verify that the network unavailable node condition is not set (even though it is requested int the call to GetNodeMetadata),
+	// as the external cloud provider taint is not present on the node
+	mdService.deleteCachedNode("goodnode")
+	node, err = mdService.GetNodeMetadata("goodnode", true)
+	if nil != err {
+		t.Fatalf("Got an error for goodnode: %v", err)
+	}
+	nodeFromServer, err = k8sclient.CoreV1().Nodes().Get(context.TODO(), "goodnode", metav1.GetOptions{})
+	if nil != err {
+		t.Fatalf("Failed to get Node goodnode: %v", err)
+	}
+	_, networkUnavailableCondition = nodeutil.GetNodeCondition(&nodeFromServer.Status, corev1.NodeNetworkUnavailable)
+	if networkUnavailableCondition != nil {
+		t.Fatalf("The network unavailable node condition should not be set: external cloud provider taint is not present on the node")
+	}
+	cmp = reflect.DeepEqual(expectedMetadata, node)
+	if !cmp {
+		t.Fatal("NodeMetadata not correct for 'goodnode'.")
+	}
+
+	// verify that the network unavailable node condition is set, as it is requested int the call to GetNodeMetadata
+	// and external cloud provider taint is present on the node
+	k8snode = corev1.Node{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   "goodnode",
+			Labels: labels},
+		Spec: corev1.NodeSpec{
+			ProviderID: expectedMetadata.ProviderID,
+			Taints: []corev1.Taint{
+				{
+					Key:    cloudproviderapi.TaintExternalCloudProvider,
+					Value:  "true",
+					Effect: corev1.TaintEffectNoSchedule,
+				},
+			},
+		},
+	}
+	k8sclient.CoreV1().Nodes().Update(context.TODO(), &k8snode, metav1.UpdateOptions{})
+	if nil != err {
+		t.Fatalf("Failed to update Node goodnode: %v", err)
+	}
+	mdService.deleteCachedNode("goodnode")
+	node, err = mdService.GetNodeMetadata("goodnode", true)
+	if nil != err {
+		t.Fatalf("Got an error for goodnode: %v", err)
+	}
+	nodeFromServer, err = k8sclient.CoreV1().Nodes().Get(context.TODO(), "goodnode", metav1.GetOptions{})
+	if nil != err {
+		t.Fatalf("Failed to get Node goodnode: %v", err)
+	}
+	_, networkUnavailableCondition = nodeutil.GetNodeCondition(&nodeFromServer.Status, corev1.NodeNetworkUnavailable)
+	if networkUnavailableCondition == nil {
+		t.Fatalf("The network unavailable node condition should be set")
 	}
 	cmp = reflect.DeepEqual(expectedMetadata, node)
 	if !cmp {
@@ -99,7 +169,7 @@ func TestMetadataService(t *testing.T) {
 	if nil != err {
 		t.Fatalf("Failed to update Node goodnode: %v", err)
 	}
-	node, err = mdService.GetNodeMetadata("goodnode")
+	node, err = mdService.GetNodeMetadata("goodnode", false)
 	if nil != err {
 		t.Fatalf("Got an error for goodnode: %v", err)
 	}
@@ -110,7 +180,7 @@ func TestMetadataService(t *testing.T) {
 	// set md cache start back in time and try again...
 	expectedMetadata.Region = "modified-region"
 	mdService.nodeCacheStart = time.Now().Add(-cacheTTL - time.Second)
-	node, err = mdService.GetNodeMetadata("goodnode")
+	node, err = mdService.GetNodeMetadata("goodnode", false)
 	if nil != err {
 		t.Fatalf("Got an error for goodnode: %v", err)
 	}
@@ -121,7 +191,7 @@ func TestMetadataService(t *testing.T) {
 	// delete 'goodnode'
 	k8sclient.CoreV1().Nodes().Delete(context.TODO(), "goodnode", metav1.DeleteOptions{})
 	mdService.deleteCachedNode("goodnode")
-	_, err = mdService.GetNodeMetadata("goodnode")
+	_, err = mdService.GetNodeMetadata("goodnode", false)
 	if nil == err {
 		t.Fatalf("Did not get expected error after deleting goodnode.")
 	}
@@ -159,7 +229,7 @@ func TestMetadataService(t *testing.T) {
 		if nil != err {
 			t.Fatalf("Failed to create Node partialnode: %v", err)
 		}
-		_, err = mdService.GetNodeMetadata("partialnode")
+		_, err = mdService.GetNodeMetadata("partialnode", false)
 		// as a sanity check, err should be nil for l=foo (no missing labels)
 		if nil == err && l != "foo" {
 			t.Fatalf("Did not get an error for partial node missing label=%s", l)
@@ -196,7 +266,7 @@ func TestMetadataService(t *testing.T) {
 	if nil != err {
 		t.Fatalf("Failed to create Node privateonlynode: %v", err)
 	}
-	node, err = mdService.GetNodeMetadata("privateonlynode")
+	node, err = mdService.GetNodeMetadata("privateonlynode", false)
 	if nil != err {
 		t.Fatalf("Got an error for privateonlynode: %v", err)
 	}
@@ -231,7 +301,7 @@ func TestMetadataService(t *testing.T) {
 	if nil != err {
 		t.Fatalf("Failed to create Node noprovideridnode: %v", err)
 	}
-	node, err = mdService.GetNodeMetadata("noprovideridnode")
+	node, err = mdService.GetNodeMetadata("noprovideridnode", false)
 	if nil != err {
 		t.Fatalf("Got an error for noprovideridnode: %v", err)
 	}

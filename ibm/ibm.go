@@ -129,6 +129,9 @@ type CloudConfig struct {
 		// classic infrastructure, otherwise this may be omitted and will be
 		// ignored for VPC infrastructure.
 		CalicoDatastore string `gcfg:"calico-datastore"`
+		// If set to true, all new nodes will get the condition NetworkUnavailable
+		// during node registration
+		SetNetworkUnavailable bool `gcfg:"set-network-unavailable,false"`
 	}
 	// [load-balancer-deployment] section
 	LBDeployment LoadBalancerDeployment `gcfg:"load-balancer-deployment"`
