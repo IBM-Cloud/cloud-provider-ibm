@@ -28,8 +28,7 @@ env:
     - IKS_PIPELINE_IAM_APIKEY="${ALL_GLOBAL_NETWORK_IKS_PIPELINE_IAM_APIKEY_20221103}"
     - registry_iam_api_key="${ALL_GLOBAL_registry_iam_api_key_20230427}"
     - GHE_TOKEN="${ALL_GLOBAL_GHE_TOKEN_20230428}"
-    - TRAVIS_HOSTNAME="travis.ibm.com"
-    - ARTIFACTORY_AUTH_HEADER_FILE="/tmp/.artifactory-auth-header"
+    - TRAVIS_INTERNAL_HOSTNAME="v3.travis.ibm.com"
 
 sudo: required
 
@@ -41,14 +40,17 @@ git:
 
 jobs:
   include:
-    - name: "Default"
-      env: BUILD_JOB_NAME="Default"
+    - name: "Internal"
+      env: ARTIFACTORY_AUTH_HEADER_FILE="/tmp/.artifactory-auth-header"
     - name: "No Artifactory"
-      env: BUILD_JOB_NAME="No Artifactory" ARTIFACTORY_AUTH_HEADER_FILE=""
+      env: ARTIFACTORY_AUTH_HEADER_FILE=""
 
 before_install:
-  - echo "${TRAVIS_BUILD_WEB_URL}" && export TRAVIS_BUILD_WEB_URL=$(echo "$TRAVIS_BUILD_WEB_URL" | sed "s/:\/\/\//:\/\/${TRAVIS_HOSTNAME}\//") && echo "${TRAVIS_BUILD_WEB_URL}"
-  - export REPO_BASE_URL=$(git config --get remote.origin.url | awk -F'[@:]' '{print $2}') && echo "${REPO_BASE_URL}"
+  - echo "${TRAVIS_BUILD_WEB_URL}"
+  - if [[ ${TRAVIS_JOB_NAME} == Internal && ${TRAVIS_BUILD_WEB_URL} != *${TRAVIS_INTERNAL_HOSTNAME}* ]]; then echo "Not running on internal Travis host"; travis_terminate 0; fi
+  - export REPO_ORIGIN_URL=$(git config --get remote.origin.url) && echo "${REPO_ORIGIN_URL}"
+  - export REPO_BASE_URL=$(echo "${REPO_ORIGIN_URL}" | cut -d'@' -f2 | cut -d':' -f1) && echo "${REPO_BASE_URL}"
+  - if [[ "${REPO_BASE_URL}" == "" ]]; then export REPO_BASE_URL=$(echo "${REPO_ORIGIN_URL}" | cut -f3 -d'/') && echo "${REPO_BASE_URL}"; fi
   - export REPO_SOURCE_URL="https://${REPO_BASE_URL}/${TRAVIS_REPO_SLUG}/commit/${TRAVIS_COMMIT}" && echo "${REPO_SOURCE_URL}"
   - export BUILD_URL="${TRAVIS_BUILD_WEB_URL}"
   # NOTE(cjschaef): Rather than setup a separate build to access Python 3, override pyenv
@@ -57,7 +59,7 @@ before_install:
   - make setup-build
 
 before_script:
-  - if [[ ${TRAVIS_EVENT_TYPE} == cron && ${BUILD_JOB_NAME} == Default ]]; then ./kube-update.sh; make runanalyzedeps || true; travis_terminate 0; fi
+  - if [[ ${TRAVIS_EVENT_TYPE} == cron && ${TRAVIS_JOB_NAME} == Internal ]]; then ./kube-update.sh; make runanalyzedeps || true; travis_terminate 0; fi
   - make install-golangci-lint
   - make vpcctl
 
@@ -85,7 +87,7 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      condition: ${TRAVIS_TAG} == v1.28.0-rc.1-* && ${BUILD_JOB_NAME} == Default
+      condition: ${TRAVIS_TAG} == v1.28.0-rc.1-* && ${TRAVIS_JOB_NAME} == Internal
       go: 1.20.7
   - provider: script
     script: BUILD_TAG=${TRAVIS_TAG} make deploy
@@ -93,11 +95,11 @@ deploy:
     on:
       tags: true
       go: 1.20.7
-      condition: ${TRAVIS_TAG} == dev-* && ${BUILD_JOB_NAME} == Default
+      condition: ${TRAVIS_TAG} == dev-* && ${TRAVIS_JOB_NAME} == Internal
   - provider: script
     script: ./scripts/publishTag.sh
     skip_cleanup: true
     on:
       branch: release-1.28
       go: 1.20.7
-      condition: ${TRAVIS_COMMIT_MESSAGE} =~ push_build && ${BUILD_JOB_NAME} == Default
+      condition: ${TRAVIS_COMMIT_MESSAGE} =~ push_build && ${TRAVIS_JOB_NAME} == Internal
