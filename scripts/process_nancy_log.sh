@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+# (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -30,7 +30,7 @@ fi
 set -e
 if [ "${TRAVIS_ALLOW_FAILURE}" = "false" ] && [ "${TRAVIS_PULL_REQUEST_BRANCH}" = "" ] && [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
     # If build is without artifactory, then exit
-    if [ "${BUILD_JOB_NAME}" = "No Artifactory" ]; then
+    if [ "${TRAVIS_JOB_NAME}" = "No Artifactory" ]; then
         exit 0
     fi
 
