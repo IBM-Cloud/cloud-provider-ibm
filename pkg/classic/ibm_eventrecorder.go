@@ -60,14 +60,6 @@ const (
 	VerifyingCloudLoadBalancerFailed CloudEventReason = "VerifyingCloudLoadBalancerFailed"
 	// MovingCloudLoadBalancerFailedLocalOnlyTraffic cloud event reason
 	MovingCloudLoadBalancerFailedLocalOnlyTraffic CloudEventReason = "MovingCloudLoadBalancerFailedLocalOnlyTraffic"
-	// CloudVPCLoadBalancerNormalEvent cloud event reason
-	CloudVPCLoadBalancerNormalEvent CloudEventReason = "CloudVPCLoadBalancerNormalEvent"
-	// CloudVPCLoadBalancerMaintenance cloud event reason
-	CloudVPCLoadBalancerMaintenance CloudEventReason = "CloudVPCLoadBalancerMaintenance"
-	// CloudVPCLoadBalancerFailed cloud event reason
-	CloudVPCLoadBalancerFailed CloudEventReason = "CloudVPCLoadBalancerFailed"
-	// CloudVPCLoadBalancerNotFound cloud event reason
-	CloudVPCLoadBalancerNotFound CloudEventReason = "CloudVPCLoadBalancerNotFound"
 )
 
 // NewCloudEventRecorder returns a cloud event recorder.
@@ -166,30 +158,4 @@ func (c *CloudEventRecorder) LoadBalancerServiceWarningEvent(lbService *v1.Servi
 	)
 	c.Recorder.Event(lbService, v1.EventTypeWarning, fmt.Sprintf("%v", reason), message)
 	return errors.New(message)
-}
-
-// VpcLoadBalancerServiceWarningEvent logs a VPC load balancer service warning
-// event and returns an error representing the event.
-func (c *CloudEventRecorder) VpcLoadBalancerServiceWarningEvent(lbService *v1.Service, reason CloudEventReason, lbName string, errorMessage string) error {
-	message := fmt.Sprintf(
-		"Error on cloud load balancer %v for service %v with UID %v: %v",
-		lbName,
-		types.NamespacedName{Namespace: lbService.ObjectMeta.Namespace, Name: lbService.ObjectMeta.Name},
-		lbService.ObjectMeta.UID,
-		errorMessage,
-	)
-	c.Recorder.Event(lbService, v1.EventTypeWarning, fmt.Sprintf("%v", reason), message)
-	return errors.New(message)
-}
-
-// VpcLoadBalancerServiceNormalEvent logs a VPC load balancer service event
-func (c *CloudEventRecorder) VpcLoadBalancerServiceNormalEvent(lbService *v1.Service, reason CloudEventReason, lbName string, eventMessage string) {
-	message := fmt.Sprintf(
-		"Event on cloud load balancer %v for service %v with UID %v: %v",
-		lbName,
-		types.NamespacedName{Namespace: lbService.ObjectMeta.Namespace, Name: lbService.ObjectMeta.Name},
-		lbService.ObjectMeta.UID,
-		eventMessage,
-	)
-	c.Recorder.Event(lbService, v1.EventTypeNormal, fmt.Sprintf("%v", reason), message)
 }

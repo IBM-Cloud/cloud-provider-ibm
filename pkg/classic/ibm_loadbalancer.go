@@ -84,8 +84,6 @@ const (
 	lbPriorityClassName                 = "ibm-app-cluster-critical"
 	clusterInfoCM                       = "cluster-info"
 	lbIPVSInvlaidExternalTrafficPolicy  = "Cluster networking is not supported for IPVS-based load balancers. Set 'externalTrafficPolicy' to 'Local', and try again."
-	lbVpcClassicProvider                = "gc"
-	lbVpcNextGenProvider                = "g2"
 	updateCooldownPeriod                = 60
 )
 
@@ -1242,10 +1240,6 @@ func (c *Cloud) deleteCalicoIngressPolicy(service *v1.Service) error {
 // GetLoadBalancerName returns the name of the load balancer. Implementations must treat the
 // *v1.Service parameter as read-only and not modify it.
 func (c *Cloud) GetLoadBalancerName(ctx context.Context, clusterName string, service *v1.Service) string {
-	// For a VPC cluster, we use a slightly different load balancer name
-	if c.isProviderVpc() {
-		return c.vpcGetLoadBalancerName(service)
-	}
 	return GetCloudProviderLoadBalancerName(service)
 }
 
@@ -1254,10 +1248,6 @@ func (c *Cloud) GetLoadBalancerName(ctx context.Context, clusterName string, ser
 // Implementations must treat the *v1.Service parameter as read-only and not modify it.
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (c *Cloud) GetLoadBalancer(ctx context.Context, clusterName string, service *v1.Service) (*v1.LoadBalancerStatus, bool, error) {
-	// Invoke VPC specific logic if this is a VPC cluster
-	if c.isProviderVpc() {
-		return c.VpcGetLoadBalancer(ctx, clusterName, service)
-	}
 	lbName := GetCloudProviderLoadBalancerName(service)
 	klog.Infof("GetLoadBalancer(%v, %v)", lbName, clusterName)
 	lbDeployment, err := c.getLoadBalancerDeployment(lbName)
@@ -1366,11 +1356,6 @@ func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, serv
 			service, CreatingCloudLoadBalancerFailed,
 			fmt.Sprintf("Service configuration is not supported: %v", err),
 		)
-	}
-
-	// Invoke VPC specific logic if this is a VPC cluster
-	if c.isProviderVpc() {
-		return c.VpcEnsureLoadBalancer(ctx, clusterName, service, nodes)
 	}
 
 	var lbLogName string
@@ -1953,10 +1938,6 @@ func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, serv
 // parameters as read-only and not modify them.
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (c *Cloud) UpdateLoadBalancer(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) error {
-	// Invoke VPC specific logic if this is a VPC cluster
-	if c.isProviderVpc() {
-		return c.VpcUpdateLoadBalancer(ctx, clusterName, service, nodes)
-	}
 	klog.Infof("UpdateLoadBalancer(%v, %v, %v)", clusterName, service, len(nodes))
 
 	lbName := GetCloudProviderLoadBalancerName(service)
@@ -2016,10 +1997,6 @@ func (c *Cloud) UpdateLoadBalancer(ctx context.Context, clusterName string, serv
 // Implementations must treat the *v1.Service parameter as read-only and not modify it.
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (c *Cloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName string, service *v1.Service) error {
-	// Invoke VPC specific logic if this is a VPC cluster
-	if c.isProviderVpc() {
-		return c.VpcEnsureLoadBalancerDeleted(ctx, clusterName, service)
-	}
 	lbName := GetCloudProviderLoadBalancerName(service)
 	klog.Infof("EnsureLoadBalancerDeleted(%v, %v)", lbName, clusterName)
 
@@ -2199,12 +2176,6 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 	// The ServiceList struct was modified in place so there is no returning value
 	c.filterLoadBalancersFromServiceList(services)
 
-	// Invoke VPC specific logic if this is a VPC cluster
-	if c.isProviderVpc() {
-		c.VpcMonitorLoadBalancers(services, data)
-		return
-	}
-
 	// Verify each load balancer service that has a status with an IP
 	// address set. If the load balancer has no such status then it is in
 	// the process of being created, updated or deleted and doesn't need to
@@ -2329,13 +2300,6 @@ func isFeatureEnabledDeployment(lbDeployment *apps.Deployment, feature string) b
 	return false
 }
 
-func isProviderVpc(provider string) bool {
-	if provider == lbVpcClassicProvider || provider == lbVpcNextGenProvider {
-		return true
-	}
-	return false
-}
-
 func getSchedulingAlgorithm(service *v1.Service) string {
 	schedulingAlgorithmAnnotation := service.Annotations[ServiceAnnotationLoadBalancerCloudProviderIPVSSchedulingAlgorithm]
 	if strings.TrimSpace(schedulingAlgorithmAnnotation) != "" {
@@ -2358,11 +2322,6 @@ func sliceContains(stringSlice []string, searchString string) bool {
 }
 
 func (c *Cloud) isServiceConfigurationSupported(service *v1.Service) error {
-
-	if c.isProviderVpc() && service.Spec.AllocateLoadBalancerNodePorts != nil && !*service.Spec.AllocateLoadBalancerNodePorts {
-		return fmt.Errorf("NodePort allocation is required")
-	}
-
 	for _, port := range service.Spec.Ports {
 		switch port.Protocol {
 		case v1.ProtocolTCP, v1.ProtocolUDP:

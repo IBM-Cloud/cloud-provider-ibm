@@ -27,8 +27,6 @@ import (
 	gcfg "gopkg.in/gcfg.v1"
 	"k8s.io/klog/v2"
 
-	"cloud.ibm.com/cloud-provider-ibm/pkg/vpcctl"
-
 	"k8s.io/client-go/informers"
 	clientset "k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
@@ -43,8 +41,7 @@ const (
 
 // LoadBalancerDeployment is the load balancer deployment data for classic
 // load balancers. All fields are required when running on classic
-// infrastructure, otherwise this section may be omitted and will be ignored
-// for VPC infrastructure.
+// infrastructure.
 type LoadBalancerDeployment struct {
 	// Name of the image to use for the load balancer deployment.
 	Image string `gcfg:"image"`
@@ -68,9 +65,6 @@ type Provider struct {
 	// Unsupported: External IP of the node. Only used when running the
 	// legacy in tree cloud provider implementation, ignored otherwise.
 	ExternalIP string `gcfg:"externalIP"`
-	// NOTE(rtheis): This field has multiple usages.
-	// Region of the cluster. Required when configured to get node
-	// data from VPC.
 	// Unsupported: Region of the node. Only used when running the
 	// legacy in tree cloud provider implementation.
 	Region string `gcfg:"region"`
@@ -84,24 +78,6 @@ type Provider struct {
 	ClusterID string `gcfg:"clusterID"`
 	// Required: Account ID that owns the cluster.
 	AccountID string `gcfg:"accountID"`
-	// Required: Provider type of the cloud provider. Set to "g2" when running
-	// on VPC infrastructure. All other values (including being unset)
-	// yield the default, classic infrastructure.
-	// TODO(rtheis): Remove support for "gc" provider type.
-	ProviderType string `gcfg:"cluster-default-provider"`
-	// Required for VPC: Service account ID used to allocate VPC infrastructure.
-	G2WorkerServiceAccountID string `gcfg:"g2workerServiceAccountID"`
-	// VPC name. Required when configured to get node data from VPC.
-	G2VpcName string `gcfg:"g2VpcName"`
-	// File containing VPC credentials. Required when configured to get node
-	// data from VPC.
-	G2Credentials string `gcfg:"g2Credentials"`
-	// Resource group name. Required when configured to get node
-	// data from VPC.
-	G2ResourceGroupName string `gcfg:"g2ResourceGroupName"`
-	// List of VPC subnet names. Required when configured to get node
-	// data from VPC.
-	G2VpcSubnetNames string `gcfg:"g2VpcSubnetNames"`
 }
 
 // CloudConfig is the ibm cloud provider config data.
@@ -120,8 +96,7 @@ type CloudConfig struct {
 		// since Calico does not support such configurations.
 		ConfigFilePaths []string `gcfg:"config-file"`
 		// The Calico datastore type: "ETCD" or "KDD". Required when running on
-		// classic infrastructure, otherwise this may be omitted and will be
-		// ignored for VPC infrastructure.
+		// classic infrastructure
 		CalicoDatastore string `gcfg:"calico-datastore"`
 	}
 	// [load-balancer-deployment] section
@@ -160,29 +135,15 @@ func (c *Cloud) HasClusterID() bool {
 func (c *Cloud) SetInformers(informerFactory informers.SharedInformerFactory) {
 	klog.Infof("Initializing Informers")
 
-	// endpointInformer is not needed for VPC
-	if !isProviderVpc(c.Config.Prov.ProviderType) {
-		endpointInformer := informerFactory.Core().V1().Endpoints().Informer()
-		endpointInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: c.handleEndpointUpdate,
-		})
-	}
+	endpointInformer := informerFactory.Core().V1().Endpoints().Informer()
+	endpointInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: c.handleEndpointUpdate,
+	})
 
 	nodeInformer := informerFactory.Core().V1().Nodes().Informer()
 	nodeInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		DeleteFunc: c.handleNodeDelete,
 	})
-
-	if c.isProviderVpc() {
-		vpcctl.SetInformers(informerFactory)
-		// Configure watch on the cloud credential if it was listed in the config
-		if c.Config.Prov.G2Credentials != "" {
-			err := c.WatchCloudCredential()
-			if err != nil {
-				klog.Errorf("Failed to set up watch on the cloud credential: %v", err)
-			}
-		}
-	}
 }
 
 // getK8SConfig returns the k8s config for the first k8s config file found.
@@ -270,16 +231,6 @@ func NewCloud(config io.Reader) (cloudprovider.Interface, error) {
 		Recorder:   NewCloudEventRecorder(ProviderName, k8sClient),
 		CloudTasks: map[string]*CloudTask{},
 		Metadata:   cloudMetadata,
-	}
-
-	// Attempt to initialize the VPC logic (if configured)
-	if c.isProviderVpc() {
-		klog.Infof("Initialize VPC with cloud config: %+v", cloudConfig.Prov)
-		_, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
-		if err != nil {
-			errString := fmt.Sprintf("Failed initializing VPC: %v", err)
-			klog.Warningf(errString)
-		}
 	}
 	return &c, nil
 }
