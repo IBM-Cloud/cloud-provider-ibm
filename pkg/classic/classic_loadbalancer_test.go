@@ -631,24 +631,11 @@ func getTestCloud() (*Cloud, string, *fake.Clientset) {
 	cc.LBDeployment.Application = "keepalived"
 	cc.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
 	c := Cloud{
-		Name:       "ibm",
 		KubeClient: fakeKubeClient,
 		Config:     &cc,
 		Recorder:   NewCloudEventRecorderV1("ibm", fakeKubeClientV1.CoreV1().Events(lbDeploymentNamespace)),
-		CloudTasks: map[string]*CloudTask{},
 	}
 	return &c, "test", fakeKubeClient
-}
-
-func TestLoadBalancer(t *testing.T) {
-	c := &Cloud{CloudTasks: map[string]*CloudTask{}}
-	cloud, ok := c.LoadBalancer()
-	if !ok {
-		t.Fatalf("LoadBalancer implementation missing")
-	}
-	if c != cloud {
-		t.Fatalf("Cloud not returned")
-	}
 }
 
 func TestGetCloudProviderVlanIPsRequest(t *testing.T) {
@@ -3203,11 +3190,9 @@ func TestEnsureLoadBalancerGatewayEdge(t *testing.T) {
 	cc.LBDeployment.Application = "keepalived"
 	cc.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
 	c := Cloud{
-		Name:       "ibm",
 		KubeClient: fakeKubeClient,
 		Config:     &cc,
 		Recorder:   NewCloudEventRecorderV1("ibm", fakeKubeClientV1.CoreV1().Events(lbDeploymentNamespace)),
-		CloudTasks: map[string]*CloudTask{},
 	}
 
 	// run first test to ensure load balancer deployment will be scheduled to nodes with dedicated:gateway label

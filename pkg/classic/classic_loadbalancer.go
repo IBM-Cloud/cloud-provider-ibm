@@ -45,7 +45,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/wait"
 	clientset "k8s.io/client-go/kubernetes"
-	cloudprovider "k8s.io/cloud-provider"
 	servicehelper "k8s.io/cloud-provider/service/helpers"
 )
 
@@ -268,13 +267,6 @@ func getSelectorCloudProviderIP(selector *metav1.LabelSelector) string {
 // getLoadBalancerLogName returns the load balancer name to use in log messages.
 func getLoadBalancerLogName(lbName string, cloudProviderIP string) string {
 	return "(name: " + lbName + ", IP: " + cloudProviderIP + ")"
-}
-
-// LoadBalancer returns a balancer interface. Also returns true if the interface is supported, false otherwise.
-func (c *Cloud) LoadBalancer() (cloudprovider.LoadBalancer, bool) {
-	// Ensure that the monitor task is started.
-	c.StartTask(MonitorLoadBalancers, time.Minute*5)
-	return c, true
 }
 
 // The cloudProviderReservedIP, cloudProviderSubnet, cloudProviderVlan and
