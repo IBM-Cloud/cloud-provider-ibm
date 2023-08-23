@@ -58,8 +58,6 @@ const (
 	GettingCloudLoadBalancerFailed CloudEventReason = "GettingCloudLoadBalancerFailed"
 	// VerifyingCloudLoadBalancerFailed cloud event reason
 	VerifyingCloudLoadBalancerFailed CloudEventReason = "VerifyingCloudLoadBalancerFailed"
-	// MovingCloudLoadBalancerFailedLocalOnlyTraffic cloud event reason
-	MovingCloudLoadBalancerFailedLocalOnlyTraffic CloudEventReason = "MovingCloudLoadBalancerFailedLocalOnlyTraffic"
 )
 
 // NewCloudEventRecorder returns a cloud event recorder.

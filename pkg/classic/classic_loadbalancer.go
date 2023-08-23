@@ -320,7 +320,7 @@ func (c *Cloud) getCloudProviderVlanIPConfig() (*cloudProviderVlanIPConfig, erro
 	// TODO(rtheis): Temporarily support both the load balancer deployment
 	// namespace and the kubernetes namespace for finding the config map.
 	// When ready, switch to the kubernetes namespace only.
-	cmName := c.Config.LBDeployment.VlanIPConfigMap
+	cmName := c.Config.VlanIPConfigMap
 	cmNamespace := k8sNamespace
 	cm, err := c.KubeClient.CoreV1().ConfigMaps(cmNamespace).Get(context.TODO(), cmName, metav1.GetOptions{})
 	if nil != err && errors.IsNotFound(err) {
@@ -493,7 +493,7 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 	if 1 == len(lbDeployment.Spec.Template.Spec.Containers) {
 		updateImage := false
 		lbDeploymentImageList := strings.Split(lbDeployment.Spec.Template.Spec.Containers[0].Image, ":")
-		configImageList := strings.Split(c.Config.LBDeployment.Image, ":")
+		configImageList := strings.Split(c.Config.Image, ":")
 		// Update the load balancer deployment Container if a latest image is available.
 		if len(lbDeploymentImageList) > 1 && len(configImageList) > 1 {
 			lbDeploymentImageValue, _ := strconv.Atoi(lbDeploymentImageList[1])
@@ -501,14 +501,14 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 			if lbDeploymentImageValue < configImageValue {
 				updateImage = true
 			}
-		} else if c.Config.LBDeployment.Image != lbDeployment.Spec.Template.Spec.Containers[0].Image {
+		} else if c.Config.Image != lbDeployment.Spec.Template.Spec.Containers[0].Image {
 			updateImage = true
 		}
 		if updateImage {
-			klog.Infof("Updating LB deployment container image to %v", c.Config.LBDeployment.Image)
+			klog.Infof("Updating LB deployment container image to %v", c.Config.Image)
 			updatesRequired = append(updatesRequired, "Image")
 			// Always use the new image.
-			lbDeployment.Spec.Template.Spec.Containers[0].Image = c.Config.LBDeployment.Image
+			lbDeployment.Spec.Template.Spec.Containers[0].Image = c.Config.Image
 		}
 		// If necessary, update the security context from a privileged container to one with NET_ADMIN capability.
 		// Updated images use NET_ADMIN capability. Also add NET_RAW, which might not be part of the
@@ -542,12 +542,12 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 		lbDeployment.Spec.Template.Spec.InitContainers = []v1.Container{
 			{
 				Name:            lbDeploymentNamePrefix + "keepalived-init",
-				Image:           c.Config.LBDeployment.Image,
+				Image:           c.Config.Image,
 				Command:         []string{"/usr/local/bin/hostDirPerms"},
 				ImagePullPolicy: v1.PullIfNotPresent,
 				VolumeMounts: []v1.VolumeMount{
 					{
-						Name:      c.Config.LBDeployment.Application + "-status",
+						Name:      c.Config.Application + "-status",
 						MountPath: "/status",
 					},
 				},
@@ -566,7 +566,7 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 	} else {
 		updateInitImage := false
 		lbDeploymentInitImageList := strings.Split(lbDeployment.Spec.Template.Spec.InitContainers[0].Image, ":")
-		configImageList := strings.Split(c.Config.LBDeployment.Image, ":")
+		configImageList := strings.Split(c.Config.Image, ":")
 		// The initContainer exists. Update the load balancer deployment initContainer if a new image is available.
 		if len(lbDeploymentInitImageList) > 1 && len(configImageList) > 1 {
 			lbDeploymentInitImageValue, _ := strconv.Atoi(lbDeploymentInitImageList[1])
@@ -574,15 +574,15 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 			if lbDeploymentInitImageValue < configImageValue {
 				updateInitImage = true
 			}
-		} else if c.Config.LBDeployment.Image != lbDeployment.Spec.Template.Spec.InitContainers[0].Image {
+		} else if c.Config.Image != lbDeployment.Spec.Template.Spec.InitContainers[0].Image {
 			updateInitImage = true
 		}
 
 		if updateInitImage {
-			klog.Infof("Updating LB deployment Initcontainer image to %v", c.Config.LBDeployment.Image)
+			klog.Infof("Updating LB deployment Initcontainer image to %v", c.Config.Image)
 			updatesRequired = append(updatesRequired, "InitContainer-New-Image")
 			// Always use the new image.
-			lbDeployment.Spec.Template.Spec.InitContainers[0].Image = c.Config.LBDeployment.Image
+			lbDeployment.Spec.Template.Spec.InitContainers[0].Image = c.Config.Image
 		}
 	}
 
@@ -735,7 +735,7 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 						{
 							Key:      lbApplicationLabel,
 							Operator: metav1.LabelSelectorOpIn,
-							Values:   []string{c.Config.LBDeployment.Application},
+							Values:   []string{c.Config.Application},
 						},
 					},
 				}
@@ -1030,7 +1030,7 @@ kind: CalicoAPIConfig
 metadata:
 spec:
   datastoreType: kubernetes
-  kubeconfig: ` + c.Config.Kubernetes.ConfigFilePaths[0]
+  kubeconfig: ` + c.Config.ConfigFilePath
 	} else {
 
 		cm, err := c.KubeClient.CoreV1().ConfigMaps(k8sNamespace).Get(context.TODO(), clusterInfoCM, metav1.GetOptions{})
@@ -1148,7 +1148,7 @@ func cleanupCalicoCfg(calicoCfgFile string) error {
 var execCommand = exec.Command
 
 func (c *Cloud) kddEnabled() bool {
-	return c.Config.Kubernetes.CalicoDatastore == "KDD"
+	return c.Config.CalicoDatastore == "KDD"
 }
 
 func (c *Cloud) createCalicoIngressPolicy(service *v1.Service, cloudProviderIP string, ipTypeLabel string) error {
@@ -1227,12 +1227,6 @@ func (c *Cloud) deleteCalicoIngressPolicy(service *v1.Service) error {
 		return fmt.Errorf(stdoutStderrStr)
 	}
 	return nil
-}
-
-// GetLoadBalancerName returns the name of the load balancer. Implementations must treat the
-// *v1.Service parameter as read-only and not modify it.
-func (c *Cloud) GetLoadBalancerName(ctx context.Context, clusterName string, service *v1.Service) string {
-	return GetCloudProviderLoadBalancerName(service)
 }
 
 // GetLoadBalancer returns whether the specified load balancer exists, and
@@ -1340,15 +1334,6 @@ func isUpdateSourceIPRequired(lbDeployment *apps.Deployment, service *v1.Service
 // parameters as read-only and not modify them.
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, service *v1.Service, nodes []*v1.Node) (*v1.LoadBalancerStatus, error) {
-
-	// Verify that the load balancer service configuration is supported.
-	err := c.isServiceConfigurationSupported(service)
-	if err != nil {
-		return nil, c.Recorder.LoadBalancerServiceWarningEvent(
-			service, CreatingCloudLoadBalancerFailed,
-			fmt.Sprintf("Service configuration is not supported: %v", err),
-		)
-	}
 
 	var lbLogName string
 	lbName := GetCloudProviderLoadBalancerName(service)
@@ -1585,7 +1570,7 @@ func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, serv
 		lbDeploymentLabels := map[string]string{
 			lbIPLabel:          getCloudProviderIPLabelValue(cloudProviderIP),
 			lbNameLabel:        GetCloudProviderLoadBalancerName(service),
-			lbApplicationLabel: c.Config.LBDeployment.Application,
+			lbApplicationLabel: c.Config.Application,
 		}
 		lbDeploymentLabelSelector := &metav1.LabelSelector{
 			MatchLabels: map[string]string{
@@ -1598,7 +1583,7 @@ func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, serv
 				{
 					Key:      lbApplicationLabel,
 					Operator: metav1.LabelSelectorOpIn,
-					Values:   []string{c.Config.LBDeployment.Application},
+					Values:   []string{c.Config.Application},
 				},
 			},
 		}
@@ -1828,12 +1813,12 @@ func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, serv
 						InitContainers: []v1.Container{
 							{
 								Name:            lbDeploymentNamePrefix + "keepalived-init",
-								Image:           c.Config.LBDeployment.Image,
+								Image:           c.Config.Image,
 								Command:         []string{"/usr/local/bin/hostDirPerms"},
 								ImagePullPolicy: v1.PullIfNotPresent,
 								VolumeMounts: []v1.VolumeMount{
 									{
-										Name:      c.Config.LBDeployment.Application + "-status",
+										Name:      c.Config.Application + "-status",
 										MountPath: "/status",
 									},
 								},
@@ -1852,12 +1837,12 @@ func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, serv
 						Containers: []v1.Container{
 							{
 								Name:            lbDeploymentName,
-								Image:           c.Config.LBDeployment.Image,
+								Image:           c.Config.Image,
 								ImagePullPolicy: v1.PullIfNotPresent,
 								Env:             envVars,
 								VolumeMounts: []v1.VolumeMount{
 									{
-										Name:      c.Config.LBDeployment.Application + "-status",
+										Name:      c.Config.Application + "-status",
 										MountPath: "/status",
 									},
 								},
@@ -1879,10 +1864,10 @@ func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, serv
 						},
 						Volumes: []v1.Volume{
 							{
-								Name: c.Config.LBDeployment.Application + "-status",
+								Name: c.Config.Application + "-status",
 								VolumeSource: v1.VolumeSource{
 									HostPath: &v1.HostPathVolumeSource{
-										Path: "/tmp/" + c.Config.LBDeployment.Application,
+										Path: "/tmp/" + c.Config.Application,
 									},
 								},
 							},
@@ -2136,37 +2121,10 @@ func replicaSetHasDesiredReplicas(clientset clientset.Interface, replicaSet *app
 	}
 }
 
-// Filter the services list to just contain the load balancers without defined load balancer class and nothing else.
-func (c *Cloud) filterLoadBalancersFromServiceList(services *v1.ServiceList) {
-	var lbItems []v1.Service
-	for i := range services.Items {
-		err := c.isServiceConfigurationSupported(&services.Items[i])
-		if services.Items[i].Spec.Type == v1.ServiceTypeLoadBalancer &&
-			services.Items[i].Spec.LoadBalancerClass == nil && err == nil {
-			lbItems = append(lbItems, services.Items[i])
-		}
-	}
-	services.Items = lbItems
-}
-
 // MonitorLoadBalancers monitors load balancer services to ensure that they
 // are working properly. This is a cloud task run via ticker.
-func MonitorLoadBalancers(c *Cloud, data map[string]string) {
+func (c *Cloud) MonitorLoadBalancers(services *v1.ServiceList, data map[string]string) {
 	klog.Infof("Monitoring load balancers ...")
-
-	// Monitor all load balancer services and generate a warning event for
-	// each service that fails at least two consecutive monitors. A warning event
-	// will also be generated to note that a service is restored after a failure.
-	services, err := c.KubeClient.CoreV1().Services(v1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
-	if nil != err {
-		klog.Warningf("Failed to list load balancer services: %v", err)
-		return
-	}
-
-	// Filtering out the services which type is not load blancer and also filtering out
-	// the load blanacer services which has got defined load blancer class.
-	// The ServiceList struct was modified in place so there is no returning value
-	c.filterLoadBalancersFromServiceList(services)
 
 	// Verify each load balancer service that has a status with an IP
 	// address set. If the load balancer has no such status then it is in
@@ -2311,18 +2269,6 @@ func sliceContains(stringSlice []string, searchString string) bool {
 		}
 	}
 	return false
-}
-
-func (c *Cloud) isServiceConfigurationSupported(service *v1.Service) error {
-	for _, port := range service.Spec.Ports {
-		switch port.Protocol {
-		case v1.ProtocolTCP, v1.ProtocolUDP:
-		default:
-			return fmt.Errorf("%s protocol", port.Protocol)
-		}
-
-	}
-	return nil
 }
 
 // NOTE(rtheis): This function is based on a similar function in kubernetes.

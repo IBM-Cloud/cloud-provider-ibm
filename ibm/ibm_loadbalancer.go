@@ -1245,6 +1245,7 @@ func (c *Cloud) GetLoadBalancerName(ctx context.Context, clusterName string, ser
 	if c.isProviderVpc() {
 		return c.vpcGetLoadBalancerName(service)
 	}
+	// return classic.GetCloudProviderLoadBalancerName(service)
 	return GetCloudProviderLoadBalancerName(service)
 }
 
@@ -1257,6 +1258,7 @@ func (c *Cloud) GetLoadBalancer(ctx context.Context, clusterName string, service
 	if c.isProviderVpc() {
 		return c.VpcGetLoadBalancer(ctx, clusterName, service)
 	}
+	// return c.ClassicCloud.GetLoadBalancer(ctx, clusterName, service)
 	lbName := GetCloudProviderLoadBalancerName(service)
 	klog.Infof("GetLoadBalancer(%v, %v)", lbName, clusterName)
 	lbDeployment, err := c.getLoadBalancerDeployment(lbName)
@@ -1371,6 +1373,7 @@ func (c *Cloud) EnsureLoadBalancer(ctx context.Context, clusterName string, serv
 	if c.isProviderVpc() {
 		return c.VpcEnsureLoadBalancer(ctx, clusterName, service, nodes)
 	}
+	// return c.ClassicCloud.EnsureLoadBalancer(ctx, clusterName, service, nodes)
 
 	var lbLogName string
 	lbName := GetCloudProviderLoadBalancerName(service)
@@ -1956,6 +1959,7 @@ func (c *Cloud) UpdateLoadBalancer(ctx context.Context, clusterName string, serv
 	if c.isProviderVpc() {
 		return c.VpcUpdateLoadBalancer(ctx, clusterName, service, nodes)
 	}
+	// return c.ClassicCloud.UpdateLoadBalancer(ctx, clusterName, service, nodes)
 	klog.Infof("UpdateLoadBalancer(%v, %v, %v)", clusterName, service, len(nodes))
 
 	lbName := GetCloudProviderLoadBalancerName(service)
@@ -2019,6 +2023,7 @@ func (c *Cloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName strin
 	if c.isProviderVpc() {
 		return c.VpcEnsureLoadBalancerDeleted(ctx, clusterName, service)
 	}
+	// return c.ClassicCloud.EnsureLoadBalancerDeleted(ctx, clusterName, service)
 	lbName := GetCloudProviderLoadBalancerName(service)
 	klog.Infof("EnsureLoadBalancerDeleted(%v, %v)", lbName, clusterName)
 
@@ -2193,8 +2198,8 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 		return
 	}
 
-	// Filtering out the services which type is not load blancer and also filtering out
-	// the load blanacer services which has got defined load blancer class.
+	// Filtering out the services which type is not load balancer and also filtering out
+	// the load balancer services which has got defined load balancer class.
 	// The ServiceList struct was modified in place so there is no returning value
 	c.filterLoadBalancersFromServiceList(services)
 
@@ -2203,6 +2208,8 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 		c.VpcMonitorLoadBalancers(services, data)
 		return
 	}
+	// c.ClassicCloud.MonitorLoadBalancers(services, data)
+	// return
 
 	// Verify each load balancer service that has a status with an IP
 	// address set. If the load balancer has no such status then it is in

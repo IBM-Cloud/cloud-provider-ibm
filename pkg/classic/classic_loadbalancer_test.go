@@ -625,11 +625,10 @@ func getTestCloud() (*Cloud, string, *fake.Clientset) {
 	fakeKubeClientV1 := fake.NewSimpleClientset()
 
 	// Build test cloud.
-	cc.Global.Version = "1.0.0"
-	cc.Kubernetes.ConfigFilePaths = []string{"../../test-fixtures/kubernetes/k8s-config"}
-	cc.LBDeployment.Image = "registry.ng.bluemix.net/armada-master/keepalived:1328"
-	cc.LBDeployment.Application = "keepalived"
-	cc.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
+	cc.ConfigFilePath = "../../test-fixtures/kubernetes/k8s-config"
+	cc.Image = "registry.ng.bluemix.net/armada-master/keepalived:1328"
+	cc.Application = "keepalived"
+	cc.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
 	c := Cloud{
 		KubeClient: fakeKubeClient,
 		Config:     &cc,
@@ -782,28 +781,28 @@ func TestGetCloudProviderVlanIPConfig(t *testing.T) {
 	c, _, fakeKubeClient := getTestCloud()
 
 	// Config doesn't exist
-	c.Config.LBDeployment.VlanIPConfigMap = "doesntexist"
+	c.Config.VlanIPConfigMap = "doesntexist"
 	config, err = c.getCloudProviderVlanIPConfig()
 	if nil != config || nil == err {
 		t.Fatalf("Unexpected cloud provider VLAN IP config 'doesntexist' found: %v, %v", config, err)
 	}
 
 	// Error parsing Config
-	c.Config.LBDeployment.VlanIPConfigMap = "nodata"
+	c.Config.VlanIPConfigMap = "nodata"
 	config, err = c.getCloudProviderVlanIPConfig()
 	if nil != config || nil == err {
 		t.Fatalf("Unexpected parse of cloud provider VLAN IP config 'nodata': %v, %v", config, err)
 	}
 
 	// Get config from load balancer deployment namespace
-	c.Config.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
+	c.Config.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
 	config, err = c.getCloudProviderVlanIPConfig()
 	if nil == config || nil != err {
 		t.Fatalf("Unexpected error getting cloud provider VLAN IP config 'ibm-cloud-provider-vlan-ip-config': %v, %v", config, err)
 	}
 
 	// Get config from kubernetes namespace
-	c.Config.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config-ibm-namespace"
+	c.Config.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config-ibm-namespace"
 	config, err = c.getCloudProviderVlanIPConfig()
 	if nil == config || nil != err {
 		t.Fatalf("Unexpected error getting cloud provider VLAN IP config 'ibm-cloud-provider-vlan-ip-config-ibm-namespace': %v, %v", config, err)
@@ -830,7 +829,7 @@ func verifyPopulateAvailableCloudProviderVlanIPConfig(
 	cloudProviderZone string,
 	cloudProviderVlan string) {
 
-	c.Config.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
+	c.Config.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
 	availableCloudProviderVLANs := map[string][]string{}
 	availableCloudProviderIPs := map[string]string{}
 	availableCloudProviderVlanErrors := map[string][]subnetConfigErrorField{}
@@ -1448,7 +1447,7 @@ func TestCreateCalicoCfg(t *testing.T) {
 
 func TestCreateCalicoKDDCfg(t *testing.T) {
 	c, _, _ := getTestCloud()
-	c.Config.Kubernetes.CalicoDatastore = "KDD"
+	c.Config.CalicoDatastore = "KDD"
 
 	calicoCfgFile, err := c.createCalicoCfg()
 	if err != nil {
@@ -1791,7 +1790,7 @@ func TestPopulateAvailableCloudProviderVlanIPConfig(t *testing.T) {
 	c, _, _ := getTestCloud()
 
 	// Config doesn't exist
-	c.Config.LBDeployment.VlanIPConfigMap = "doesntexist"
+	c.Config.VlanIPConfigMap = "doesntexist"
 	availableCloudProviderVLANs = map[string][]string{}
 	availableCloudProviderIPs = map[string]string{}
 	availableCloudProviderVlanErrors := map[string][]subnetConfigErrorField{}
@@ -1809,7 +1808,7 @@ func TestPopulateAvailableCloudProviderVlanIPConfig(t *testing.T) {
 	}
 
 	// No cloud provider VLAN IPs exist
-	c.Config.LBDeployment.VlanIPConfigMap = "emptydata"
+	c.Config.VlanIPConfigMap = "emptydata"
 	availableCloudProviderVLANs = map[string][]string{}
 	availableCloudProviderIPs = map[string]string{}
 	availableCloudProviderVlanErrors = map[string][]subnetConfigErrorField{}
@@ -2035,10 +2034,10 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	if nil == d || nil != err {
 		t.Fatalf("Unexpected error finding load balancer 'new': %v, %v", d, err)
 	}
-	if d.Spec.Template.Spec.Containers[0].Image != c.Config.LBDeployment.Image {
+	if d.Spec.Template.Spec.Containers[0].Image != c.Config.Image {
 		t.Fatalf("Unexpected error updating load balancer deployment keepalived container Image: %v", d.Spec.Template.Spec.Containers[0].Image)
 	}
-	if d.Spec.Template.Spec.InitContainers[0].Image != c.Config.LBDeployment.Image {
+	if d.Spec.Template.Spec.InitContainers[0].Image != c.Config.Image {
 		t.Fatalf("Unexpected error updating load balancer deployment keepalived Init container Image: %v", d.Spec.Template.Spec.Containers[0].Image)
 	}
 
@@ -2057,10 +2056,10 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	if nil == d || nil != err {
 		t.Fatalf("Unexpected error finding load balancer 'new': %v, %v", d, err)
 	}
-	if d.Spec.Template.Spec.Containers[0].Image == c.Config.LBDeployment.Image {
+	if d.Spec.Template.Spec.Containers[0].Image == c.Config.Image {
 		t.Fatalf("Unexpected error updating load balancer deployment keepalived container Image: %v", d.Spec.Template.Spec.Containers[0].Image)
 	}
-	if d.Spec.Template.Spec.InitContainers[0].Image == c.Config.LBDeployment.Image {
+	if d.Spec.Template.Spec.InitContainers[0].Image == c.Config.Image {
 		t.Fatalf("Unexpected error updating load balancer deployment keepalived Init container Image: %v", d.Spec.Template.Spec.Containers[0].Image)
 	}
 
@@ -2079,10 +2078,10 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	if nil == d || nil != err {
 		t.Fatalf("Unexpected error finding load balancer 'new': %v, %v", d, err)
 	}
-	if d.Spec.Template.Spec.Containers[0].Image != c.Config.LBDeployment.Image {
+	if d.Spec.Template.Spec.Containers[0].Image != c.Config.Image {
 		t.Fatalf("Unexpected error updating load balancer deployment keepalived container Image: %v", d.Spec.Template.Spec.Containers[0].Image)
 	}
-	if d.Spec.Template.Spec.InitContainers[0].Image != c.Config.LBDeployment.Image {
+	if d.Spec.Template.Spec.InitContainers[0].Image != c.Config.Image {
 		t.Fatalf("Unexpected error updating load balancer deployment keepalived Init container Image: %v", d.Spec.Template.Spec.Containers[0].Image)
 	}
 
@@ -2099,7 +2098,7 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	}
 
 	// Cloud provider VLAN IP config doesn't exist
-	c.Config.LBDeployment.VlanIPConfigMap = "doesntexist"
+	c.Config.VlanIPConfigMap = "doesntexist"
 	status, err = c.EnsureLoadBalancer(context.Background(), clusterName, getLoadBalancerService("doesntexist"), nil)
 	if nil != status || nil == err {
 		t.Fatalf("Unexpected ensure load balancer 'doesntexist' created: %v, %v", status, err)
@@ -2110,7 +2109,7 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	expectedError2 := "[ErrorSoftlayerDown: Softlayer is experiencing issues please try ordering your subnet later - Number of Occurrences: 1.]"
 
 	// No cloud provider VLAN IPs exist
-	c.Config.LBDeployment.VlanIPConfigMap = "emptydata"
+	c.Config.VlanIPConfigMap = "emptydata"
 	status, err = c.EnsureLoadBalancer(context.Background(), clusterName, getLoadBalancerService("emptydata"), nil)
 	if nil != status || nil == err {
 		t.Fatalf("Unexpected ensure load balancer 'emptydata' created: %v, %v", status, err)
@@ -2121,7 +2120,7 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	}
 
 	// Verify `lbPortableSubnetMessage` error message shows up since we don't have any errors in the CM
-	c.Config.LBDeployment.VlanIPConfigMap = "errorlanips"
+	c.Config.VlanIPConfigMap = "errorlanips"
 	status, err = c.EnsureLoadBalancer(context.Background(), clusterName, getLoadBalancerService("errorlanips"), nil)
 	if nil != status || nil == err {
 		t.Fatalf("Unexpected ensure load balancer 'errorlanips' created: %v, %v", status, err)
@@ -2131,14 +2130,14 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	}
 
 	// No nodes exist on cloud provider VLANs
-	c.Config.LBDeployment.VlanIPConfigMap = "unavailablevlanips"
+	c.Config.VlanIPConfigMap = "unavailablevlanips"
 	status, err = c.EnsureLoadBalancer(context.Background(), clusterName, getLoadBalancerService("unavailablevlanips"), nil)
 	if nil != status || nil == err {
 		t.Fatalf("Unexpected ensure load balancer 'unavailablevlanips' created: %v, %v", status, err)
 	}
 
 	// Set valid VLAN IP config map
-	c.Config.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
+	c.Config.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
 
 	// Request cloud provider IP that is unavailable
 	lbService := getLoadBalancerService("unavailableip")
@@ -2188,18 +2187,6 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	status, err = c.EnsureLoadBalancer(context.Background(), clusterName, lbService, nil)
 	if nil != status || nil == err {
 		t.Fatalf("Unexpected ensure load balancer 'inuseip' created: %v, %v", status, err)
-	}
-
-	// Ensure SCTP protocol load balancer fails
-	lbService = getLoadBalancerService("sctp-protocol")
-	lbService.Spec.Ports = []v1.ServicePort{{
-		Name:     "sctp",
-		Protocol: v1.ProtocolSCTP,
-		Port:     80,
-	}}
-	status, err = c.EnsureLoadBalancer(context.Background(), clusterName, lbService, nil)
-	if nil != status || nil == err {
-		t.Fatalf("Unexpected ensure load balancer 'sctp-protocol' created: %v, %v", status, err)
 	}
 
 	// Ensure application protocol load balancer passes
@@ -2287,7 +2274,7 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	if 0 != strings.Compare(getTestLoadBlancerName("new"), dLabels[lbNameLabel]) {
 		t.Fatalf("Unexpected label %v for load balancer 'new': %v", lbNameLabel, dLabels)
 	}
-	if 0 != strings.Compare(c.Config.LBDeployment.Application, dLabels[lbApplicationLabel]) {
+	if 0 != strings.Compare(c.Config.Application, dLabels[lbApplicationLabel]) {
 		t.Fatalf("Unexpected label %v for load balancer 'new': %v", lbApplicationLabel, dLabels)
 	}
 	dSpecTemplateLabels := d.Spec.Template.ObjectMeta.Labels
@@ -2300,7 +2287,7 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	if 0 != strings.Compare(getTestLoadBlancerName("new"), dSpecTemplateLabels[lbNameLabel]) {
 		t.Fatalf("Unexpected spec label %v for load balancer 'new': %v", lbNameLabel, dSpecTemplateLabels)
 	}
-	if 0 != strings.Compare(c.Config.LBDeployment.Application, dSpecTemplateLabels[lbApplicationLabel]) {
+	if 0 != strings.Compare(c.Config.Application, dSpecTemplateLabels[lbApplicationLabel]) {
 		t.Fatalf("Unexpected spec label %v for load balancer 'new': %v", lbApplicationLabel, dSpecTemplateLabels)
 	}
 
@@ -2415,14 +2402,14 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	}
 
 	// Verify the load balancer deployment image
-	if 0 != strings.Compare(c.Config.LBDeployment.Image, d.Spec.Template.Spec.Containers[0].Image) {
+	if 0 != strings.Compare(c.Config.Image, d.Spec.Template.Spec.Containers[0].Image) {
 		t.Fatalf("Unexpected image for load balancer 'new': %v", d.Spec.Template.Spec.Containers[0].Image)
 	}
 	if v1.PullIfNotPresent != d.Spec.Template.Spec.Containers[0].ImagePullPolicy {
 		t.Fatalf("Unexpected image pull policy for load balancer 'new': %v", d.Spec.Template.Spec.Containers[0].ImagePullPolicy)
 	}
 	// Verify the load balancer deployment initContainer image
-	if 0 != strings.Compare(c.Config.LBDeployment.Image, d.Spec.Template.Spec.InitContainers[0].Image) {
+	if 0 != strings.Compare(c.Config.Image, d.Spec.Template.Spec.InitContainers[0].Image) {
 		t.Fatalf("Unexpected initContainer image for load balancer 'new': %v", d.Spec.Template.Spec.InitContainers[0].Image)
 	}
 	if v1.PullIfNotPresent != d.Spec.Template.Spec.InitContainers[0].ImagePullPolicy {
@@ -2433,16 +2420,16 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	if 1 != len(d.Spec.Template.Spec.Volumes) {
 		t.Fatalf("Unexpected volumes for load balancer 'new': %v", d.Spec.Template.Spec.Volumes)
 	}
-	if 0 != strings.Compare(c.Config.LBDeployment.Application+"-status", d.Spec.Template.Spec.Volumes[0].Name) {
+	if 0 != strings.Compare(c.Config.Application+"-status", d.Spec.Template.Spec.Volumes[0].Name) {
 		t.Fatalf("Unexpected volume name for load balancer 'new': %v", d.Spec.Template.Spec.Volumes[0].Name)
 	}
-	if 0 != strings.Compare("/tmp/"+c.Config.LBDeployment.Application, d.Spec.Template.Spec.Volumes[0].VolumeSource.HostPath.Path) {
+	if 0 != strings.Compare("/tmp/"+c.Config.Application, d.Spec.Template.Spec.Volumes[0].VolumeSource.HostPath.Path) {
 		t.Fatalf("Unexpected volume host path for load balancer 'new': %v", d.Spec.Template.Spec.Volumes[0].VolumeSource.HostPath.Path)
 	}
 	if 1 != len(d.Spec.Template.Spec.Containers[0].VolumeMounts) {
 		t.Fatalf("Unexpected volume mounts for load balancer 'new': %v", d.Spec.Template.Spec.Containers[0].VolumeMounts)
 	}
-	if 0 != strings.Compare(c.Config.LBDeployment.Application+"-status", d.Spec.Template.Spec.Containers[0].VolumeMounts[0].Name) {
+	if 0 != strings.Compare(c.Config.Application+"-status", d.Spec.Template.Spec.Containers[0].VolumeMounts[0].Name) {
 		t.Fatalf("Unexpected volume mount name for load balancer 'new': %v", d.Spec.Template.Spec.Containers[0].VolumeMounts[0].Name)
 	}
 	if 0 != strings.Compare("/status", d.Spec.Template.Spec.Containers[0].VolumeMounts[0].MountPath) {
@@ -2477,8 +2464,8 @@ func TestEnsureLoadBalancer(t *testing.T) {
 	if nil != err {
 		t.Fatalf("Unexpected error updating load balancer 'new': %v", err)
 	}
-	newImage := c.Config.LBDeployment.Image + "0"
-	c.Config.LBDeployment.Image = newImage
+	newImage := c.Config.Image + "0"
+	c.Config.Image = newImage
 	status, err = c.EnsureLoadBalancer(context.Background(), clusterName, getLoadBalancerService("new"), nil)
 	if nil == status || nil != err {
 		t.Fatalf("Unexpected error ensure load balancer 'new' updated: %v, %v", status, err)
@@ -3184,11 +3171,10 @@ func TestEnsureLoadBalancerGatewayEdge(t *testing.T) {
 	fakeKubeClientV1 := fake.NewSimpleClientset()
 
 	// Build test cloud.
-	cc.Global.Version = "1.0.0"
-	cc.Kubernetes.ConfigFilePaths = []string{"../../test-fixtures/kubernetes/k8s-config"}
-	cc.LBDeployment.Image = "registry.ng.bluemix.net/armada-master/keepalived:1328"
-	cc.LBDeployment.Application = "keepalived"
-	cc.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
+	cc.ConfigFilePath = "../../test-fixtures/kubernetes/k8s-config"
+	cc.Image = "registry.ng.bluemix.net/armada-master/keepalived:1328"
+	cc.Application = "keepalived"
+	cc.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
 	c := Cloud{
 		KubeClient: fakeKubeClient,
 		Config:     &cc,
@@ -3590,40 +3576,6 @@ func TestEnsureLoadBalancerDeleted(t *testing.T) {
 	}
 }
 
-func TestFilterLoadBalancersFromServiceList(t *testing.T) {
-	c, _, _ := getTestCloud()
-
-	services, err := c.KubeClient.CoreV1().Services(v1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
-	if nil != err {
-		t.Fatalf("Failed to list load balancer services: %v", err)
-	}
-
-	num := len(services.Items)
-	expectedNum := 12 // Count every service
-	if expectedNum != num {
-		t.Fatalf("The number of services: %v is not equal with the expected value: %v", num, expectedNum)
-	}
-
-	c.filterLoadBalancersFromServiceList(services)
-	num = len(services.Items)
-	expectedNum = 11 // Count of load balanacer services
-	if expectedNum != num {
-		t.Fatalf("The number of services: %v is not equal with the expected value: %v", num, expectedNum)
-	}
-
-	// Choose two "random" load balancers (4th and 9th) and set their load balancer class
-	// Filter out these load balancer services
-	dummyLb := "dummylb.io"
-	services.Items[4].Spec.LoadBalancerClass = &dummyLb
-	services.Items[9].Spec.LoadBalancerClass = &dummyLb
-	c.filterLoadBalancersFromServiceList(services)
-	num = len(services.Items)
-	expectedNum = 9 // Count of load balancer services without load balancer class
-	if expectedNum != num {
-		t.Fatalf("The number of services: %v is not equal with the expected value: %v", num, expectedNum)
-	}
-}
-
 func TestMonitorLoadBalancers(t *testing.T) {
 	data := map[string]string{
 		"atest":        "Fake error",
@@ -3637,21 +3589,25 @@ func TestMonitorLoadBalancers(t *testing.T) {
 	if nil != err {
 		t.Fatalf("Unexpected error remove service account: %v, %v", lbDeploymentNamespace, "testIPVSDeleteCMCreate")
 	}
+	services, err := c.KubeClient.CoreV1().Services(v1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
+	if nil != err {
+		t.Fatalf("Unexpected error listing services: %v", err)
+	}
 
 	// Initial monitor should result in new errors.
-	MonitorLoadBalancers(c, data)
+	c.MonitorLoadBalancers(services, data)
 	if 3 != len(data) || 0 != len(data["atest"]) || 0 == len(data["adup"]) || 0 == len(data["anoreplicas"]) {
 		t.Fatalf("Unexpected load balancer monitor data: %v", data)
 	}
 
 	// Second monitor should result in warning events.
-	MonitorLoadBalancers(c, data)
+	c.MonitorLoadBalancers(services, data)
 	if 3 != len(data) || 0 != len(data["atest"]) || 0 == len(data["adup"]) || 0 == len(data["anoreplicas"]) {
 		t.Fatalf("Unexpected load balancer monitor data: %v", data)
 	}
 
 	data["testSourceIP"] = "Fake error"
-	MonitorLoadBalancers(c, data)
+	c.MonitorLoadBalancers(services, data)
 	if 4 != len(data) || 0 != len(data["atest"]) || 0 == len(data["adup"]) || 0 == len(data["anoreplicas"]) || 0 == len(data["testSourceIP"]) {
 		t.Fatalf("Unexpected load balancer monitor data: %v", data)
 	}

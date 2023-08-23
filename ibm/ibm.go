@@ -147,6 +147,7 @@ type Cloud struct {
 	Recorder   *CloudEventRecorder
 	CloudTasks map[string]*CloudTask
 	Metadata   *MetadataService // will be nil in kubelet
+	// ClassicCloud *classic.Cloud   // Classic load balancer support
 }
 
 // Initialize provides the cloud with a kubernetes client builder and may spawn goroutines
@@ -175,6 +176,7 @@ func (c *Cloud) SetInformers(informerFactory informers.SharedInformerFactory) {
 		endpointInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 			UpdateFunc: c.handleEndpointUpdate,
 		})
+		// c.ClassicCloud.SetInformers(informerFactory)
 	}
 
 	nodeInformer := informerFactory.Core().V1().Nodes().Informer()
@@ -289,6 +291,16 @@ func NewCloud(config io.Reader) (cloudprovider.Interface, error) {
 			errString := fmt.Sprintf("Failed initializing VPC: %v", err)
 			klog.Warningf(errString)
 		}
+		// } else {
+		// 	// Initialize the classic logic
+		// 	classicConfig := &classic.CloudConfig{
+		// 		Application:     c.Config.LBDeployment.Application,
+		// 		CalicoDatastore: c.Config.Kubernetes.CalicoDatastore,
+		// 		ConfigFilePath:  c.Config.Kubernetes.ConfigFilePaths[0],
+		// 		Image:           c.Config.LBDeployment.Image,
+		// 		VlanIPConfigMap: c.Config.LBDeployment.VlanIPConfigMap,
+		// 	}
+		// 	c.ClassicCloud = classic.NewCloud(c.KubeClient, classicConfig, c.Recorder.Recorder)
 	}
 	return &c, nil
 }

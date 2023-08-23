@@ -20,73 +20,20 @@
 package classic
 
 import (
+	"k8s.io/client-go/informers"
+	"k8s.io/client-go/kubernetes"
 	clientset "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/tools/record"
 )
-
-// LoadBalancerDeployment is the load balancer deployment data for classic
-// load balancers. All fields are required when running on classic
-// infrastructure.
-type LoadBalancerDeployment struct {
-	// Name of the image to use for the load balancer deployment.
-	Image string `gcfg:"image"`
-	// Name of the application to use as a label for the load balancer deployment.
-	Application string `gcfg:"application"`
-	// Name of the VLAN IP config map in the kube-system or ibm-system namespace
-	// that is used to determine the available cloud provider IPs for the
-	// load balancer deployment.
-	VlanIPConfigMap string `gcfg:"vlan-ip-config-map"`
-}
-
-// Provider holds information from the cloud provider.
-// TODO(rtheis): Remove legacy in tree cloud provider implementation.
-type Provider struct {
-	// Unsupported: Cloud provider ID for the node. Only used when running the
-	// legacy in tree cloud provider implementation, ignored otherwise.
-	ProviderID string `gcfg:"providerID"`
-	// Unsupported: Internal IP of the node. Only used when running the
-	// legacy in tree cloud provider implementation, ignored otherwise.
-	InternalIP string `gcfg:"internalIP"`
-	// Unsupported: External IP of the node. Only used when running the
-	// legacy in tree cloud provider implementation, ignored otherwise.
-	ExternalIP string `gcfg:"externalIP"`
-	// Unsupported: Region of the node. Only used when running the
-	// legacy in tree cloud provider implementation.
-	Region string `gcfg:"region"`
-	// Unsupported: Zone of the node. Only used when running the
-	// legacy in tree cloud provider implementation, ignored otherwise.
-	Zone string `gcfg:"zone"`
-	// Unsupported: Instance Type of the node. Only used when running the
-	// legacy in tree cloud provider implementation, ignored otherwise.
-	InstanceType string `gcfg:"instanceType"`
-	// Required: Cluster ID of the cluster.
-	ClusterID string `gcfg:"clusterID"`
-	// Required: Account ID that owns the cluster.
-	AccountID string `gcfg:"accountID"`
-}
 
 // CloudConfig is the ibm cloud provider config data.
 type CloudConfig struct {
-	// [global] section
-	Global struct {
-		// Required: Version of the cloud config. Currently only versions
-		// 1.0.0 and 1.1.0 are supported.
-		Version string `gcfg:"version"`
-	}
-	// [kubernetes] section
-	Kubernetes struct {
-		// The Kubernetes config file paths. The first file found will be used.
-		// If not specified, then the in cluster config will be used. Using
-		// an in cluster config is not support for classic infrastructure
-		// since Calico does not support such configurations.
-		ConfigFilePaths []string `gcfg:"config-file"`
-		// The Calico datastore type: "ETCD" or "KDD". Required when running on
-		// classic infrastructure
-		CalicoDatastore string `gcfg:"calico-datastore"`
-	}
-	// [load-balancer-deployment] section
-	LBDeployment LoadBalancerDeployment `gcfg:"load-balancer-deployment"`
-	// [provider] section
-	Prov Provider `gcfg:"provider"`
+	Application     string // Name of the application to use as a label for the load balancer deployment
+	CalicoDatastore string // The Calico datastore type: "ETCD" or "KDD"
+	ConfigFilePath  string // The Kubernetes config file path
+	Image           string // Name of the image to use for the load balancer deployment
+	VlanIPConfigMap string // Name of the VLAN IP config map in the kube-system or ibm-system namespace
 }
 
 // Cloud is the ibm cloud provider implementation.
@@ -94,4 +41,23 @@ type Cloud struct {
 	KubeClient clientset.Interface
 	Config     *CloudConfig
 	Recorder   *CloudEventRecorder
+}
+
+const (
+	ProviderName = "ibm"
+)
+
+func NewCloud(kubeClient kubernetes.Interface, config *CloudConfig, recorder record.EventRecorder) *Cloud {
+	return &Cloud{
+		KubeClient: kubeClient,
+		Config:     config,
+		Recorder:   &CloudEventRecorder{Name: ProviderName, Recorder: recorder}}
+}
+
+// SetInformers - Configure watch/informers
+func (c *Cloud) SetInformers(informerFactory informers.SharedInformerFactory) {
+	endpointInformer := informerFactory.Core().V1().Endpoints().Informer()
+	endpointInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: c.handleEndpointUpdate,
+	})
 }
