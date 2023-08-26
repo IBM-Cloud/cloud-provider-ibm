@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2023 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -27,10 +27,14 @@ import (
 	"time"
 
 	apps "k8s.io/api/apps/v1"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/fake"
+)
+
+const (
+	lbDeploymentNamespace = "ibm-system"
 )
 
 func createTestResources() (*apps.Deployment, *v1.Service) {
@@ -61,51 +65,6 @@ func TestNewCloudEventRecorder(t *testing.T) {
 		t.Fatalf("Failed to create cloud event recorder")
 	} else if 0 != strings.Compare("ibm-cloud-provider", cer.Name) {
 		t.Fatalf("Invalid cloud event recorder name: %v", cer.Name)
-	}
-}
-
-func TestLoadBalancerNormalEvent(t *testing.T) {
-	eventMessage := "TestLoadBalancerNormalEvent"
-	lbDeployment, lbService := createTestResources()
-	fakeClient := fake.NewSimpleClientset()
-	cer := NewCloudEventRecorderV1("ibm", fakeClient.CoreV1().Events(lbDeploymentNamespace))
-	cer.LoadBalancerNormalEvent(lbDeployment, lbService, CloudLoadBalancerNormalEvent, eventMessage)
-
-	time.Sleep(time.Second * 10)
-	eventsGenerated, err := fakeClient.CoreV1().Events(lbDeploymentNamespace).List(context.TODO(), metav1.ListOptions{})
-	if nil != err || 2 != len(eventsGenerated.Items) {
-		t.Fatalf("Failed to generate events: error: %v, events: %v", err, eventsGenerated.Items)
-	}
-}
-
-func TestLoadBalancerWarningEvent(t *testing.T) {
-	errorMessage := "TestLoadBalancerWarningEvent"
-	lbDeployment, lbService := createTestResources()
-	fakeClient := fake.NewSimpleClientset()
-	cer := NewCloudEventRecorderV1("ibm", fakeClient.CoreV1().Events(lbDeploymentNamespace))
-	err := cer.LoadBalancerWarningEvent(lbDeployment, lbService, CreatingCloudLoadBalancerFailed, errorMessage)
-	if nil == err {
-		t.Fatalf("Failed to create load balancer warning event")
-	}
-	errorSubStrings := []string{
-		GetCloudProviderLoadBalancerName(lbService),
-		lbDeployment.ObjectMeta.Name,
-		lbDeployment.ObjectMeta.Namespace,
-		lbService.ObjectMeta.Name,
-		lbService.ObjectMeta.Namespace,
-		fmt.Sprintf("%v", lbService.ObjectMeta.UID),
-		errorMessage,
-	}
-	errorString := fmt.Sprintf("%v", err)
-	for _, errorSubString := range errorSubStrings {
-		if !strings.Contains(errorString, errorSubString) {
-			t.Fatalf("Error message missing data %v: %v", errorSubString, errorString)
-		}
-	}
-	time.Sleep(time.Second * 10)
-	eventsGenerated, err := fakeClient.CoreV1().Events(lbDeploymentNamespace).List(context.TODO(), metav1.ListOptions{})
-	if nil != err || 2 != len(eventsGenerated.Items) {
-		t.Fatalf("Failed to generate events: error: %v, events: %v", err, eventsGenerated.Items)
 	}
 }
 

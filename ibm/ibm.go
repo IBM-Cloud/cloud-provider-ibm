@@ -27,6 +27,7 @@ import (
 	gcfg "gopkg.in/gcfg.v1"
 	"k8s.io/klog/v2"
 
+	"cloud.ibm.com/cloud-provider-ibm/pkg/classic"
 	"cloud.ibm.com/cloud-provider-ibm/pkg/vpcctl"
 
 	"k8s.io/client-go/informers"
@@ -141,13 +142,13 @@ type CloudConfig struct {
 
 // Cloud is the ibm cloud provider implementation.
 type Cloud struct {
-	Name       string
-	KubeClient clientset.Interface
-	Config     *CloudConfig
-	Recorder   *CloudEventRecorder
-	CloudTasks map[string]*CloudTask
-	Metadata   *MetadataService // will be nil in kubelet
-	// ClassicCloud *classic.Cloud   // Classic load balancer support
+	Name         string
+	KubeClient   clientset.Interface
+	Config       *CloudConfig
+	Recorder     *CloudEventRecorder
+	CloudTasks   map[string]*CloudTask
+	Metadata     *MetadataService // will be nil in kubelet
+	ClassicCloud *classic.Cloud   // Classic load balancer support
 }
 
 // Initialize provides the cloud with a kubernetes client builder and may spawn goroutines
@@ -171,12 +172,8 @@ func (c *Cloud) SetInformers(informerFactory informers.SharedInformerFactory) {
 	klog.Infof("Initializing Informers")
 
 	// endpointInformer is not needed for VPC
-	if !isProviderVpc(c.Config.Prov.ProviderType) {
-		endpointInformer := informerFactory.Core().V1().Endpoints().Informer()
-		endpointInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: c.handleEndpointUpdate,
-		})
-		// c.ClassicCloud.SetInformers(informerFactory)
+	if !c.isProviderVpc() {
+		c.ClassicCloud.SetInformers(informerFactory)
 	}
 
 	nodeInformer := informerFactory.Core().V1().Nodes().Informer()
@@ -291,16 +288,16 @@ func NewCloud(config io.Reader) (cloudprovider.Interface, error) {
 			errString := fmt.Sprintf("Failed initializing VPC: %v", err)
 			klog.Warningf(errString)
 		}
-		// } else {
-		// 	// Initialize the classic logic
-		// 	classicConfig := &classic.CloudConfig{
-		// 		Application:     c.Config.LBDeployment.Application,
-		// 		CalicoDatastore: c.Config.Kubernetes.CalicoDatastore,
-		// 		ConfigFilePath:  c.Config.Kubernetes.ConfigFilePaths[0],
-		// 		Image:           c.Config.LBDeployment.Image,
-		// 		VlanIPConfigMap: c.Config.LBDeployment.VlanIPConfigMap,
-		// 	}
-		// 	c.ClassicCloud = classic.NewCloud(c.KubeClient, classicConfig, c.Recorder.Recorder)
+	} else {
+		// Initialize the classic logic
+		classicConfig := &classic.CloudConfig{
+			Application:     c.Config.LBDeployment.Application,
+			CalicoDatastore: c.Config.Kubernetes.CalicoDatastore,
+			ConfigFilePath:  c.Config.Kubernetes.ConfigFilePaths[0],
+			Image:           c.Config.LBDeployment.Image,
+			VlanIPConfigMap: c.Config.LBDeployment.VlanIPConfigMap,
+		}
+		c.ClassicCloud = classic.NewCloud(c.KubeClient, classicConfig, c.Recorder.Recorder)
 	}
 	return &c, nil
 }
