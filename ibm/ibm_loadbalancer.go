@@ -86,6 +86,7 @@ const (
 	lbIPVSInvlaidExternalTrafficPolicy  = "Cluster networking is not supported for IPVS-based load balancers. Set 'externalTrafficPolicy' to 'Local', and try again."
 	lbVpcClassicProvider                = "gc"
 	lbVpcNextGenProvider                = "g2"
+	updateCooldownPeriod                = 60
 )
 
 // Run Keepalived Deployments as non-root user with UID:GID 2000:2000
@@ -850,6 +851,25 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 
 	// If necessary, update the load balancer deployment.
 	if 0 != len(updatesRequired) {
+		isImageUpdate := false
+		for _, updateReason := range updatesRequired {
+			if updateReason == "Image" || updateReason == "InitContainer-New-Image" {
+				isImageUpdate = true
+				break
+			}
+		}
+
+		if isImageUpdate {
+			// Stagger updates to ibm-cloud-provider-ip-* deployment for image rollout, see https://github.ibm.com/alchemy-containers/armada-network/issues/8071
+			if strings.HasSuffix(os.Args[0], ".test") || strings.Contains(os.Args[0], "/T/") {
+				// This is a test so, sleeping for only 10 millisecond
+				time.Sleep(time.Millisecond * 10)
+			} else {
+				klog.Infof("Stagger updates: sleeping for %v seconds for load balancer deployment %v", updateCooldownPeriod, lbLogName)
+				time.Sleep(time.Second * updateCooldownPeriod)
+			}
+		}
+
 		_, err = c.KubeClient.AppsV1().Deployments(lbDeployment.ObjectMeta.Namespace).Update(context.TODO(), lbDeployment, metav1.UpdateOptions{})
 		if nil != err {
 			return fmt.Errorf("Failed to update load balancer deployment %v with changes to %v: %v", lbLogName, updatesRequired, err)
