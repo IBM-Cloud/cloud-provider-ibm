@@ -22,8 +22,6 @@ package classic
 import (
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
-	clientset "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 )
 
@@ -38,26 +36,14 @@ type CloudConfig struct {
 
 // Cloud is the ibm cloud provider implementation.
 type Cloud struct {
-	KubeClient clientset.Interface
-	Config     *CloudConfig
-	Recorder   *CloudEventRecorder
+	Config *CloudConfig
 }
 
-const (
-	ProviderName = "ibm"
-)
-
 func NewCloud(kubeClient kubernetes.Interface, config *CloudConfig, recorder record.EventRecorder) *Cloud {
-	return &Cloud{
-		KubeClient: kubeClient,
-		Config:     config,
-		Recorder:   &CloudEventRecorder{Name: ProviderName, Recorder: recorder}}
+	return &Cloud{Config: config}
 }
 
 // SetInformers - Configure watch/informers
 func (c *Cloud) SetInformers(informerFactory informers.SharedInformerFactory) {
-	endpointInformer := informerFactory.Core().V1().Endpoints().Informer()
-	endpointInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: c.handleEndpointUpdate,
-	})
+	// No informers/watchers needed
 }

@@ -189,6 +189,15 @@ calicoctlcli:
 	sudo chmod 755 /usr/local/bin/calicoctl
 	sudo mkdir -p /etc/calico/ && sudo touch /etc/calico/calicoctl.cfg
 
+.PHONY: classic
+classic:
+ifdef ARTIFACTORY_AUTH_HEADER_FILE
+	@echo "Update pkg/classic to use alternate classic library"
+	./scripts/updatePackage.sh addons/classic.yml
+else
+	@echo "Use the existing pkg/classic logic"
+endif
+
 .PHONY: vpcctl
 vpcctl:
 ifdef ARTIFACTORY_AUTH_HEADER_FILE
