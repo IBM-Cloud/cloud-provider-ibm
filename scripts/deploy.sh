@@ -33,6 +33,9 @@ kube_minor=$(echo "${current_release}" | cut -d'.' -f2)
 image_name=$(echo "${DOCKER_IMAGE_NAME}" | cut -d'/' -f2)
 new_image_tag=${DOCKER_IMAGE_TAG}
 
+# Clone the armada-update-release repo
+git clone --depth=1 --single-branch "https://${GHE_USER}:${GHE_TOKEN}@github.ibm.com/alchemy-containers/armada-update-release.git"
+
 # Clone the armada-ansible repo
 git clone --filter=blob:none --depth=1 --sparse "https://${GHE_USER}:${GHE_TOKEN}@github.ibm.com/alchemy-containers/armada-ansible.git"
 cd armada-ansible
@@ -41,9 +44,35 @@ git sparse-checkout add common/bom/next
 cd common/bom/next
 
 bom_file_list=$(grep "^${bom_image}:" ./* | grep ":v${kube_major}.${kube_minor}." | cut -d':' -f1)
-
+cluster_type=""
+cluster_version=""
+create_pr="false"
+today=$(date +%Y-%m-%d)
 for file in $bom_file_list; do
     echo "Updating BOM file ${file} image ${bom_image} with new tag ${new_image_tag} ..."
+
+    # Verify that the target release has not been deprecated
+    release_type="iks"
+    if [[ "$file" = ./openshift* ]]; then
+        release_type="roks"
+    fi
+    version=${file#*-bom-}
+    version=${version%.yml}
+    dep_date=$(grep "Deprecated" "${TRAVIS_BUILD_DIR}/armada-update-release/releases/${release_type}/${version}/README.md" | cut -d'|' -f4 | tr -d '*' | awk '{$1=$1}1')
+    if [[ "${dep_date}" = *GA* ]]; then
+        echo "Deprecation date for [$release_type $version] has not been finalized yet"
+    else
+        echo "Deprecation date for [$release_type $version] is: $dep_date"
+        end_date=$(date -d "${dep_date}" +"%Y-%m-%d")
+        if [[ "$today" > "$end_date" ]]; then
+            echo "The deprecation date has already past, don't update the BOM file"
+            continue
+        fi
+    fi
+    if [[ "$cluster_type" == "" ]] || [[ $release_type == "iks" ]]; then
+        cluster_type=$release_type
+        cluster_version=$version
+    fi
 
     # Pull out the line that starts with the bom_image variable.
     line=$(grep "^${bom_image}:" "${file}")
@@ -58,8 +87,14 @@ for file in $bom_file_list; do
     grep "^${bom_image}:" "${file}"
 
     # Add file to the PR
+    create_pr="true"
     git add "$file"
 done
+
+# If no files were updated, then no need to create PR
+if [[ "$create_pr" == "false" ]]; then
+    exit 0
+fi
 
 echo "Create new branch ..."
 git checkout -b "armada-lb-${new_image_tag}"
@@ -123,5 +158,5 @@ if grep -q "Update vpcctl" "${TRAVIS_BUILD_DIR}/message.txt"; then
     # Clone the armada-network repo and kick off Jenkins job
     git clone --depth=1 --single-branch "https://${GHE_USER}:${GHE_TOKEN}@github.ibm.com/alchemy-containers/armada-network.git"
     cd armada-network/tools/jenkins-cli
-    go run main.go -action createTestBOM -ansibleBranch "armada-lb-${new_image_tag}" -clusterVersion "${kube_major}.${kube_minor}" -user "${JENKINS_USER}" -token "${JENKINS_TOKEN}"
+    go run main.go -action createTestBOM -ansibleBranch "armada-lb-${new_image_tag}" -clusterType "$cluster_type" -clusterVersion "$cluster_version" -user "${JENKINS_USER}" -token "${JENKINS_TOKEN}"
 fi
