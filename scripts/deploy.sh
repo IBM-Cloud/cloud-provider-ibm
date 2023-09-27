@@ -53,7 +53,7 @@ for file in $bom_file_list; do
 
     # Verify that the target release has not been deprecated
     release_type="iks"
-    if [[ "$file" = openshift* ]]; then
+    if [[ "$file" = ./openshift* ]]; then
         release_type="roks"
     fi
     version=${file#*-bom-}
