@@ -28,7 +28,7 @@ CALICOCTL_CHECKSUM=$(shell cat addons/calicoctl.yml | awk '/^checksum:/{print $$
 # - ARTIFACTORY_TOKEN_PATH
 # - ARTIFACTORY_AUTH_HEADER_FILE
 ifdef ARTIFACTORY_AUTH_HEADER_FILE
-IMAGE_SOURCE := wcp-alchemy-containers-team-gcr-docker-remote.artifactory.swg-devops.com
+IMAGE_SOURCE := docker-na-private.artifactory.swg-devops.com/wcp-alchemy-containers-team-gcr-docker-remote
 CALICOCTL_CURL_HEADERS := "-H @${ARTIFACTORY_AUTH_HEADER_FILE}"
 CALICOCTL_CURL_URL=$(shell cat addons/calicoctl.yml | awk '/^source_artifactory:/{print $$2}')
 else
