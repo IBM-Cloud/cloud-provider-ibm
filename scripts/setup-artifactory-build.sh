@@ -24,8 +24,8 @@ curl -s https://s3.us.cloud-object-storage.appdomain.cloud/armada-build-tools-pr
 source ./build-tools/JFrog/setJfrtToken.sh
 export ARTIFACTORY_TOKEN_PATH="/tmp/.artifactory-token-path"
 echo "${ARTIFACTORY_JFRT_TOKEN}" > ${ARTIFACTORY_TOKEN_PATH}
-docker login wcp-alchemy-containers-team-access-redhat-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER_NAME}" --password-stdin <<< "${ARTIFACTORY_JFRT_TOKEN}"
-docker login wcp-alchemy-containers-team-gcr-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER_NAME}" --password-stdin <<< "${ARTIFACTORY_JFRT_TOKEN}"
+docker login docker-na-private.artifactory.swg-devops.com/wcp-alchemy-containers-team-access-redhat-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER_NAME}" --password-stdin <<< "${ARTIFACTORY_JFRT_TOKEN}"
+docker login docker-na-private.artifactory.swg-devops.com/wcp-alchemy-containers-team-gcr-docker-remote.artifactory.swg-devops.com --username "${ARTIFACTORY_USER_NAME}" --password-stdin <<< "${ARTIFACTORY_JFRT_TOKEN}"
 mkdir -p ~/.pip/
 echo "[global]" > ~/.pip/pip.conf
 echo "index-url = https://na.artifactory.swg-devops.com/artifactory/api/pypi/wcp-alchemy-containers-team-pypi-remote/simple" >> ~/.pip/pip.conf
