@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.14.1
-	github.com/IBM/platform-services-go-sdk v0.52.0
+	github.com/IBM/platform-services-go-sdk v0.52.1
 	github.com/IBM/vpc-go-sdk v0.43.0
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-openapi/strfmt v0.21.7
@@ -18,7 +18,7 @@ require (
 	k8s.io/cloud-provider v0.29.0-alpha.2
 	k8s.io/component-base v0.29.0-alpha.2
 	k8s.io/component-helpers v0.29.0-alpha.2
-	k8s.io/klog/v2 v2.100.1
+	k8s.io/klog/v2 v2.110.1
 )
 
 require (
@@ -36,7 +36,7 @@ require (
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
-	github.com/go-logr/logr v1.2.4 // indirect
+	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/errors v0.20.3 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
