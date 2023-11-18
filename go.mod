@@ -3,7 +3,7 @@ module cloud.ibm.com/cloud-provider-ibm
 go 1.20
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.14.1
+	github.com/IBM/go-sdk-core/v5 v5.15.0
 	github.com/IBM/platform-services-go-sdk v0.54.0
 	github.com/IBM/vpc-go-sdk v0.43.0
 	github.com/fsnotify/fsnotify v1.7.0
