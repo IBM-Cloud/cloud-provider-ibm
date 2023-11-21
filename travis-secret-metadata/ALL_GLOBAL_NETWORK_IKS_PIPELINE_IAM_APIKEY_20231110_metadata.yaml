@@ -1,6 +1,6 @@
 teamName: armada-network
 teamLeadEmail: behle@us.ibm.com,adam.mihelcsik@ibm.com
-secretName: ALL_GLOBAL_NETWORK_IKS_PIPELINE_IAM_APIKEY_20221103
+secretName: ALL_GLOBAL_NETWORK_IKS_PIPELINE_IAM_APIKEY_20231110
 purposeOfSecret: |
   used by build-tools to image signing and other features
 emailOfPersonThatGenerated: tamas.soos3@ibm.com
