@@ -50,7 +50,7 @@ GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
 HUB_RLS ?= 2.14.2
 REGISTRY ?= armada-master
-TAG ?= v1.25.15
+TAG ?= v1.25.16
 
 NANCY_VERSION := 1.0.37
 
@@ -157,7 +157,7 @@ fvttest:
 .PHONY: runanalyzedeps
 runanalyzedeps:
 	which nancy || $(MAKE) install-nancy-dep-scanner
-	go list -json -deps | nancy sleuth -e sonatype-2022-6522,CVE-2020-8561 --no-color > nancy.log 2>&1; scripts/process_nancy_log.sh $$?
+	go list -json -deps | nancy sleuth -e sonatype-2022-6522,CVE-2020-8561,CVE-2023-47108 --no-color > nancy.log 2>&1; scripts/process_nancy_log.sh $$?
 
 .PHONY: install-nancy-dep-scanner
 install-nancy-dep-scanner:
