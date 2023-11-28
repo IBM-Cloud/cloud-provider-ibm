@@ -101,6 +101,6 @@ deploy:
     script: ./scripts/publishTag.sh
     skip_cleanup: true
     on:
-      branch: release-1.28
+      branch: release-1.29
       go: 1.21.3
       condition: ${TRAVIS_COMMIT_MESSAGE} =~ push_build && ${TRAVIS_JOB_NAME} == Internal
