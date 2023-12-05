@@ -7,7 +7,7 @@ require (
 	github.com/IBM/platform-services-go-sdk v0.54.1
 	github.com/IBM/vpc-go-sdk v0.44.0
 	github.com/fsnotify/fsnotify v1.7.0
-	github.com/go-openapi/strfmt v0.21.7
+	github.com/go-openapi/strfmt v0.21.8
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4
