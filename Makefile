@@ -50,7 +50,7 @@ GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
 HUB_RLS ?= 2.14.2
 REGISTRY ?= armada-master
-TAG ?= v1.29.0-rc.2
+TAG ?= v1.29.0
 
 NANCY_VERSION := 1.0.45
 
@@ -102,7 +102,7 @@ kube-update:
 .PHONY: fmt
 fmt:
 ifdef GOLANGCI_LINT_EXISTS
-	golangci-lint run --disable-all --no-config --enable=gofmt
+	golangci-lint run --disable-all --no-config --enable=gofmt --timeout 5m
 else
 	@echo "golangci-lint is not installed"
 	exit 1
