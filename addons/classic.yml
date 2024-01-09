@@ -1,6 +1,6 @@
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2023 All Rights Reserved.
+# (C) Copyright IBM Corp. 2023, 2024 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -31,10 +31,10 @@ source_dir: pkg/classic
 target_dir:
 
 # (Optional) - grep search string which will be done before / after the sed commands are done on the GO logic
-grep_string: Copyright
+grep_string:
 
 # (Optional) - sed commands to update the GO source files copied from source repo
-sed_command_1: s/2022 All Rights Reserved/2023 All Rights Reserved/
+sed_command_1:
 sed_command_2:
 sed_command_3:
 
