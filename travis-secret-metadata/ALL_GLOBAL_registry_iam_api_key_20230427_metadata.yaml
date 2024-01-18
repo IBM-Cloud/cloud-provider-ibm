@@ -1,9 +1,0 @@
-teamName: armada-network
-teamLeadEmail: behle@us.ibm.com,adam.mihelcsik@ibm.com
-secretName: ALL_GLOBAL_registry_iam_api_key_20230427
-purposeOfSecret: |
-  armada-master/armada registry namespace read/write key for pushing images built in this repos build process
-emailOfPersonThatGenerated: tamas.soos3@ibm.com
-account: ServiceId-a1c100f1-e2e6-4d83-b6d1-ab3cbff9a809
-additionalReference: key is rotated by SRE automation
-docLink: https://github.ibm.com/alchemy-containers/secret-rotate-metadata/issues/7379
