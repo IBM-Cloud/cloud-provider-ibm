@@ -1,9 +1,0 @@
-teamName: armada-network
-teamLeadEmail: behle@us.ibm.com,adam.mihelcsik@ibm.com
-secretName: ALL_GLOBAL_NETWORK_IKS_PIPELINE_IAM_APIKEY_20221103
-purposeOfSecret: |
-  used by build-tools to image signing and other features
-emailOfPersonThatGenerated: tamas.soos3@ibm.com
-account: ServiceId-86232a66-8fd2-458d-ab5e-ed2ad6d76d83
-additionalReference: key is rotated by SRE automation
-docLink: https://github.ibm.com/alchemy-containers/secret-rotate-metadata/issues/6696
