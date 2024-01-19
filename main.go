@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2019, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2019, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -18,8 +18,8 @@
 *******************************************************************************/
 
 // References:
-// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.29.0/staging/src/k8s.io/cloud-provider/app/controllermanager.go
-// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.29.0/staging/src/k8s.io/cloud-provider/sample/basic_main.go
+// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.29.1/staging/src/k8s.io/cloud-provider/app/controllermanager.go
+// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.29.1/staging/src/k8s.io/cloud-provider/sample/basic_main.go
 
 package main
 
@@ -113,7 +113,7 @@ the cloud specific control loops shipped with Kubernetes.`,
 	}
 
 	usageFmt := "Usage:\n  %s\n"
-	cols, _, _ := term.TerminalSize(cmd.OutOrStdout())
+	cols, _, _ := term.TerminalSize(cmd.OutOrStdout()) // #nosec G104 Error handling is handled below
 	cmd.SetUsageFunc(func(cmd *cobra.Command) error {
 		fmt.Fprintf(cmd.OutOrStderr(), usageFmt, cmd.UseLine())
 		cliflag.PrintSections(cmd.OutOrStderr(), namedFlagSets, cols)
