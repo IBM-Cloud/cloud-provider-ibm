@@ -60,9 +60,9 @@ done
 # Add container images to the local docker registry.
 for BUILD_IMAGE in ${BUILD_IBM_CCM_IMAGE}; do
     echo "Adding $BUILD_IMAGE to the docker registry ..."
-    if ! sudo docker tag $BUILD_IMAGE ${BUILD_REGISTRY_URL}/${BUILD_IMAGE}; then exit_build ; fi
-    if ! sudo docker push ${BUILD_REGISTRY_URL}/${BUILD_IMAGE}; then exit_build ; fi
-    if ! sudo docker image ls ${BUILD_REGISTRY_URL}/${BUILD_IMAGE}; then exit_build ; fi
+    if ! sudo docker tag "$BUILD_IMAGE" ${BUILD_REGISTRY_URL}/"${BUILD_IMAGE}"; then exit_build ; fi
+    if ! sudo docker push ${BUILD_REGISTRY_URL}/"${BUILD_IMAGE}"; then exit_build ; fi
+    if ! sudo docker image ls ${BUILD_REGISTRY_URL}/"${BUILD_IMAGE}"; then exit_build ; fi
 done
 
 echo "Completed docker registry setup."
