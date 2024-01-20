@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2017, 2021 All Rights Reserved.
+# (C) Copyright IBM Corp. 2017, 2024 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -35,6 +35,7 @@ build_source=0; build_containers=0; build_registry=0; build_make=0;
 if [[ ${CLOUD_PROVIDER_IBM_BUILD_STEPS[0]} == "make" ]]; then
     build_make=1
 else
+    # shellcheck disable=SC2048
     for BUILD_STEP in ${CLOUD_PROVIDER_IBM_BUILD_STEPS[*]}; do
         case $BUILD_STEP in
             'setup') ;;
