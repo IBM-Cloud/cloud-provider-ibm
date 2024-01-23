@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2018, 2021 All Rights Reserved.
+* (C) Copyright IBM Corp. 2018, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -84,7 +84,7 @@ func (c *Cloud) handleEndpointUpdate(oldObj, newObj interface{}) {
 			errorMessage := fmt.Sprintf("Failed to move the load balancer pod %v in namespace %v due to "+
 				"error %v. Moving the pod is required to support the local external traffic policy spec for "+
 				"service %v. Delete the pod to resolve the problem.", podToDelete.Name, podToDelete.Namespace, err, service.Name)
-			c.Recorder.LoadBalancerServiceWarningEvent(service, DeletingLoadBalancerPodFailed, errorMessage)
+			c.Recorder.LoadBalancerServiceWarningEvent(service, DeletingLoadBalancerPodFailed, errorMessage) // #nosec G104 No error handling needed as event is being recorded by Recorder.
 		}
 	}
 
