@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -506,8 +506,8 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 		configImageList := strings.Split(c.Config.LBDeployment.Image, ":")
 		// Update the load balancer deployment Container if a latest image is available.
 		if len(lbDeploymentImageList) > 1 && len(configImageList) > 1 {
-			lbDeploymentImageValue, _ := strconv.Atoi(lbDeploymentImageList[1])
-			configImageValue, _ := strconv.Atoi(configImageList[1])
+			lbDeploymentImageValue, _ := strconv.Atoi(lbDeploymentImageList[1]) // #nosec G104 The initContainer image tag is always an integer.
+			configImageValue, _ := strconv.Atoi(configImageList[1])             // #nosec G104 The initContainer image tag is always an integer.
 			if lbDeploymentImageValue < configImageValue {
 				updateImage = true
 			}
@@ -579,8 +579,8 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 		configImageList := strings.Split(c.Config.LBDeployment.Image, ":")
 		// The initContainer exists. Update the load balancer deployment initContainer if a new image is available.
 		if len(lbDeploymentInitImageList) > 1 && len(configImageList) > 1 {
-			lbDeploymentInitImageValue, _ := strconv.Atoi(lbDeploymentInitImageList[1])
-			configImageValue, _ := strconv.Atoi(configImageList[1])
+			lbDeploymentInitImageValue, _ := strconv.Atoi(lbDeploymentInitImageList[1]) // #nosec G104 The initContainer image tag is always an integer.
+			configImageValue, _ := strconv.Atoi(configImageList[1])                     // #nosec G104 The initContainer image tag is always an integer.
 			if lbDeploymentInitImageValue < configImageValue {
 				updateInitImage = true
 			}
@@ -1136,21 +1136,21 @@ func cleanupCalicoCfg(calicoCfgFile string) error {
 	for _, line := range calicoCfgLines {
 		keyIndex := strings.Index(line, "etcdKeyFile:")
 		if keyIndex >= 0 {
-			os.Remove(line[keyIndex+13:])
+			os.Remove(line[keyIndex+13:]) // #nosec G104 No error handling needed as we are in cleanup function.
 			continue
 		}
 		certIndex := strings.Index(line, "etcdCertFile:")
 		if certIndex >= 0 {
-			os.Remove(line[certIndex+14:])
+			os.Remove(line[certIndex+14:]) // #nosec G104 No error handling needed as we are in cleanup function.
 			continue
 		}
 		caIndex := strings.Index(line, "etcdCACertFile:")
 		if caIndex >= 0 {
-			os.Remove(line[caIndex+16:])
+			os.Remove(line[caIndex+16:]) // #nosec G104 No error handling needed as we are in cleanup function.
 			continue
 		}
 	}
-	os.Remove(calicoCfgFile)
+	os.Remove(calicoCfgFile) // #nosec G104 No error handling needed as we are in cleanup function.
 	return nil
 }
 
@@ -1207,7 +1207,7 @@ spec:
 
 	go func() {
 		defer stdin.Close()
-		io.WriteString(stdin, policyYaml)
+		io.WriteString(stdin, policyYaml) // #nosec G104 No error handling needed.
 	}()
 
 	stdoutStderr, err := caliCmd.CombinedOutput()
@@ -2225,6 +2225,7 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 				errorMessage := fmt.Sprintf("Cloud load balancer deployment not found: %v", err)
 				data[lbName] = errorMessage
 				if isEventRequired {
+					// #nosec G104 No error handling needed as event is being recorded by Recorder.
 					c.Recorder.LoadBalancerServiceWarningEvent(
 						&services.Items[i],
 						VerifyingCloudLoadBalancerFailed,
@@ -2240,6 +2241,7 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 				errorMessage := "Cloud load balancer deployment not available"
 				data[lbName] = errorMessage
 				if isEventRequired {
+					// #nosec G104 No error handling needed as event is being recorded by Recorder.
 					c.Recorder.LoadBalancerWarningEvent(
 						lbDeployment, &services.Items[i],
 						VerifyingCloudLoadBalancerFailed,
@@ -2253,7 +2255,7 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 			// that is being loadbalanced
 			ipvsEnabled := isFeatureEnabledDeployment(lbDeployment, lbFeatureIPVS)
 			if services.Items[i].Spec.ExternalTrafficPolicy == v1.ServiceExternalTrafficPolicyTypeLocal && !ipvsEnabled {
-				endpoints, _ := c.KubeClient.CoreV1().Endpoints(services.Items[i].Namespace).Get(context.TODO(), services.Items[i].Name, metav1.GetOptions{})
+				endpoints, _ := c.KubeClient.CoreV1().Endpoints(services.Items[i].Namespace).Get(context.TODO(), services.Items[i].Name, metav1.GetOptions{}) // #nosec G104 No error handling needed as we check for non-nil endpoints on next line.
 				if endpoints != nil {
 					keepalivedPodOnTheWrongNode := c.checkIfKeepalivedPodShouldBeDeleted(endpoints, nil)
 					if keepalivedPodOnTheWrongNode {
@@ -2263,7 +2265,7 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 
 						data[lbName] = errorMessage
 						if isEventRequired {
-							c.Recorder.LoadBalancerWarningEvent(lbDeployment, &services.Items[i], VerifyingCloudLoadBalancerFailed, errorMessage)
+							c.Recorder.LoadBalancerWarningEvent(lbDeployment, &services.Items[i], VerifyingCloudLoadBalancerFailed, errorMessage) // #nosec G104 No error handling needed as event is being recorded by Recorder.
 						}
 						continue
 					}
