@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -163,12 +163,14 @@ func (c *Cloud) SetInformers(informerFactory informers.SharedInformerFactory) {
 	// endpointInformer is not needed for VPC
 	if !isProviderVpc(c.Config.Prov.ProviderType) {
 		endpointInformer := informerFactory.Core().V1().Endpoints().Informer()
+		// #nosec G104 Error is ignored for now
 		endpointInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 			UpdateFunc: c.handleEndpointUpdate,
 		})
 	}
 
 	nodeInformer := informerFactory.Core().V1().Nodes().Informer()
+	// #nosec G104 Error is ignored for now
 	nodeInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		DeleteFunc: c.handleNodeDelete,
 	})
