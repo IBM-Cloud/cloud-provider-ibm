@@ -1,0 +1,2 @@
+CVE-2020-8561 # Upstream CVE in Kubernetes that the community has decided will not be fixed. See: https://github.com/kubernetes/kubernetes/issues/104720
+CVE-2023-47108 # Upstream Kubernetes has deprecated v1.25 and a fix will not be provided.
