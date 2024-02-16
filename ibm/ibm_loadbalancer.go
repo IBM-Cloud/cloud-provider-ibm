@@ -80,8 +80,8 @@ const (
 	lbUnsupportedScheduler              = "You have specified an unsupported scheduler: %s. Supported schedulers are: %s. " + lbDocUnsupportedScheduler
 	lbDefaultNoIPPortableSubnetErrorMsg = lbNoIPsMessage + " " + lbDocReferenceMessage
 	lbFeatureIPVS                       = "ipvs"
-	calicoEtcdSecrets                   = "calico-etcd-secrets" // #nosec G101 Name of Kubernetes secret resource which contains the secrets, not an actual secret
-	lbPriorityClassName                 = "ibm-app-cluster-critical"
+	calicoEtcdSecrets                   = "calico-etcd-secrets"      // #nosec G101 Name of Kubernetes secret resource which contains the secrets, not an actual secret
+	lbPriorityClassName                 = "ibm-app-cluster-critical" // #nosec G101 Just the name of the LB Priority Class, not an actual secret
 	clusterInfoCM                       = "cluster-info"
 	lbIPVSInvlaidExternalTrafficPolicy  = "Cluster networking is not supported for IPVS-based load balancers. Set 'externalTrafficPolicy' to 'Local', and try again."
 	lbVpcClassicProvider                = "gc"
