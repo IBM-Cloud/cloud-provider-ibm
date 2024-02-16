@@ -43,7 +43,7 @@ if [[ -n "${EXISTING_TAG}" && "${FORCE_TAG}" != "true" ]]; then
 fi
 
 # Set default tag.
-BASE_TAG="v1.28.6"
+BASE_TAG="v1.28.7"
 
 # Determine the next build tag.
 BASE_TAGS=$(git tag --list "${BASE_TAG}-[0-9]*" --sort=v:refname)
