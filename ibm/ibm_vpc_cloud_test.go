@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -111,9 +111,17 @@ func TestCloud_VpcEnsureLoadBalancer(t *testing.T) {
 	}
 	node := &v1.Node{ObjectMeta: metav1.ObjectMeta{Name: "192.168.0.1", Labels: map[string]string{}}}
 
-	// VpcEnsureLoadBalancer failed, no available nodes
+	// VpcEnsureLoadBalancer failed, no available nodes, sync chanel has been closed
+	close(CreateUpdateChan)
 	service := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: "echo-server", Namespace: "default", UID: "NotFound"}}
 	status, err := cloud.VpcEnsureLoadBalancer(context.Background(), clusterName, service, []*v1.Node{})
+	assert.Nil(t, status)
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "There are no available nodes for LoadBalancer")
+
+	// VpcEnsureLoadBalancer failed, no available nodes
+	CreateUpdateChan = nil
+	status, err = cloud.VpcEnsureLoadBalancer(context.Background(), clusterName, service, []*v1.Node{})
 	assert.Nil(t, status)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "There are no available nodes for LoadBalancer")
