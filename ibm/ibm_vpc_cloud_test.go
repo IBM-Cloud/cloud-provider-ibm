@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -74,12 +74,15 @@ func TestCloud_NewConfigVpc(t *testing.T) {
 		Region:                   "us-south",
 		AccountID:                "accountID",
 		ClusterID:                "clusterID",
+		IamEndpointOverride:      "iam-override",
 		ProviderType:             "g2",
+		RmEndpointOverride:       "rm-override",
 		G2Credentials:            "../../test-fixtures/missing-file.txt",
 		G2ResourceGroupName:      "Default",
 		G2VpcSubnetNames:         "subnet1,subnet2,subnet3",
 		G2WorkerServiceAccountID: "accountID",
 		G2VpcName:                "vpc",
+		G2EndpointOverride:       "vpc-override",
 	}}
 	config, err = c.NewConfigVpc(true)
 	assert.Nil(t, config)
@@ -95,12 +98,15 @@ func TestCloud_NewConfigVpc(t *testing.T) {
 	assert.Equal(t, config.APIKeySecret, "")
 	assert.Equal(t, config.ClusterID, "clusterID")
 	assert.Equal(t, config.EnablePrivate, true)
+	assert.Equal(t, config.IamEndpointOverride, "iam-override")
 	assert.Equal(t, config.ProviderType, "g2")
 	assert.Equal(t, config.Region, "us-south")
 	assert.Equal(t, config.ResourceGroupName, "Default")
+	assert.Equal(t, config.RmEndpointOverride, "rm-override")
 	assert.Equal(t, config.SubnetNames, "subnet1,subnet2,subnet3")
 	assert.Equal(t, config.WorkerAccountID, "accountID")
 	assert.Equal(t, config.VpcName, "vpc")
+	assert.Equal(t, config.VpcEndpointOverride, "vpc-override")
 }
 
 func TestCloud_VpcEnsureLoadBalancer(t *testing.T) {
@@ -111,9 +117,17 @@ func TestCloud_VpcEnsureLoadBalancer(t *testing.T) {
 	}
 	node := &v1.Node{ObjectMeta: metav1.ObjectMeta{Name: "192.168.0.1", Labels: map[string]string{}}}
 
-	// VpcEnsureLoadBalancer failed, no available nodes
+	// VpcEnsureLoadBalancer failed, no available nodes, sync chanel has been closed
+	close(CreateUpdateChan)
 	service := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: "echo-server", Namespace: "default", UID: "NotFound"}}
 	status, err := cloud.VpcEnsureLoadBalancer(context.Background(), clusterName, service, []*v1.Node{})
+	assert.Nil(t, status)
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "There are no available nodes for LoadBalancer")
+
+	// VpcEnsureLoadBalancer failed, no available nodes
+	CreateUpdateChan = nil
+	status, err = cloud.VpcEnsureLoadBalancer(context.Background(), clusterName, service, []*v1.Node{})
 	assert.Nil(t, status)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "There are no available nodes for LoadBalancer")
