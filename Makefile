@@ -102,7 +102,7 @@ kube-update:
 .PHONY: fmt
 fmt:
 ifdef GOLANGCI_LINT_EXISTS
-	golangci-lint run --disable-all --no-config --enable=gofmt
+	golangci-lint run --disable-all --no-config --enable=gofmt --timeout 5m
 else
 	@echo "golangci-lint is not installed"
 	exit 1
