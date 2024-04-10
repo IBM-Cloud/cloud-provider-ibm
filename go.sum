@@ -39,8 +39,8 @@ github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1/go.mod h1:xomTg6
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/IBM/go-sdk-core/v5 v5.16.3 h1:GJI62GNAagX2xeTMpTACIqki5rDVO3YbxzMuIpAXSrQ=
-github.com/IBM/go-sdk-core/v5 v5.16.3/go.mod h1:aojBkkq4HXkOYdn7YZ6ve8cjPWHdcB3tt8v0b9Cbac8=
+github.com/IBM/go-sdk-core/v5 v5.16.4 h1:K8TJ3Pox8sQYr7xqv2dgCtgU1iJJRaaj9QgfKfk6N/Y=
+github.com/IBM/go-sdk-core/v5 v5.16.4/go.mod h1:aojBkkq4HXkOYdn7YZ6ve8cjPWHdcB3tt8v0b9Cbac8=
 github.com/IBM/platform-services-go-sdk v0.62.2 h1:MgngCFHBLrlvM1HS522agIMnjshHRoiJL1oaSp8798I=
 github.com/IBM/platform-services-go-sdk v0.62.2/go.mod h1:fd7gUOmsuQYhYLTZVLL+posObT/ISxVV+6JzsfDs5qE=
 github.com/IBM/vpc-go-sdk v0.50.0 h1:+vnXYK0FXFXYqaS/5/X1XEqH0bbRotkzkerRk21ZEjE=
