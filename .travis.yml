@@ -26,8 +26,8 @@ dist: bionic
 env:
   global:
     - IKS_PIPELINE_IAM_APIKEY="${ALL_GLOBAL_NETWORK_IKS_PIPELINE_IAM_APIKEY_20231110}"
-    - registry_iam_api_key="${ALL_GLOBAL_registry_iam_api_key_20230427}"
-    - GHE_TOKEN="${ALL_GLOBAL_GHE_TOKEN_20230428}"
+    - registry_iam_api_key="${ALL_GLOBAL_registry_iam_api_key_20240423}"
+    - GHE_TOKEN="${ALL_GLOBAL_GHE_TOKEN_20240424}"
     - TRAVIS_INTERNAL_HOSTNAME="v3.travis.ibm.com"
 
 sudo: required
