@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -86,19 +86,20 @@ func SetInformers(informerFactory informers.SharedInformerFactory) {
 // ConfigVpc is the VPC configuration information
 type ConfigVpc struct {
 	// Externalized config settings from caller
-	AccountID           string
-	APIKeySecret        string
-	ClusterID           string
-	EnablePrivate       bool
-	IamEndpointOverride string
-	ProviderType        string
-	Region              string
-	ResourceGroupName   string
-	RmEndpointOverride  string
-	SubnetNames         string
-	WorkerAccountID     string // Not used, ignored
-	VpcName             string
-	VpcEndpointOverride string
+	AccountID                  string
+	APIKeySecret               string
+	ClusterID                  string
+	EnablePrivate              bool
+	IamEndpointOverride        string
+	IKSPrivateEndpointHostname string
+	ProviderType               string
+	Region                     string
+	ResourceGroupName          string
+	RmEndpointOverride         string
+	SubnetNames                string
+	WorkerAccountID            string // Not used, ignored
+	VpcName                    string
+	VpcEndpointOverride        string
 	// Internal config settings
 	endpointURL      string
 	resourceGroupID  string
