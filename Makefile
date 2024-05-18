@@ -45,7 +45,7 @@ YAML_FILES=$(shell find . -type f -name '*.y*ml' -not -path "./build-tools/*" -n
 INI_FILES=$(shell find . -type f -name '*.ini' -not -path "./build-tools/*")
 OSS_FILES := go.mod
 
-GOLANGCI_LINT_VERSION := 1.56.2
+GOLANGCI_LINT_VERSION := 1.58.1
 GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
 HUB_RLS ?= 2.14.2

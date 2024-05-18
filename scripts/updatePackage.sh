@@ -126,7 +126,7 @@ if [ "${UPDATE_GO_MOD}" == "true" ]; then
         echo "replace ${GO_MOD_REPLACE_1}" >> go.mod
     fi
     if [ -n "${GO_MOD_REPLACE_2}" ]; then
-        echo "replace ${GO_MOD_REPLACE_1}" >> go.mod
+        echo "replace ${GO_MOD_REPLACE_2}" >> go.mod
     fi
     if [ -n "${GO_MOD_REPLACE_3}" ]; then
         echo "replace ${GO_MOD_REPLACE_3}" >> go.mod

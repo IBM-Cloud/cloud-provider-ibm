@@ -31,6 +31,7 @@ type CloudConfig struct {
 	Application                string // Name of the application to use as a label for the load balancer deployment
 	CalicoDatastore            string // The Calico datastore type: "ETCD" or "KDD"
 	ConfigFilePath             string // The Kubernetes config file path
+	ClusterID                  string // ClusterID
 	Region                     string // Region
 	IKSPrivateEndpointHostname string // IKS Endpoint
 	Image                      string // Name of the image to use for the load balancer deployment

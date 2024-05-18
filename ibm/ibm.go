@@ -109,7 +109,7 @@ type Provider struct {
 	IamEndpointOverride string `gcfg:"iamEndpointOverride"`
 	// Optional: Resource Manager endpoint override URL
 	RmEndpointOverride string `gcfg:"rmEndpointOverride"`
-	// Optional: Armada API Endpoint URL
+	// Optional: IBM Cloud Kubernetes Service API Private Endpoint Hostname
 	IKSPrivateEndpointHostname string `gcfg:"iksPrivateEndpointHostname"`
 	// File containing cloud credentials both for Classic and VPC
 	CloudCredentials string `gcfg:"cloudCredentials"`
@@ -299,6 +299,7 @@ func NewCloud(config io.Reader) (cloudprovider.Interface, error) {
 			APIKeySecretPath:           c.Config.Prov.CloudCredentials,
 			Application:                c.Config.LBDeployment.Application,
 			CalicoDatastore:            c.Config.Kubernetes.CalicoDatastore,
+			ClusterID:                  c.Config.Prov.ClusterID,
 			ConfigFilePath:             c.Config.Kubernetes.ConfigFilePaths[0],
 			Region:                     c.Config.Prov.Region,
 			IKSPrivateEndpointHostname: c.Config.Prov.IKSPrivateEndpointHostname,
