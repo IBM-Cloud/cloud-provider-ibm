@@ -21,7 +21,7 @@
 source: github.ibm.com/alchemy-containers/armada-vpc-lb
 
 # (Required) - git release or branch name in the source github repo
-release: v0.26.0
+release: v0.27.2
 
 # (Required) - source directory in the github repo containing GO files
 source_dir: pkg/vpcctl
@@ -45,6 +45,11 @@ update_go_mod: true
 # (Optional) - set to "auto-detect" to adjust local go.mod with the contents of source repo's go.mod
 #              alternatively, a space separated list of go modules (format [module:version]) can be specified
 go_get_updates: auto-detect
+
+# (Optional) - additional go.mod replace directives which are needed when including this module version
+go_mod_replace_1: github.com/prometheus/client_golang => github.com/prometheus/client_golang v1.18.0
+go_mod_replace_2: github.com/prometheus/common => github.com/prometheus/common v0.47.0
+go_mod_replace_3:
 
 # (Required) - set to "false" to NOT create a PR for the GO files that were copied
 #              otherwise set to the branch the PR should be created for

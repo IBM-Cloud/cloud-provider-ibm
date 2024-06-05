@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2022, 2023 All Rights Reserved.
+# (C) Copyright IBM Corp. 2022, 2024 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -28,6 +28,9 @@ GREP_STRING=$(awk '/^grep_string:/{print $2}' "${ADDON_FILE}")
 SED_COMMAND_1=$(grep '^sed_command_1:' "${ADDON_FILE}" | cut -d':' -f2)
 SED_COMMAND_2=$(grep '^sed_command_2:' "${ADDON_FILE}" | cut -d':' -f2)
 SED_COMMAND_3=$(grep '^sed_command_3:' "${ADDON_FILE}" | cut -d':' -f2)
+GO_MOD_REPLACE_1=$(grep '^go_mod_replace_1:' "${ADDON_FILE}" | cut -d':' -f2)
+GO_MOD_REPLACE_2=$(grep '^go_mod_replace_2:' "${ADDON_FILE}" | cut -d':' -f2)
+GO_MOD_REPLACE_3=$(grep '^go_mod_replace_3:' "${ADDON_FILE}" | cut -d':' -f2)
 UPDATE_GO_MOD=$(awk '/^update_go_mod:/{print $2}' "${ADDON_FILE}")
 GO_GET_UPDATES=$(awk '/^go_get_updates:/{print $2}' "${ADDON_FILE}")
 CREATE_PR=$(awk '/^create_pr:/{print $2}' "${ADDON_FILE}")
@@ -48,7 +51,10 @@ echo "Clone the source repo: ${SOURCE_REPO} ..."
 git clone --depth=1 --single-branch --branch "${RELEASE}" "https://${GHE_USER}:${GHE_TOKEN}@${SOURCE_REPO}.git"
 
 # Determine commit of the source repo
-SOURCE_COMMIT=$(cd "${REPO_BASE}"; git rev-parse --short HEAD)
+SOURCE_COMMIT=$(
+    cd "${REPO_BASE}"
+    git rev-parse --short HEAD
+)
 
 # Copy over the source files
 echo "Copy over the package files ..."
@@ -117,6 +123,17 @@ if [ "${UPDATE_GO_MOD}" == "true" ]; then
         done
     fi
     echo
+
+    # Add necessary replace directives to the end of the go.mod file
+    if [ -n "${GO_MOD_REPLACE_1}" ]; then
+        echo "replace ${GO_MOD_REPLACE_1}" >>go.mod
+    fi
+    if [ -n "${GO_MOD_REPLACE_2}" ]; then
+        echo "replace ${GO_MOD_REPLACE_2}" >>go.mod
+    fi
+    if [ -n "${GO_MOD_REPLACE_3}" ]; then
+        echo "replace ${GO_MOD_REPLACE_3}" >>go.mod
+    fi
 
     # Delete the go.mod from the source repo, no longer needed
     rm go.mod.pkg
