@@ -55,9 +55,9 @@ function exit_build {
 apt-get install -y make
 if ! hash go 2>/dev/null; then
     # Add apt-repository ppa:ubuntu-lxc/lxd-stable
-    curl -O https://dl.google.com/go/go1.21.9.linux-amd64.tar.gz
+    curl -O https://dl.google.com/go/go1.21.11.linux-amd64.tar.gz
     if [[ $? -ne 0 ]]; then exit_build ; fi
-    tar -C /usr/local -xzf go1.21.9.linux-amd64.tar.gz
+    tar -C /usr/local -xzf go1.21.11.linux-amd64.tar.gz
     if [[ $? -ne 0 ]]; then exit_build ; fi
     if [ ! -n "$(grep "/usr/local/go/bin" /etc/profile)" ]; then
         echo 'export PATH=$PATH:/usr/local/go/bin' >> /etc/profile
