@@ -6,7 +6,7 @@ infrastructure node and load balancer support to
 [Kubernetes](https://kubernetes.io/docs/home/) or
 [OpenShift](https://docs.openshift.com/) clusters running on
 [IBM Cloud](https://cloud.ibm.com/docs). This repository branch is based on
-[Kubernetes version v1.29.5](https://github.com/kubernetes/kubernetes/tree/v1.29.5).
+[Kubernetes version v1.29.6](https://github.com/kubernetes/kubernetes/tree/v1.29.6).
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
 ## Local Build and Deploy Instructions
