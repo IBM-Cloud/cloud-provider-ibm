@@ -8,7 +8,7 @@ require (
 	github.com/IBM/vpc-go-sdk v0.52.0
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-openapi/strfmt v0.23.0
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/gcfg.v1 v1.2.3
@@ -18,7 +18,7 @@ require (
 	k8s.io/cloud-provider v0.31.0-alpha.1
 	k8s.io/component-base v0.31.0-alpha.1
 	k8s.io/component-helpers v0.31.0-alpha.1
-	k8s.io/klog/v2 v2.120.1
+	k8s.io/klog/v2 v2.130.0
 )
 
 require (
