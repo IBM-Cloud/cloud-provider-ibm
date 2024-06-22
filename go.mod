@@ -18,7 +18,7 @@ require (
 	k8s.io/cloud-provider v0.29.6
 	k8s.io/component-base v0.29.6
 	k8s.io/component-helpers v0.29.6
-	k8s.io/klog/v2 v2.130.0
+	k8s.io/klog/v2 v2.130.1
 )
 
 require (
