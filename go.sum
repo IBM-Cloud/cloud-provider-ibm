@@ -368,8 +368,8 @@ k8s.io/component-helpers v0.28.11 h1:yV9DSZqDYXjtI+vQBT/su3nkQHOcjZq7rqCXwaJ4Ks0
 k8s.io/component-helpers v0.28.11/go.mod h1:2bQFOSpUmsB+X2yjWTXfo5PLsDCHmDP0PyYdMKNreNA=
 k8s.io/controller-manager v0.28.11 h1:m5XLAwAhMc+bz1P4DCZuxJFuFKEdyKLPWXfejiiqKCo=
 k8s.io/controller-manager v0.28.11/go.mod h1:sW9cbFkT/m9atGirDkq94rDmzLcADb6PxOJVkKOy8AY=
-k8s.io/klog/v2 v2.130.0 h1:5nB3+3HpqKqXJIXNtJdtxcDCfaa9KL8StJgMzGJkUkM=
-k8s.io/klog/v2 v2.130.0/go.mod h1:3Jpz1GvMt720eyJH1ckRHK1EDfpxISzJ7I9OYgaDtPE=
+k8s.io/klog/v2 v2.130.1 h1:n9Xl7H1Xvksem4KFG4PYbdQCQxqc/tTUyrgXaOhHSzk=
+k8s.io/klog/v2 v2.130.1/go.mod h1:3Jpz1GvMt720eyJH1ckRHK1EDfpxISzJ7I9OYgaDtPE=
 k8s.io/kms v0.28.11 h1:ZF4Tj/eOC/Ai0kfWdxubO+H/Sa19e56bYhGCTaC0j6Q=
 k8s.io/kms v0.28.11/go.mod h1:OHQEkb4k4CRTodefxBnsBww1ia15Cc4mvwkilsxR2og=
 k8s.io/kube-openapi v0.0.0-20230717233707-2695361300d9 h1:LyMgNKD2P8Wn1iAwQU5OhxCKlKJy0sHc+PcDwFB24dQ=
