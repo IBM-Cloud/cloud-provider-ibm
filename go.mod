@@ -3,8 +3,8 @@ module cloud.ibm.com/cloud-provider-ibm
 go 1.22.4
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.17.3
-	github.com/IBM/platform-services-go-sdk v0.64.1
+	github.com/IBM/go-sdk-core/v5 v5.17.4
+	github.com/IBM/platform-services-go-sdk v0.64.2
 	github.com/IBM/vpc-go-sdk v0.52.0
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-openapi/strfmt v0.23.0
@@ -57,7 +57,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-retryablehttp v0.7.5 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
