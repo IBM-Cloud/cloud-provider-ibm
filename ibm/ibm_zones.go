@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2021, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2021, 2023, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -65,7 +65,7 @@ func (c *Cloud) GetZoneByNodeName(ctx context.Context, nodeName types.NodeName) 
 	if c.Metadata == nil {
 		return zone, nil
 	}
-	nodeMd, err := c.Metadata.GetNodeMetadata(string(nodeName), false)
+	nodeMd, err := c.Metadata.GetNodeMetadata(string(nodeName), false, c.Config.Kubernetes.CniProvider)
 	if nil == err {
 		zone = cloudprovider.Zone{
 			FailureDomain: nodeMd.FailureDomain,
