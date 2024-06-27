@@ -137,6 +137,8 @@ type CloudConfig struct {
 		// If set to true, all new nodes will get the condition NetworkUnavailable
 		// during node registration
 		SetNetworkUnavailable bool `gcfg:"set-network-unavailable,false"`
+		// The CNI being used by the cluster: "Calico" or "OVNKubernetes".
+		CniProvider string `gcfg:"cniProvider"`
 	}
 	// [load-balancer-deployment] section
 	LBDeployment LoadBalancerDeployment `gcfg:"load-balancer-deployment"`

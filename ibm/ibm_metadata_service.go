@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2019, 2022, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2019, 2022, 2023, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -115,7 +115,7 @@ func (ms *MetadataService) putCachedNode(name string, node NodeMetadata) {
 
 // GetNodeMetadata returns the metadata for the named node.  If the node does
 // not exist, or not all data is available, an error is returned.
-func (ms *MetadataService) GetNodeMetadata(name string, applyNetworkUnavailable bool) (NodeMetadata, error) {
+func (ms *MetadataService) GetNodeMetadata(name string, applyNetworkUnavailable bool, cni string) (NodeMetadata, error) {
 	node, ok := ms.getCachedNode(name)
 	if ok {
 		return node, nil
@@ -124,7 +124,8 @@ func (ms *MetadataService) GetNodeMetadata(name string, applyNetworkUnavailable 
 	if nil != err {
 		return node, err
 	}
-	if applyNetworkUnavailable {
+	klog.Infof("GetNodeMetadata CNI Config: %s", cni)
+	if applyNetworkUnavailable && cni != "OVNKubernetes" {
 		// Check if the node has the external cloud provider taint (which means we are initializing a node)
 		cloudTaintFound := false
 		for _, taint := range k8sNode.Spec.Taints {
