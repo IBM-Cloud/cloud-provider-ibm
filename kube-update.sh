@@ -89,24 +89,26 @@ for FILE_TO_UPDATE_FOR_K8S_VERSION in $FILES_TO_UPDATE_FOR_K8S_VERSION; do
 done
 
 if [[ "${K8S_GOLANG_CURRENT_VERSION}" != "${K8S_GOLANG_UPDATE_VERSION}" ]]; then
-    FILES_TO_UPDATE="go.mod .travis.yml vagrant-kube-build/Vagrantfile"
-    sed -i -e "s/go\s\+${K8S_GOLANG_CURRENT_VERSION}/go ${K8S_GOLANG_UPDATE_VERSION}/g" go.mod
+    echo "INFO: Current golang version: ${K8S_GOLANG_CURRENT_VERSION}"
+    echo "INFO: Updated golang version: ${K8S_GOLANG_UPDATE_VERSION}"
 
-    # Refresh go.mod and go.sum
-    echo "INFO: Refresh go dependencies for new package logic"
+    sed -i -e "s/go\s\+${K8S_GOLANG_CURRENT_VERSION}/go ${K8S_GOLANG_UPDATE_VERSION}/g" go.mod
     go mod tidy
-    echo
+    git add go.mod
+    git add go.sum
+    echo "INFO: Updated golang version in go.mod / go.sun"
 
     sed -i -e "s/^  - ${K8S_GOLANG_CURRENT_VERSION}/  - ${K8S_GOLANG_UPDATE_VERSION}/g" .travis.yml
     sed -i -e "s/go:\s\+${K8S_GOLANG_CURRENT_VERSION}/go: ${K8S_GOLANG_UPDATE_VERSION}/g" .travis.yml
+    git add .travis.yml
+    echo "INFO: Updated golang version in .travis.yml"
 
     sed -i -e "s/go${K8S_GOLANG_CURRENT_VERSION}/go${K8S_GOLANG_UPDATE_VERSION}/g" vagrant-kube-build/Vagrantfile
-
-    git add "$FILES_TO_UPDATE"
-    echo "INFO: Updated golang version in $FILES_TO_UPDATE"
+    git add vagrant-kube-build/Vagrantfile
+    echo "INFO: Updated golang version in vagrant-kube-build/Vagrantfile"
 fi
 
-COMMIT_MESSAGE="Update from ${K8S_CURRENT_VERSION} to ${K8S_UPDATE_VERSION}"
+COMMIT_MESSAGE="Update repo from ${K8S_CURRENT_VERSION} to ${K8S_UPDATE_VERSION} ($TRAVIS_BRANCH)"
 git checkout -b "${K8S_UPDATE_VERSION}-initial"
 git commit --no-verify -m "${COMMIT_MESSAGE}"
 if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then
