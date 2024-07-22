@@ -210,6 +210,15 @@ func (c *Cloud) vpcGetServiceDetails(service *v1.Service) string {
 		portString := fmt.Sprintf("%v-%v-%v", port.Protocol, port.Port, port.NodePort)
 		ports = append(ports, strings.ToLower(portString))
 	}
+	// Only include the hostname/IP in the status
+	type hostnameIP struct {
+		Hostname string
+		IP       string
+	}
+	status := []hostnameIP{}
+	for _, ingress := range service.Status.LoadBalancer.Ingress {
+		status = append(status, hostnameIP{Hostname: ingress.Hostname, IP: ingress.IP})
+	}
 	return fmt.Sprintf("Name:%v NameSpace:%v UID:%v Annotations:%v Ports:%v ExternalTrafficPolicy:%v HealthCheckNodePort:%v Status:%+v",
 		service.ObjectMeta.Name,
 		service.ObjectMeta.Namespace,
@@ -218,7 +227,7 @@ func (c *Cloud) vpcGetServiceDetails(service *v1.Service) string {
 		ports,
 		service.Spec.ExternalTrafficPolicy,
 		service.Spec.HealthCheckNodePort,
-		service.Status)
+		status)
 }
 
 // VpcMonitorLoadBalancers accepts a list of services (of all types), verifies that each Kubernetes load balancer service has a
