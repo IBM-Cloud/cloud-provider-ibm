@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -27,11 +27,14 @@ import (
 
 // CloudConfig is the ibm cloud provider config data.
 type CloudConfig struct {
-	Application     string // Name of the application to use as a label for the load balancer deployment
-	CalicoDatastore string // The Calico datastore type: "ETCD" or "KDD"
-	ConfigFilePath  string // The Kubernetes config file path
-	Image           string // Name of the image to use for the load balancer deployment
-	VlanIPConfigMap string // Name of the VLAN IP config map in the kube-system or ibm-system namespace
+	APIKeySecretPath           string // File containing cloud credentials
+	Application                string // Name of the application to use as a label for the load balancer deployment
+	CalicoDatastore            string // The Calico datastore type: "ETCD" or "KDD"
+	ConfigFilePath             string // The Kubernetes config file path
+	Region                     string // Region
+	IKSPrivateEndpointHostname string // IKS Endpoint
+	Image                      string // Name of the image to use for the load balancer deployment
+	VlanIPConfigMap            string // Name of the VLAN IP config map in the kube-system or ibm-system namespace
 }
 
 // Cloud is the ibm cloud provider implementation.
