@@ -30,6 +30,7 @@ type CloudConfig struct {
 	APIKeySecretPath           string // File containing cloud credentials
 	Application                string // Name of the application to use as a label for the load balancer deployment
 	CalicoDatastore            string // The Calico datastore type: "ETCD" or "KDD"
+	ClusterID                  string // The Cluster ID
 	ConfigFilePath             string // The Kubernetes config file path
 	Region                     string // Region
 	IKSPrivateEndpointHostname string // IKS Endpoint

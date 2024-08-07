@@ -301,6 +301,7 @@ func NewCloud(config io.Reader) (cloudprovider.Interface, error) {
 			APIKeySecretPath:           c.Config.Prov.CloudCredentials,
 			Application:                c.Config.LBDeployment.Application,
 			CalicoDatastore:            c.Config.Kubernetes.CalicoDatastore,
+			ClusterID:                  c.Config.Prov.ClusterID,
 			ConfigFilePath:             c.Config.Kubernetes.ConfigFilePaths[0],
 			Region:                     c.Config.Prov.Region,
 			IKSPrivateEndpointHostname: c.Config.Prov.IKSPrivateEndpointHostname,
