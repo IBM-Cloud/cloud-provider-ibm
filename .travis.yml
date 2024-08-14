@@ -88,7 +88,7 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      condition: ${TRAVIS_TAG} == v1.31.0-rc.1-* && ${TRAVIS_JOB_NAME} == Internal
+      condition: ${TRAVIS_TAG} == v1.31.0-* && ${TRAVIS_JOB_NAME} == Internal
       go: 1.22.5
   - provider: script
     script: BUILD_TAG=${TRAVIS_TAG} make deploy
