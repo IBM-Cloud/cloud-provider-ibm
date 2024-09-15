@@ -1,6 +1,6 @@
 module cloud.ibm.com/cloud-provider-ibm
 
-go 1.22.5
+go 1.22.6
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.17.5
@@ -12,12 +12,12 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/gcfg.v1 v1.2.3
-	k8s.io/api v0.31.0
-	k8s.io/apimachinery v0.31.0
-	k8s.io/client-go v0.31.0
-	k8s.io/cloud-provider v0.31.0
-	k8s.io/component-base v0.31.0
-	k8s.io/component-helpers v0.31.0
+	k8s.io/api v0.31.1
+	k8s.io/apimachinery v0.31.1
+	k8s.io/client-go v0.31.1
+	k8s.io/cloud-provider v0.31.1
+	k8s.io/component-base v0.31.1
+	k8s.io/component-helpers v0.31.1
 	k8s.io/klog/v2 v2.130.1
 )
 
@@ -112,9 +112,9 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiserver v0.31.0 // indirect
-	k8s.io/controller-manager v0.31.0 // indirect
-	k8s.io/kms v0.31.0 // indirect
+	k8s.io/apiserver v0.31.1 // indirect
+	k8s.io/controller-manager v0.31.1 // indirect
+	k8s.io/kms v0.31.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340 // indirect
 	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.30.3 // indirect
