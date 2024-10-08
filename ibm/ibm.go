@@ -293,7 +293,7 @@ func NewCloud(config io.Reader) (cloudprovider.Interface, error) {
 		_, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 		if err != nil {
 			errString := fmt.Sprintf("Failed initializing VPC: %v", err)
-			klog.Warningf(errString)
+			klog.Warning(errString)
 		}
 	} else {
 		// Initialize the classic logic

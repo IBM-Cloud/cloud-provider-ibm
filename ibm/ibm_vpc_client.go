@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -143,19 +143,19 @@ func (vpc *vpcClient) populateNodeMetadata(nodeName string, node *NodeMetadata) 
 	// Found the instance
 	if len(instances.Instances) == 1 {
 		node.InternalIP = *instances.Instances[0].PrimaryNetworkInterface.PrimaryIP.Address
-		klog.Infof("***** InternalIP " + node.InternalIP)
+		klog.Infof("***** InternalIP %s", node.InternalIP)
 
 		node.WorkerID = *instances.Instances[0].ID
-		klog.Infof("***** WorkerId " + node.WorkerID)
+		klog.Infof("***** WorkerId %s", node.WorkerID)
 
 		node.InstanceType = *instances.Instances[0].Profile.Name
-		klog.Infof("***** InstanceType " + node.InstanceType)
+		klog.Infof("***** InstanceType %s", node.InstanceType)
 
 		node.FailureDomain = *instances.Instances[0].Zone.Name
-		klog.Infof("***** FailureDomain " + node.FailureDomain)
+		klog.Infof("***** FailureDomain %s", node.FailureDomain)
 
 		node.Region = vpc.provider.Region
-		klog.Infof("***** Region " + node.Region)
+		klog.Infof("***** Region %s", node.Region)
 
 		// Success
 		return nil

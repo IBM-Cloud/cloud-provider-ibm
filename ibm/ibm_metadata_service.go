@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2019, 2022, 2023, 2024 All Rights Reserved.
+* (C) Copyright IBM Corp. 2019, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -202,7 +202,7 @@ func (ms *MetadataService) GetNodeMetadata(name string, applyNetworkUnavailable 
 		return newNode, nil
 	} else if isProviderVpc(ms.provider.ProviderType) {
 		// labels were not set; if VPC we can try to call api for values
-		klog.Infof("Retrieving information for node=" + name + " from VPC")
+		klog.Infof("Retrieving information for node=%s from VPC", name)
 
 		// create vpcClient if we haven't already
 		if ms.vpcClient == nil {

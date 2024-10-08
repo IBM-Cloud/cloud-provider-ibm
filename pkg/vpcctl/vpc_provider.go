@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -100,7 +100,7 @@ func (c *CloudVpc) EnsureLoadBalancer(lbName string, service *v1.Service, nodes 
 	lb, err := c.FindLoadBalancer(lbName, service)
 	if err != nil {
 		errString := fmt.Sprintf("Failed getting LoadBalancer: %v", err)
-		klog.Errorf(errString)
+		klog.Errorf("%s", errString)
 		return nil, c.recordServiceWarningEvent(service, creatingCloudLoadBalancerFailed, lbName, errString)
 	}
 
@@ -109,28 +109,28 @@ func (c *CloudVpc) EnsureLoadBalancer(lbName string, service *v1.Service, nodes 
 		lb, err = c.CreateLoadBalancer(lbName, service, nodes)
 		if err != nil {
 			errString := fmt.Sprintf("Failed ensuring LoadBalancer: %v", err)
-			klog.Errorf(errString)
+			klog.Errorf("%s", errString)
 			return nil, c.recordServiceWarningEvent(service, creatingCloudLoadBalancerFailed, lbName, errString)
 		}
 		// Log basic stats about the load balancer and return success (if the LB is READY or not NLB)
 		// - return SUCCESS for non-NLB to remain backward compatibility, no additional operations need to be done
 		// - don't return SUCCESS for NLB, because we can't do the DNS lookup of static IP if the LB is still pending
 		if lb.IsReady() || !lb.IsNLB() {
-			klog.Infof(lb.GetSummary())
+			klog.Infof("%s", lb.GetSummary())
 			klog.Infof("Load balancer %v created.", lbName)
 			return c.GetLoadBalancerStatus(service, lb), nil
 		}
 	}
 
 	// Log basic stats about the load balancer
-	klog.Infof(lb.GetSummary())
+	klog.Infof("%s", lb.GetSummary())
 
 	// If we get to this point, it means that EnsureLoadBalancer was called against a Load Balancer
 	// that already exists. This is most likely due to a change is the Kubernetes service.
 	// If the load balancer is not "Online/Active", then no additional operations that can be performed.
 	if !lb.IsReady() {
 		errString := fmt.Sprintf("LoadBalancer is busy: %v", lb.GetStatus())
-		klog.Warningf(errString)
+		klog.Warningf("%s", errString)
 		return nil, c.recordServiceWarningEvent(service, creatingCloudLoadBalancerFailed, lbName, errString)
 	}
 
@@ -139,7 +139,7 @@ func (c *CloudVpc) EnsureLoadBalancer(lbName string, service *v1.Service, nodes 
 	lb, err = c.UpdateLoadBalancer(lb, service, nodes)
 	if err != nil {
 		errString := fmt.Sprintf("Failed ensuring LoadBalancer: %v", err)
-		klog.Errorf(errString)
+		klog.Errorf("%s", errString)
 		return nil, c.recordServiceWarningEvent(service, creatingCloudLoadBalancerFailed, lbName, errString)
 	}
 
@@ -154,7 +154,7 @@ func (c *CloudVpc) EnsureLoadBalancerDeleted(lbName string, service *v1.Service)
 	lb, err := c.FindLoadBalancer(lbName, service)
 	if err != nil {
 		errString := fmt.Sprintf("Failed getting LoadBalancer: %v", err)
-		klog.Errorf(errString)
+		klog.Errorf("%s", errString)
 		return c.recordServiceWarningEvent(service, deletingCloudLoadBalancerFailed, lbName, errString)
 	}
 
@@ -165,13 +165,13 @@ func (c *CloudVpc) EnsureLoadBalancerDeleted(lbName string, service *v1.Service)
 	}
 
 	// Log basic stats about the load balancer
-	klog.Infof(lb.GetSummary())
+	klog.Infof("%s", lb.GetSummary())
 
 	// The load balancer state is Online/Active.  Attempt to delete the load balancer
 	err = c.DeleteLoadBalancer(lb, service)
 	if err != nil {
 		errString := fmt.Sprintf("Failed deleting LoadBalancer: %v", err)
-		klog.Errorf(errString)
+		klog.Errorf("%s", errString)
 		return c.recordServiceWarningEvent(service, deletingCloudLoadBalancerFailed, lbName, errString)
 	}
 
@@ -186,21 +186,21 @@ func (c *CloudVpc) EnsureLoadBalancerUpdated(lbName string, service *v1.Service,
 	lb, err := c.FindLoadBalancer(lbName, service)
 	if err != nil {
 		errString := fmt.Sprintf("Failed getting LoadBalancer: %v", err)
-		klog.Errorf(errString)
+		klog.Errorf("%s", errString)
 		return c.recordServiceWarningEvent(service, updatingCloudLoadBalancerFailed, lbName, errString)
 	}
 	if lb == nil {
 		errString := fmt.Sprintf("Load balancer not found: %v", lbName)
-		klog.Warningf(errString)
+		klog.Warningf("%s", errString)
 		return nil
 	}
 	// Log basic stats about the load balancer
-	klog.Infof(lb.GetSummary())
+	klog.Infof("%s", lb.GetSummary())
 
 	// Check the state of the load balancer to determine if the update operation can even be attempted
 	if !lb.IsReady() {
 		errString := fmt.Sprintf("LoadBalancer is busy: %v", lb.GetStatus())
-		klog.Warningf(errString)
+		klog.Warningf("%s", errString)
 		return c.recordServiceWarningEvent(service, updatingCloudLoadBalancerFailed, lbName, errString)
 	}
 
@@ -209,7 +209,7 @@ func (c *CloudVpc) EnsureLoadBalancerUpdated(lbName string, service *v1.Service,
 	_, err = c.UpdateLoadBalancer(lb, service, nodes)
 	if err != nil {
 		errString := fmt.Sprintf("Failed updating LoadBalancer: %v", err)
-		klog.Errorf(errString)
+		klog.Errorf("%s", errString)
 		return c.recordServiceWarningEvent(service, updatingCloudLoadBalancerFailed, lbName, errString)
 	}
 
@@ -222,7 +222,7 @@ func (c *CloudVpc) EnsureLoadBalancerUpdated(lbName string, service *v1.Service,
 func (c *CloudVpc) GatherLoadBalancers(services *v1.ServiceList) (map[string]*v1.Service, map[string]*VpcLoadBalancer, error) {
 	// Verify we were passed a list of Kube services
 	if services == nil {
-		klog.Errorf("Required argument is missing")
+		klog.Errorf("%s", "Required argument is missing")
 		return nil, nil, errors.New("Required argument is missing")
 	}
 	// Retrieve list of all load balancers
@@ -325,7 +325,7 @@ func (c *CloudVpc) GetLoadBalancer(lbName string, service *v1.Service) (*v1.Load
 	lb, err := c.FindLoadBalancer(lbName, service)
 	if err != nil {
 		errString := fmt.Sprintf("Failed getting LoadBalancer: %v", err)
-		klog.Errorf(errString)
+		klog.Errorf("%s", errString)
 		return nil, false, c.recordServiceWarningEvent(service, gettingCloudLoadBalancerFailed, lbName, errString)
 	}
 
@@ -336,7 +336,7 @@ func (c *CloudVpc) GetLoadBalancer(lbName string, service *v1.Service) (*v1.Load
 	}
 
 	// Write details of the load balancer to the log
-	klog.Infof(lb.GetSummary())
+	klog.Infof("%s", lb.GetSummary())
 
 	// If the VPC load balancer is not Ready, return the hostname from the service or blank
 	if !lb.IsReady() {
@@ -362,7 +362,7 @@ func (c *CloudVpc) GetLoadBalancer(lbName string, service *v1.Service) (*v1.Load
 func (c *CloudVpc) MonitorLoadBalancers(services *v1.ServiceList, status map[string]string) {
 	// Verify we were passed a list of Kube services
 	if services == nil {
-		klog.Infof("No Load Balancers to monitor, returning")
+		klog.Infof("%s", "No Load Balancers to monitor, returning")
 		return
 	}
 	// Retrieve list of VPC LBs for the current cluster
