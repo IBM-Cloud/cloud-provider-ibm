@@ -84,7 +84,7 @@ func (c *Cloud) isProviderVpc() bool {
 func (c *Cloud) NewConfigVpc(enablePrivateEndpoint bool) (*vpcctl.ConfigVpc, error) {
 	// Make sure Cloud config has been initialized
 	if c.Config == nil {
-		return nil, fmt.Errorf("Cloud config not initialized")
+		return nil, errors.New("Cloud config not initialized")
 	}
 	// Initialize config based on values in the cloud provider
 	config := &vpcctl.ConfigVpc{
@@ -286,7 +286,7 @@ func (c *Cloud) VpcUpdateLoadBalancer(ctx context.Context, clusterName string, s
 // WatchCloudCredential watches for changes to the cloud credentials and resets the VPC settings
 func (c *Cloud) WatchCloudCredential() error {
 	if c.Config.Prov.G2Credentials == "" {
-		return fmt.Errorf("No cloud credential file to watch")
+		return errors.New("No cloud credential file to watch")
 	}
 	klog.Infof("Watch the cloud credential file: %v", c.Config.Prov.G2Credentials)
 	watcher, err := fsnotify.NewWatcher()
