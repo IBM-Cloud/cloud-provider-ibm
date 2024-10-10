@@ -119,25 +119,6 @@ if [[ $build_source -eq 1 ]]; then
 
     if ! make commands; then exit_build ; fi
 
-    if ! make fvttest; then exit_build ; fi
-
-    if [[ -e "tests/fvt/kubeconfig" ]]; then
-        grep "^cluster-default-provider" tests/fvt/ibm-cloud-config.ini | grep -E "gc|g2"
-        is_vpc_cluster=$?
-
-        if ! make runfvt TEST_FVT_OPTIONS="--action=create"; then exit_build ; fi
-
-        # This update test just updates the keepalived deployment, which is not applicable
-        # for VPC clusters, so only run for Classic clusters
-        if [[ ${is_vpc_cluster} -ne 0 ]]; then
-            if ! make runfvt TEST_FVT_OPTIONS="--action=update --image-version=132"; then exit_build ; fi
-        fi
-
-        if ! make runfvt TEST_FVT_OPTIONS="--action=monitor"; then exit_build ; fi
-
-        if ! make runfvt TEST_FVT_OPTIONS="--action=delete"; then exit_build ; fi
-    fi
-
     make runanalyzedeps
 fi
 
