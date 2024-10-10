@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2019, 2023 All Rights Reserved.
+# (C) Copyright IBM Corp. 2019, 2024 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -140,6 +140,11 @@ else
         git log --no-patch --abbrev-commit --no-color "${prev_image_tag}"..."${new_image_tag}"
         echo
     } >"${TRAVIS_BUILD_DIR}"/message.txt
+
+    # If we are doing the monthly update of VPC LB, create a draft PR
+    if grep -q "Update vpcctl" "${TRAVIS_BUILD_DIR}/message.txt"; then
+        pr_option="--draft"
+    fi
 fi
 cat "${TRAVIS_BUILD_DIR}"/armada-ansible/.github/pull_request_template.md >>"${TRAVIS_BUILD_DIR}"/message.txt
 cd ./armada-ansible
