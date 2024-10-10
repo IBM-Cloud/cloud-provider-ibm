@@ -74,7 +74,6 @@ script:
   - make test
   - make coverage
   - make commands
-  - make fvttest
   - make runanalyzedeps || true
   - BUILD_SHA=${TRAVIS_COMMIT} BUILD_ID=${TRAVIS_BUILD_NUMBER} BUILD_TAG=${TRAVIS_TAG} make containers
 

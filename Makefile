@@ -67,7 +67,7 @@ ifeq (,$(BUILD_TAG))
 endif
 
 .PHONY: all
-all: oss fmt lint lint-sh lint-copyright vet test coverage commands fvttest containers
+all: oss fmt lint lint-sh lint-copyright vet test coverage commands containers
 
 .PHONY: setup-artifactory-build
 setup-artifactory-build:
@@ -150,10 +150,6 @@ coverage:
 commands:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ibm-cloud-controller-manager -ldflags '-w -X cloud.ibm.com/cloud-provider-ibm/ibm.Version=${BUILD_TAG}' .
 
-.PHONY: fvttest
-fvttest:
-	cd tests/fvt && CGO_ENABLED=0 GOOS=linux go build ibm_loadbalancer.go
-
 .PHONY: runanalyzedeps
 runanalyzedeps:
 	which nancy || $(MAKE) install-nancy-dep-scanner
@@ -197,27 +193,6 @@ ifdef ARTIFACTORY_AUTH_HEADER_FILE
 else
 	@echo "Use the existing pkg/vpcctl logic"
 endif
-
-.PHONY: kubectlcli
-kubectlcli:
-	sudo curl -Lo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(TAG)/bin/linux/amd64/kubectl
-	sudo chmod 755 /usr/local/bin/kubectl
-
-.PHONY: ibmcloudcli
-ibmcloudcli:
-	curl -L 'https://clis.cloud.ibm.com/install/linux' | bash
-	ibmcloud config --check-version false
-	ibmcloud plugin uninstall kubernetes-service && ibmcloud plugin install kubernetes-service -r "IBM Cloud"
-
-.PHONY: armadacli
-armadacli: ibmcloudcli kubectlcli calicoctlcli
-	ibmcloud plugin list && ibmcloud plugin repos
-	ibmcloud --version
-	kubectl version --client
-
-.PHONY: runfvt
-runfvt: kubectlcli vpcctlcli
-	cd ./tests/fvt && LOCAL_IBM_ARMADA_LB_FVT_TEST=true ./ibm_loadbalancer --logtostderr=true -v=4 ${TEST_FVT_OPTIONS}
 
 .PHONY: push-images
 push-images:
