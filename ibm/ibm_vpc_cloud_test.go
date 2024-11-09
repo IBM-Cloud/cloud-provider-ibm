@@ -211,7 +211,7 @@ func TestCloud_VpcGetLoadBalancerName(t *testing.T) {
 	c := Cloud{Config: &CloudConfig{Prov: Provider{ClusterID: clusterID}}}
 	kubeService := &v1.Service{ObjectMeta: metav1.ObjectMeta{
 		Name: "echo-server", Namespace: "default", UID: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}}
-	lbName := vpcctl.VpcLbNamePrefix + "-" + clusterID + "-" + string(kubeService.UID)
+	lbName := "kube-" + clusterID + "-" + string(kubeService.UID)
 	lbName = lbName[:63]
 	result := c.vpcGetLoadBalancerName(kubeService)
 	assert.Equal(t, result, lbName)
