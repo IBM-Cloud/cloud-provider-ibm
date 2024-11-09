@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -57,9 +57,6 @@ type CloudVpc struct {
 var (
 	// Persistent storage for CloudVpc object
 	persistentCloudVpc *CloudVpc
-
-	// VpcLbNamePrefix - Prefix to be used for VPC load balancer
-	VpcLbNamePrefix = "kube"
 )
 
 // GetCloudVpc - Retrieve the global VPC cloud object.  Return nil if not initialized.
@@ -232,7 +229,7 @@ func (c *CloudVpc) GatherLoadBalancers(services *v1.ServiceList) (map[string]*v1
 	}
 	// Create map of VPC LBs. Do not include LBs that are in different cluster
 	vpcMap := map[string]*VpcLoadBalancer{}
-	lbPrefix := VpcLbNamePrefix + "-" + c.Config.ClusterID + "-"
+	lbPrefix := "kube-" + c.Config.ClusterID + "-"
 	for _, lb := range lbs {
 		if strings.HasPrefix(lb.Name, lbPrefix) {
 			lbPtr := lb
@@ -297,7 +294,7 @@ func GenerateLoadBalancerName(service *v1.Service, clusterID string) string {
 		return serviceLbName
 	}
 	serviceID := strings.ReplaceAll(string(service.ObjectMeta.UID), "-", "")
-	lbName := VpcLbNamePrefix + "-" + clusterID + "-" + serviceID
+	lbName := "kube-" + clusterID + "-" + serviceID
 	// Limit the LB name to 63 characters
 	if len(lbName) > 63 {
 		lbName = lbName[:63]

@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -191,7 +191,7 @@ func TestCloudVpc_GenerateLoadBalancerName(t *testing.T) {
 	c, _ := NewCloudVpc(fake.NewSimpleClientset(), &ConfigVpc{ClusterID: clusterID, ProviderType: VpcProviderTypeFake}, nil)
 	kubeService := &v1.Service{ObjectMeta: metav1.ObjectMeta{
 		Name: "echo-server", Namespace: "default", UID: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}}
-	lbName := VpcLbNamePrefix + "-" + clusterID + "-" + string(kubeService.UID)
+	lbName := "kube-" + clusterID + "-" + string(kubeService.UID)
 	lbName = lbName[:63]
 	result := c.GenerateLoadBalancerName(kubeService)
 	assert.Equal(t, result, lbName)
