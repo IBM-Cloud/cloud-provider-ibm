@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2024 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -40,7 +40,7 @@ type VpcSdkFake struct {
 // NewVpcSdkFake - create new mock SDK client
 func NewVpcSdkFake() (CloudVpcSdk, error) {
 	lbReady := &VpcLoadBalancer{
-		Name:               VpcLbNamePrefix + "-clusterID-Ready",
+		Name:               "kube-clusterID-Ready",
 		ID:                 "Ready",
 		IsPublic:           true,
 		Hostname:           "lb.ibm.com",
@@ -52,7 +52,7 @@ func NewVpcSdkFake() (CloudVpcSdk, error) {
 		Subnets:            []VpcObjectReference{{Name: "subnet1", ID: "1111"}},
 	}
 	lbNotReady := &VpcLoadBalancer{
-		Name:               VpcLbNamePrefix + "-clusterID-NotReady",
+		Name:               "kube-clusterID-NotReady",
 		ID:                 "NotReady",
 		IsPublic:           true,
 		Hostname:           "notready.lb.ibm.com",
