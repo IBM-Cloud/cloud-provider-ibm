@@ -4,8 +4,8 @@ github.com/IBM/go-sdk-core/v5 v5.18.1 h1:wdftQO8xejECTWTKF3FGXyW0McKxxDAopH7MKwA
 github.com/IBM/go-sdk-core/v5 v5.18.1/go.mod h1:3ywpylZ41WhWPusqtpJZWopYlt2brebcphV7mA2JncU=
 github.com/IBM/platform-services-go-sdk v0.71.0 h1:8miTTzH42EO+HslEOc8YWpL+RlJjgezM88R1SxL3fWY=
 github.com/IBM/platform-services-go-sdk v0.71.0/go.mod h1:1yvG28ExlZ09gfBPH7flAQ6eZf7kYA4hbEEyYlbT97Y=
-github.com/IBM/vpc-go-sdk v0.62.0 h1:Xga74D70ziD7nzm51ue3othHz1epMLVkGP/L6/Be+/0=
-github.com/IBM/vpc-go-sdk v0.62.0/go.mod h1:VBR6bAznHsNCFA89Ue4JFQpqCcFp8F5neqbCFCyks4Q=
+github.com/IBM/vpc-go-sdk v0.63.0 h1:0eSG/8WLK4fW7AvPHlhCmPEe819pgWLF1OIxF0vR43A=
+github.com/IBM/vpc-go-sdk v0.63.0/go.mod h1:VBR6bAznHsNCFA89Ue4JFQpqCcFp8F5neqbCFCyks4Q=
 github.com/NYTimes/gziphandler v1.1.1 h1:ZUDjpQae29j0ryrS0u/B8HZfJBtBQHjqw2rQ2cqUQ3I=
 github.com/NYTimes/gziphandler v1.1.1/go.mod h1:n/CVRwUEOgIxrgPvAQhUUr9oeUtvrhMomdKFjzJNB0c=
 github.com/antlr4-go/antlr/v4 v4.13.0 h1:lxCg3LAv+EUK6t1i0y1V6/SLeUi0eKEKdhQAlS8TVTI=
