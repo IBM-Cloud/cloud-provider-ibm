@@ -16,24 +16,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ******************************************************************************
+dist: focal
+group: vpc
+
+services:
+  - docker
+
 language: go
 
 go:
   - 1.22.5
 
-dist: bionic
-
 env:
   global:
+    - CONTAINERIZED_BUILD_TOOLS="true"
     - IKS_PIPELINE_IAM_APIKEY="${ALL_GLOBAL_NETWORK_IKS_PIPELINE_IAM_APIKEY_20241110}"
     - registry_iam_api_key="${ALL_GLOBAL_registry_iam_api_key_20240423}"
     - GHE_TOKEN="${ALL_GLOBAL_GHE_TOKEN_20240424}"
     - TRAVIS_INTERNAL_HOSTNAME="v3.travis.ibm.com"
 
 sudo: required
-
-services:
-  - docker
 
 git:
   depth: false
