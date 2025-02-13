@@ -43,10 +43,10 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/IBM/go-sdk-core/v5 v5.18.5 h1:g0JRl3sYXJczB/yuDlrN6x22LJ6jIxhp0Sa4ARNW60c=
 github.com/IBM/go-sdk-core/v5 v5.18.5/go.mod h1:KonTFRR+8ZSgw5cxBSYo6E4WZoY1+7n1kfHM82VcjFU=
-github.com/IBM/platform-services-go-sdk v0.74.0 h1:rtadzqB+EjK5M4pMW2JCEgJqV/1qEVKjBCn7aJsj4SQ=
-github.com/IBM/platform-services-go-sdk v0.74.0/go.mod h1:LSaXGGJUGGPMCCtG1/24r9LJEbF0hmpXtQOhABRk0PY=
-github.com/IBM/vpc-go-sdk v0.64.0 h1:0x2jakapXxXYTTr0EdrwuXa6h0couSK+FTDGxd8jChA=
-github.com/IBM/vpc-go-sdk v0.64.0/go.mod h1:VBR6bAznHsNCFA89Ue4JFQpqCcFp8F5neqbCFCyks4Q=
+github.com/IBM/platform-services-go-sdk v0.74.1 h1:vwL0E5AhBDqiyH0R2XkfgSvwctt/zk+DSXHLBSetYdY=
+github.com/IBM/platform-services-go-sdk v0.74.1/go.mod h1:LSaXGGJUGGPMCCtG1/24r9LJEbF0hmpXtQOhABRk0PY=
+github.com/IBM/vpc-go-sdk v0.64.1 h1:1tIeb+GqPnvw7Ty+M0BknZJIdzIIrHqxWsYjgrM6NQY=
+github.com/IBM/vpc-go-sdk v0.64.1/go.mod h1:6rEWo6HGt7S0Nbw7WdJQiVcz9Z+mRDmyycK4xc4kWlw=
 github.com/NYTimes/gziphandler v1.1.1 h1:ZUDjpQae29j0ryrS0u/B8HZfJBtBQHjqw2rQ2cqUQ3I=
 github.com/NYTimes/gziphandler v1.1.1/go.mod h1:n/CVRwUEOgIxrgPvAQhUUr9oeUtvrhMomdKFjzJNB0c=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
