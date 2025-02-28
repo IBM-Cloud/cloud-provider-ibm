@@ -53,6 +53,9 @@ func main() {
 	// set IBM cloud provider name
 	ccmOptions.KubeCloudShared.CloudProvider.Name = ibm.ProviderName
 
+	// set the metadata service to run every 2 minutes instead of default every 5 minutes
+	// ccmOptions.NodeStatusUpdateFrequency = v1.Duration{Duration: time.Duration(2) * time.Minute}
+
 	// IBM cloud does not need the "route" implementation
 	controllerInitializers := app.DefaultInitFuncConstructors
 	delete(controllerInitializers, "route")

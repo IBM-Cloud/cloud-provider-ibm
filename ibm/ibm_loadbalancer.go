@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2025 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -146,6 +146,11 @@ func (c *Cloud) filterLoadBalancersFromServiceList(services *v1.ServiceList) {
 // are working properly. This is a cloud task run via ticker.
 func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 	klog.Infof("Monitoring load balancers ...")
+
+	// Prevent panic in unit test; occurs if the monitor thread interval is dropped to 15 sec
+	if c.KubeClient == nil {
+		return
+	}
 
 	// Monitor all load balancer services and generate a warning event for
 	// each service that fails at least two consecutive monitors. A warning event
