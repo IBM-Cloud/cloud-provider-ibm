@@ -1,6 +1,6 @@
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2021, 2024 All Rights Reserved.
+# (C) Copyright IBM Corp. 2021, 2025 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -21,7 +21,7 @@
 source: github.ibm.com/alchemy-containers/armada-vpc-lb
 
 # (Required) - git release or branch name in the source github repo
-release: v0.33.2
+release: v0.33.3
 
 # (Required) - source directory in the github repo containing GO files
 source_dir: pkg/vpcctl
