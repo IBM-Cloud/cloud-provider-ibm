@@ -2,8 +2,8 @@ github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOEl
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1/go.mod h1:xomTg63KZ2rFqZQzSB4Vz2SUXa1BpHTVz9L5PTmPC4E=
 github.com/IBM/go-sdk-core/v5 v5.18.5 h1:g0JRl3sYXJczB/yuDlrN6x22LJ6jIxhp0Sa4ARNW60c=
 github.com/IBM/go-sdk-core/v5 v5.18.5/go.mod h1:KonTFRR+8ZSgw5cxBSYo6E4WZoY1+7n1kfHM82VcjFU=
-github.com/IBM/platform-services-go-sdk v0.77.0 h1:ifvcAYe+3/sa/ztgpqxLZVXnFyb9UzcSuxDNmmmd+iw=
-github.com/IBM/platform-services-go-sdk v0.77.0/go.mod h1:sX7rPXMNqmAt6wQyjnF+oISRFwz6I6XNX9My/mzLqp4=
+github.com/IBM/platform-services-go-sdk v0.77.1 h1:kOjbZTUBjcuzGJNwnd7jY0ZXXINKeCQx2tDJ52ZoyWg=
+github.com/IBM/platform-services-go-sdk v0.77.1/go.mod h1:sX7rPXMNqmAt6wQyjnF+oISRFwz6I6XNX9My/mzLqp4=
 github.com/IBM/vpc-go-sdk v0.64.1 h1:1tIeb+GqPnvw7Ty+M0BknZJIdzIIrHqxWsYjgrM6NQY=
 github.com/IBM/vpc-go-sdk v0.64.1/go.mod h1:6rEWo6HGt7S0Nbw7WdJQiVcz9Z+mRDmyycK4xc4kWlw=
 github.com/NYTimes/gziphandler v1.1.1 h1:ZUDjpQae29j0ryrS0u/B8HZfJBtBQHjqw2rQ2cqUQ3I=
