@@ -1,6 +1,6 @@
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2022 All Rights Reserved.
+# (C) Copyright IBM Corp. 2022, 2025 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -28,3 +28,13 @@ linters:
     - misspell
     - ineffassign
     - gocritic
+
+linters-settings: # please keep this alphabetized
+  gosimple:
+    checks:
+      - "all"
+      - "-S1009"  # Omit redundant nil check on slices, maps, and channels.
+  staticcheck:
+    checks:
+      - "all"
+      - "-SA1006"  # TODO(fix) Using a printf-style function with a dynamic format string and no arguments can just use a print-style func
