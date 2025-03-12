@@ -40,10 +40,10 @@ github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1/go.mod h1:xomTg6
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/IBM/go-sdk-core/v5 v5.18.5 h1:g0JRl3sYXJczB/yuDlrN6x22LJ6jIxhp0Sa4ARNW60c=
-github.com/IBM/go-sdk-core/v5 v5.18.5/go.mod h1:KonTFRR+8ZSgw5cxBSYo6E4WZoY1+7n1kfHM82VcjFU=
-github.com/IBM/platform-services-go-sdk v0.77.1 h1:kOjbZTUBjcuzGJNwnd7jY0ZXXINKeCQx2tDJ52ZoyWg=
-github.com/IBM/platform-services-go-sdk v0.77.1/go.mod h1:sX7rPXMNqmAt6wQyjnF+oISRFwz6I6XNX9My/mzLqp4=
+github.com/IBM/go-sdk-core/v5 v5.19.0 h1:YN2S5JUvq/EwYulmcNFwgyYBxZhVWl9nkY22H7Hpghw=
+github.com/IBM/go-sdk-core/v5 v5.19.0/go.mod h1:deZO1J5TSlU69bCnl/YV7nPxFZA2UEaup7cq/7ZTOgw=
+github.com/IBM/platform-services-go-sdk v0.78.1 h1:vHkMsIkqJFrXP3aAihUUJyc50YwwBvhb9pNykMOTDdI=
+github.com/IBM/platform-services-go-sdk v0.78.1/go.mod h1:FzCPOfbNAt0s9RwtIrbJbfDwA7mKIObtZ/18KnviKr0=
 github.com/IBM/vpc-go-sdk v0.64.1 h1:1tIeb+GqPnvw7Ty+M0BknZJIdzIIrHqxWsYjgrM6NQY=
 github.com/IBM/vpc-go-sdk v0.64.1/go.mod h1:6rEWo6HGt7S0Nbw7WdJQiVcz9Z+mRDmyycK4xc4kWlw=
 github.com/NYTimes/gziphandler v1.1.1 h1:ZUDjpQae29j0ryrS0u/B8HZfJBtBQHjqw2rQ2cqUQ3I=
@@ -505,8 +505,8 @@ golang.org/x/net v0.0.0-20201021035429-f5854403a974/go.mod h1:sp8m0HH+o8qH0wwXwY
 golang.org/x/net v0.0.0-20210525063256-abc453219eb5/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd/go.mod h1:CfG3xpIq0wQ8r1q4Su4UZFWDARRcnwPjda9FqA0JpMk=
 golang.org/x/net v0.0.0-20220225172249-27dd8689420f/go.mod h1:CfG3xpIq0wQ8r1q4Su4UZFWDARRcnwPjda9FqA0JpMk=
-golang.org/x/net v0.35.0 h1:T5GQRQb2y08kTAByq9L4/bz8cipCdA8FbRTXewonqY8=
-golang.org/x/net v0.35.0/go.mod h1:EglIi67kWsHKlRzzVMUD93VMSWGFOMSZgxFjparz1Qk=
+golang.org/x/net v0.37.0 h1:1zLorHbz+LYj7MQlSf1+2tPIIgibq2eL5xkrGk6f+2c=
+golang.org/x/net v0.37.0/go.mod h1:ivrbrMbzFq5J41QOQh0siUuly180yBYtLp+CKbEaFx8=
 golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be/go.mod h1:N/0e6XlmueqKjAGxoOufVs8QHGRruUQn6yWY3a++T0U=
 golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
 golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
