@@ -31,7 +31,7 @@ env:
   global:
     - CONTAINERIZED_BUILD_TOOLS="true"
     - IKS_PIPELINE_IAM_APIKEY="${ALL_GLOBAL_NETWORK_IKS_PIPELINE_IAM_APIKEY_20241110}"
-    - registry_iam_api_key="${ALL_GLOBAL_registry_iam_api_key_20240423}"
+    - registry_iam_api_key="${ALL_GLOBAL_registry_iam_api_key_20250402}"
     - GHE_TOKEN="${ALL_GLOBAL_GHE_TOKEN_20240424}"
     - TRAVIS_INTERNAL_HOSTNAME="v3.travis.ibm.com"
 
