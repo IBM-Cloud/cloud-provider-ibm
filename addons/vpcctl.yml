@@ -21,7 +21,7 @@
 source: github.ibm.com/alchemy-containers/armada-vpc-lb
 
 # (Required) - git release or branch name in the source github repo
-release: v0.35.1
+release: v0.36.2
 
 # (Required) - source directory in the github repo containing GO files
 source_dir: pkg/vpcctl
@@ -31,10 +31,10 @@ source_dir: pkg/vpcctl
 target_dir:
 
 # (Optional) - grep search string which will be done before / after the sed commands are done on the GO logic
-grep_string: cloud.ibm.com/cloud-provider-
+grep_string:
 
 # (Optional) - sed commands to update the GO source files copied from source repo
-sed_command_1: s/cloud-provider-vpc-controller/cloud-provider-ibm/
+sed_command_1:
 sed_command_2:
 sed_command_3:
 
