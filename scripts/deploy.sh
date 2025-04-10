@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2019, 2024 All Rights Reserved.
+# (C) Copyright IBM Corp. 2019, 2025 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -34,7 +34,7 @@ image_name=$(echo "${DOCKER_IMAGE_NAME}" | cut -d'/' -f2)
 new_image_tag=${DOCKER_IMAGE_TAG}
 
 # Clone the armada-update-release repo
-git clone --depth=1 --single-branch "https://${GHE_USER}:${GHE_TOKEN}@github.ibm.com/alchemy-containers/armada-update-release.git"
+# git clone --depth=1 --single-branch "https://${GHE_USER}:${GHE_TOKEN}@github.ibm.com/alchemy-containers/armada-update-release.git"
 
 # Clone the armada-ansible repo
 git clone --filter=blob:none --depth=1 --sparse "https://${GHE_USER}:${GHE_TOKEN}@github.ibm.com/alchemy-containers/armada-ansible.git"
@@ -47,7 +47,7 @@ bom_file_list=$(grep "^${bom_image}:" ./* | grep ":v${kube_major}.${kube_minor}.
 cluster_type=""
 cluster_version=""
 create_pr="false"
-today=$(date +%Y-%m-%d)
+# today=$(date +%Y-%m-%d)
 for file in $bom_file_list; do
     echo "Updating BOM file ${file} image ${bom_image} with new tag ${new_image_tag} ..."
 
@@ -58,17 +58,17 @@ for file in $bom_file_list; do
     fi
     version=${file#*-bom-}
     version=${version%.yml}
-    dep_date=$(grep "Deprecated" "${TRAVIS_BUILD_DIR}/armada-update-release/releases/${release_type}/${version}/README.md" | cut -d'|' -f4 | tr -d '*' | awk '{$1=$1}1')
-    if [[ "${dep_date}" = *GA* ]]; then
-        echo "Deprecation date for [$release_type $version] has not been finalized yet"
-    else
-        echo "Deprecation date for [$release_type $version] is: $dep_date"
-        end_date=$(date -d "${dep_date}" +"%Y-%m-%d")
-        if [[ "$today" > "$end_date" ]]; then
-            echo "The deprecation date has already past, don't update the BOM file"
-            continue
-        fi
-    fi
+    # dep_date=$(grep "Deprecated" "${TRAVIS_BUILD_DIR}/armada-update-release/releases/${release_type}/${version}/README.md" | cut -d'|' -f4 | tr -d '*' | awk '{$1=$1}1')
+    # if [[ "${dep_date}" = *GA* ]]; then
+    #     echo "Deprecation date for [$release_type $version] has not been finalized yet"
+    # else
+    #     echo "Deprecation date for [$release_type $version] is: $dep_date"
+    #     end_date=$(date -d "${dep_date}" +"%Y-%m-%d")
+    #     if [[ "$today" > "$end_date" ]]; then
+    #         echo "The deprecation date has already past, don't update the BOM file"
+    #         continue
+    #     fi
+    # fi
     if [[ "$cluster_type" == "" ]] || [[ $release_type == "iks" ]]; then
         cluster_type=$release_type
         cluster_version=$version
@@ -99,7 +99,7 @@ fi
 echo "Create new branch ..."
 git checkout -b "armada-lb-${new_image_tag}"
 
-echo "Disaply changes for this PR..."
+echo "Display changes for this PR..."
 git status
 
 # Determine the contents of the pull request message
@@ -149,7 +149,7 @@ fi
 cat "${TRAVIS_BUILD_DIR}"/armada-ansible/.github/pull_request_template.md >>"${TRAVIS_BUILD_DIR}"/message.txt
 cd ./armada-ansible
 
-echo "Comitting changes..."
+echo "Committing changes..."
 git commit --file "${TRAVIS_BUILD_DIR}"/message.txt
 
 echo "Creating pull request..."
