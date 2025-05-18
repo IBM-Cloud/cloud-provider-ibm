@@ -25,7 +25,7 @@ services:
 language: go
 
 go:
-  - 1.23.6
+  - 1.23.8
 
 env:
   global:
@@ -89,7 +89,7 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-      condition: ${TRAVIS_TAG} == v1.31.8-* && ${TRAVIS_JOB_NAME} == Internal
+      condition: ${TRAVIS_TAG} == v1.31.9-* && ${TRAVIS_JOB_NAME} == Internal
   - provider: script
     script: BUILD_TAG=${TRAVIS_TAG} make deploy
     skip_cleanup: true
