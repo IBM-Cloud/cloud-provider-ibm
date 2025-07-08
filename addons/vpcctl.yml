@@ -21,7 +21,7 @@
 source: github.ibm.com/alchemy-containers/armada-vpc-lb
 
 # (Required) - git release or branch name in the source github repo
-release: v0.40.0
+release: v0.41.0
 
 # (Required) - source directory in the github repo containing GO files
 source_dir: pkg/vpcctl
