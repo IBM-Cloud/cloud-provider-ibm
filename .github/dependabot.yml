@@ -5,7 +5,14 @@
 
 version: 2
 updates:
-  - package-ecosystem: "gomod"  # Specifies the Go modules package ecosystem
-    directory: "/"  # Location of your go.mod file
+  - package-ecosystem: "gomod" # Specifies the Go modules package ecosystem
+    directory: "/" # Location of your go.mod file
     schedule:
-      interval: "daily"  # Checks for updates daily
+      interval: "daily" # Checks for updates daily
+    groups:
+      kubernetes:
+        applies-to: version-updates
+        patterns:
+          - "k8s.io/*"
+        update-types:
+          - "patch"
