@@ -32,8 +32,8 @@ jobs:
       - name: Run lint (via golangci-lint)
         run: make lint
 
-      - name: Rnn lint-sh (via shellcheck)
-        run: make lint-sh
+      # - name: Rnn lint-sh (via shellcheck) - re-enable once we have scripts again
+      #   run: make lint-sh
 
       - name: Rnn go vet
         run: make vet
