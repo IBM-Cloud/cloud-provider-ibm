@@ -72,23 +72,20 @@ rm -rf "${K8S_DIRECTORY}"
 
 git clone --filter=blob:none --depth=1 --sparse -b "${K8S_CURRENT_VERSION}" https://github.com/kubernetes/kubernetes.git ${K8S_DIRECTORY}
 git -C ${K8S_DIRECTORY} sparse-checkout add build
-K8S_GOLANG_CURRENT_VERSION=$(grep -A 1 "name: \"golang: upstream version" "${K8S_DIRECTORY}/build/dependencies.yaml" | grep "version:" | awk '{ print $2 }')
-echo "INFO: Current golang version: ${K8S_GOLANG_CURRENT_VERSION}"
+GO_CURRENT_VERSION=$(grep -A 1 "name: \"golang: upstream version" "${K8S_DIRECTORY}/build/dependencies.yaml" | grep "version:" | awk '{ print $2 }')
+echo "INFO: Current Go version: ${GO_CURRENT_VERSION}"
 rm -rf "${K8S_DIRECTORY}"
 
 git clone --filter=blob:none --depth=1 --sparse -b "${K8S_UPDATE_VERSION}" https://github.com/kubernetes/kubernetes.git ${K8S_DIRECTORY}
 git -C ${K8S_DIRECTORY} sparse-checkout add build
-K8S_GOLANG_UPDATE_VERSION=$(grep -A 1 "name: \"golang: upstream version" "${K8S_DIRECTORY}/build/dependencies.yaml" | grep "version:" | awk '{ print $2 }')
-echo "INFO: Updated golang version: ${K8S_GOLANG_UPDATE_VERSION}"
+GO_UPDATE_VERSION=$(grep -A 1 "name: \"golang: upstream version" "${K8S_DIRECTORY}/build/dependencies.yaml" | grep "version:" | awk '{ print $2 }')
+echo "INFO: Updated Go version: ${GO_UPDATE_VERSION}"
 rm -rf "${K8S_DIRECTORY}"
 
-if [[ "${K8S_GOLANG_CURRENT_VERSION}" != "${K8S_GOLANG_UPDATE_VERSION}" ]]; then
-    sed -i -e "s/go\s\+${K8S_GOLANG_CURRENT_VERSION}/go ${K8S_GOLANG_UPDATE_VERSION}/g" go.mod
+if [[ "${GO_CURRENT_VERSION}" != "${GO_UPDATE_VERSION}" ]]; then
+    sed -i -e "s/go\s\+${GO_CURRENT_VERSION}/go ${GO_UPDATE_VERSION}/g" go.mod
     go mod tidy
-    echo "INFO: Updated golang version in go.mod / go.sun"
-
-    sed -i -e "s/${K8S_GOLANG_CURRENT_VERSION}/${K8S_GOLANG_UPDATE_VERSION}/g" .github/workflows/go.yml
-    echo "INFO: Updated golang version in .github/workflows/go.yml"
+    echo "INFO: Updated Go version in go.mod from ${GO_CURRENT_VERSION} to ${GO_UPDATE_VERSION}"
 fi
 
 echo "SUCCESS: Completed Kubernetes update from version ${K8S_CURRENT_VERSION} to ${K8S_UPDATE_VERSION}."

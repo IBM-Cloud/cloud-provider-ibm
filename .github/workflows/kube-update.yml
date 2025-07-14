@@ -2,15 +2,21 @@ name: Kube Update
 
 on:
   schedule:
-    - cron: "0 6 * * *" # Run at 6:00 UTC daily
+    - cron: "34 1 * * *" # Run at 1:34 UTC daily
   workflow_dispatch: # Allow manual triggering
 
 jobs:
   kube-update:
     runs-on: ubuntu-latest
     steps:
+      - name: Set Git branch to use
+        run: |
+          echo "GIT_BRANCH=release-1.34" >> $GITHUB_ENV
+
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.GIT_BRANCH }}
 
       - name: Set up Git
         run: |
@@ -19,21 +25,19 @@ jobs:
 
       - name: Determine current Kubernetes version
         run: |
-          version=$(grep "^TAG " Makefile | awk '{ print $3 }')
-          echo "CURRENT_VERSION=$version" >> $GITHUB_ENV
+          echo "CURRENT_VERSION=$(grep '^TAG ' Makefile | awk '{ print $3 }')" >> $GITHUB_ENV
 
       - name: Run kube update script
         run: .github/scripts/kube-update.sh
 
-      - name: Determine updated Kubernetes version
+      - name: Determine new Kubernetes version
         run: |
-          version=$(grep "^TAG " Makefile | awk '{ print $3 }')
-          echo "UPDATE_VERSION=$version" >> $GITHUB_ENV
+          echo "UPDATE_VERSION=$(grep '^TAG ' Makefile | awk '{ print $3 }')" >> $GITHUB_ENV
 
       - name: Commit changes
         if: env.CURRENT_VERSION != env.UPDATE_VERSION
         run: |
-          commit_msg="Update repo from ${{ env.CURRENT_VERSION }} to ${{ env.UPDATE_VERSION }} (release 1.34)"
+          commit_msg="Bump branch ${{ env.GIT_BRANCH }} from ${{ env.CURRENT_VERSION }} to ${{ env.UPDATE_VERSION }}"
           echo "COMMIT_MSG=$commit_msg" >> $GITHUB_ENV
           git checkout -b "${{ env.UPDATE_VERSION }}"
           git add .
@@ -46,4 +50,4 @@ jobs:
         with:
           title: "${{ env.COMMIT_MSG }}"
           branch: "${{ env.UPDATE_VERSION }}"
-          base: release-1.34
+          base: "${{ env.GIT_BRANCH }}"
