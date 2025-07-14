@@ -8,7 +8,21 @@ updates:
   - package-ecosystem: "gomod" # Specifies the Go modules package ecosystem
     directory: "/" # Location of your go.mod file
     schedule:
-      interval: "daily" # Checks for updates daily
+      interval: "cron"
+      cronjob: "34 2 * * *" # Run at 2:34 UTC daily
+    ignore:
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
+        update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
       kubernetes-1.34:
@@ -24,7 +38,21 @@ updates:
   - package-ecosystem: "gomod" # Specifies the Go modules package ecosystem
     directory: "/" # Location of your go.mod file
     schedule:
-      interval: "daily" # Checks for updates daily
+      interval: "cron"
+      cronjob: "33 2 * * *" # Run at 2:33 UTC daily
+    ignore:
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
+        update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
       kubernetes-1.33:
@@ -40,7 +68,21 @@ updates:
   - package-ecosystem: "gomod" # Specifies the Go modules package ecosystem
     directory: "/" # Location of your go.mod file
     schedule:
-      interval: "daily" # Checks for updates daily
+      interval: "cron"
+      cronjob: "32 2 * * *" # Run at 2:32 UTC daily
+    ignore:
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
+        update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
       kubernetes-1.32:
@@ -56,7 +98,19 @@ updates:
   - package-ecosystem: "gomod" # Specifies the Go modules package ecosystem
     directory: "/" # Location of your go.mod file
     schedule:
-      interval: "daily" # Checks for updates daily
+      interval: "cron"
+      cronjob: "31 2 * * *" # Run at 2:31 UTC daily
+    ignore:
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
+        update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
       kubernetes-1.31:
@@ -72,7 +126,19 @@ updates:
   - package-ecosystem: "gomod" # Specifies the Go modules package ecosystem
     directory: "/" # Location of your go.mod file
     schedule:
-      interval: "daily" # Checks for updates daily
+      interval: "cron"
+      cronjob: "30 2 * * *" # Run at 2:30 UTC daily
+    ignore:
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
+        update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
       kubernetes-1.30:
@@ -88,7 +154,19 @@ updates:
   - package-ecosystem: "gomod" # Specifies the Go modules package ecosystem
     directory: "/" # Location of your go.mod file
     schedule:
-      interval: "daily" # Checks for updates daily
+      interval: "cron"
+      cronjob: "29 2 * * *" # Run at 2:29 UTC daily
+    ignore:
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
+        update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
       kubernetes-1.29:
