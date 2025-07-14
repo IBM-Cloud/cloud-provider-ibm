@@ -9,7 +9,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "34 2 * * *" # Run at 2:34 UTC daily
+      cronjob: "34 9 * * *" # Run at 9:34 UTC daily
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -39,7 +39,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "33 2 * * *" # Run at 2:33 UTC daily
+      cronjob: "33 9 * * *" # Run at 9:33 UTC daily
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -69,7 +69,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "32 2 * * *" # Run at 2:32 UTC daily
+      cronjob: "32 9 * * *" # Run at 9:32 UTC daily
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -99,7 +99,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "31 2 * * *" # Run at 2:31 UTC daily
+      cronjob: "31 9 * * *" # Run at 9:31 UTC daily
     ignore:
       - dependency-name: "k8s.io/apimachinery"
         update-types: ["version-update:semver-minor"]
@@ -127,7 +127,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "30 2 * * *" # Run at 2:30 UTC daily
+      cronjob: "30 9 * * *" # Run at 9:30 UTC daily
     ignore:
       - dependency-name: "k8s.io/apimachinery"
         update-types: ["version-update:semver-minor"]
@@ -155,7 +155,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "29 2 * * *" # Run at 2:29 UTC daily
+      cronjob: "29 9 * * *" # Run at 9:29 UTC daily
     ignore:
       - dependency-name: "k8s.io/apimachinery"
         update-types: ["version-update:semver-minor"]
