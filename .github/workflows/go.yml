@@ -31,13 +31,13 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.24.4"
+          go-version: "$(grep '^go ' go.mod | awk '{ print $2 }')"
 
       - name: Install golangci-lint
         uses: golangci/golangci-lint-action@v6 # v8 available, but only supports >= v2.1.0
         with:
           args: --disable-all --timeout 5m # disable linting, initialize cache
-          version: v1.64.8
+          version: "$(grep '^GOLANGCI_LINT_VERSION ' Makefile | awk '{ print $3 }')"
 
       - name: Run go fmt (via golangci-lint)
         run: make fmt
