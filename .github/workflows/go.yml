@@ -32,7 +32,7 @@ jobs:
       - name: Extract Go and golangci-lint versions
         run: |
           echo "GO_VERSION=$(grep '^go ' go.mod | awk '{ print $2 }')" >> $GITHUB_ENV
-          echo "GOLANGCI_VERSION=$(grep '^GOLANGCI_LINT_VERSION ' Makefile | awk '{ print $3 }')" >> $GITHUB_ENV
+          echo "GOLANGCI_VERSION=v$(grep '^GOLANGCI_LINT_VERSION ' Makefile | awk '{ print $3 }')" >> $GITHUB_ENV
 
       - name: Set up Go
         uses: actions/setup-go@v5
