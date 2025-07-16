@@ -30,20 +30,21 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Extract Go and golangci-lint versions
+        id: get-ver
         run: |
-          echo "GO_VERSION=$(grep '^go ' go.mod | awk '{ print $2 }')" >> $GITHUB_ENV
-          echo "GOLANGCI_VERSION=v$(grep '^GOLANGCI_LINT_VERSION ' Makefile | awk '{ print $3 }')" >> $GITHUB_ENV
+          echo "go_version=$(grep '^go ' go.mod | awk '{ print $2 }')" >> $GITHUB_OUTPUT
+          echo "golangci_version=v$(grep '^GOLANGCI_LINT_VERSION ' Makefile | awk '{ print $3 }')" >> $GITHUB_OUTPUT
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version: ${{ steps.get-ver.outputs.go_version }}
 
       - name: Install golangci-lint
         uses: golangci/golangci-lint-action@v6 # v8 available, but only supports >= v2.1.0
         with:
           args: --disable-all --timeout 5m # disable linting, initialize cache
-          version: ${{ env.GOLANGCI_VERSION }}
+          version: ${{ steps.get-ver.outputs.golangci_version }}
 
       - name: Run go fmt (via golangci-lint)
         run: make fmt
