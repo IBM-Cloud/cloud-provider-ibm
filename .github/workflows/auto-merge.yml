@@ -17,10 +17,6 @@ jobs:
       contents: write
 
     steps:
-      - name: Show PR number
-        run: |
-          echo "PR: #${{ github.event.pull_request.number }}"
-
       - name: Enable auto-merge
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
