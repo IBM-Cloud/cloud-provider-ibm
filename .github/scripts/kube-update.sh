@@ -37,14 +37,14 @@ if [[ "${MAJOR_MINOR}" != "${BRANCH_MAJOR_MINOR}" ]]; then
     MAJOR_MINOR=${BRANCH_MAJOR_MINOR}
 fi
 
-K8S_RELEASE_FILE="/tmp/kube-releases"
+K8S_RELEASE_FILE="/tmp/kube-releases.txt"
 if [[ ! -f "${K8S_RELEASE_FILE}" ]]; then
-    curl https://api.github.com/repos/kubernetes/kubernetes/releases -o $K8S_RELEASE_FILE --fail
+    curl -L --fail --retry 3 --retry-delay 5 -o $K8S_RELEASE_FILE https://api.github.com/repos/kubernetes/kubernetes/releases
 fi
 
-K8S_TAGS_FILE="/tmp/kube-tags"
+K8S_TAGS_FILE="/tmp/kube-tags.txt"
 if [[ ! -f "${K8S_TAGS_FILE}" ]]; then
-    curl https://api.github.com/repos/kubernetes/kubernetes/tags -o $K8S_TAGS_FILE --fail
+    curl -L --fail --retry 3 --retry-delay 5 -o $K8S_TAGS_FILE https://api.github.com/repos/kubernetes/kubernetes/tags
 fi
 
 K8S_UPDATE_VERSION=$(cat $K8S_RELEASE_FILE | jq -r ".[].name" | grep "$MAJOR_MINOR" | head -1 | sed 's/^Kubernetes //g')
