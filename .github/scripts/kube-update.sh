@@ -37,11 +37,21 @@ if [[ "${MAJOR_MINOR}" != "${BRANCH_MAJOR_MINOR}" ]]; then
     MAJOR_MINOR=${BRANCH_MAJOR_MINOR}
 fi
 
-K8S_UPDATE_VERSION=$(curl https://api.github.com/repos/kubernetes/kubernetes/releases | jq -r ".[].name" | grep "$MAJOR_MINOR" | head -1 | sed 's/^Kubernetes //g')
+K8S_RELEASE_FILE="/tmp/kube-releases"
+if [[ ! -f "${K8S_RELEASE_FILE}" ]]; then
+    curl https://api.github.com/repos/kubernetes/kubernetes/releases -o $K8S_RELEASE_FILE --fail
+fi
+
+K8S_TAGS_FILE="/tmp/kube-tags"
+if [[ ! -f "${K8S_TAGS_FILE}" ]]; then
+    curl https://api.github.com/repos/kubernetes/kubernetes/tags -o $K8S_TAGS_FILE --fail
+fi
+
+K8S_UPDATE_VERSION=$(cat $K8S_RELEASE_FILE | jq -r ".[].name" | grep "$MAJOR_MINOR" | head -1 | sed 's/^Kubernetes //g')
 MOD_VERSION=$(go mod download -json "k8s.io/api@kubernetes-${K8S_UPDATE_VERSION#v}" | jq -r .Version)
 if [[ -z "${K8S_UPDATE_VERSION}" ]]; then
     echo "FAIL: Failed to retrieve the kubernetes release, attempt to retrieve the git tag"
-    K8S_UPDATE_VERSION=$(curl https://api.github.com/repos/kubernetes/kubernetes/tags | jq -r ".[].name" | grep "$MAJOR_MINOR" | head -1)
+    K8S_UPDATE_VERSION=$(cat $K8S_TAGS_FILE | jq -r ".[].name" | grep "$MAJOR_MINOR" | head -1)
     MOD_VERSION=$(go mod download -json "k8s.io/api@kubernetes-${K8S_UPDATE_VERSION#v}" | jq -r .Version)
 fi
 if [[ -z "${K8S_UPDATE_VERSION}" ]]; then
