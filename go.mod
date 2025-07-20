@@ -4,7 +4,7 @@ go 1.24.4
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.20.1
-	github.com/IBM/platform-services-go-sdk v0.84.4
+	github.com/IBM/platform-services-go-sdk v0.85.0
 	github.com/IBM/vpc-go-sdk v0.70.1
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-openapi/strfmt v0.23.0
