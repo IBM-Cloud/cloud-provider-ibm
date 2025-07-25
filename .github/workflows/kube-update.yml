@@ -25,10 +25,8 @@ jobs:
           name: shared-files
           path: shared-files/
 
-      - name: Wait for 2 seconds before processing each release
-        run: sleep 2
-
   kube-update:
+    needs: download-kube-files
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
