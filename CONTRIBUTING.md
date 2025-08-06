@@ -4,13 +4,13 @@ Unfortunately, this repository is not yet enabled for pull request contributions
 However, you are encouraged to [open an issue](https://github.com/IBM-Cloud/cloud-provider-ibm/issues)
 to request new features or to get bugs triaged and fixed. Thank you.
 
-# Legal
+## Legal
 
-All files, except documentaion, must include a license header for the
-[Apache License, Version 2.0 ](./LICENSE). Using the SPDX format is the
+All files, except documentation, must include a license header for the
+[Apache License, Version 2.0](./LICENSE). Using the SPDX format is the
 simplest approach. Here is an example:
 
-```
+```text
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
 * (C) Copyright <holder> <YYYY> All Rights Reserved.
@@ -31,6 +31,6 @@ simplest approach. Here is an example:
 *******************************************************************************/
 ```
 
-# Communication
+## Communication
 
 Please feel free to contact us on our [Kubernetes Slack channel](https://kubernetes.slack.com/archives/C90BWDWCE).
