@@ -5,7 +5,10 @@ name: Dependabot PRs Auto-merge
 
 on:
   pull_request:
-    types: [opened]
+    types:
+      - opened
+    branches:
+      - 'dependabot/**'
 
 jobs:
   automerge:
