@@ -40,7 +40,6 @@ jobs:
       - name: Install golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
-          args: --disable-all --timeout 5m # disable linting, initialize cache
           version: ${{ steps.get-ver.outputs.golangci_version }}
       - name: Run go fmt (via golangci-lint)
         run: make fmt
