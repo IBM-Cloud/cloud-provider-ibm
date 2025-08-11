@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2022 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2025 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -76,7 +76,7 @@ func TestNodeWatch(t *testing.T) {
 	}
 
 	// delete node
-	k8sclient.CoreV1().Nodes().Delete(context.TODO(), nodeName, metav1.DeleteOptions{}) //nolint:errcheck
+	k8sclient.CoreV1().Nodes().Delete(context.TODO(), nodeName, metav1.DeleteOptions{}) // nolint:errcheck
 	c.handleNodeDelete(&k8snode)
 	_, err = c.InstanceMetadata(context.Background(), &k8snode)
 	if nil == err {
@@ -88,7 +88,7 @@ func TestNodeWatch(t *testing.T) {
 	if nil != err {
 		t.Fatalf("Failed to create Node: %v", err)
 	}
-	k8sclient.CoreV1().Nodes().Delete(context.TODO(), nodeName, metav1.DeleteOptions{}) //nolint:errcheck
+	k8sclient.CoreV1().Nodes().Delete(context.TODO(), nodeName, metav1.DeleteOptions{}) // nolint:errcheck
 	c.handleNodeDelete(&k8snode)
 	expectedInstanceID = "ibm://testAccount///testCluster/replaced-worker-id"
 	labels["ibm-cloud.kubernetes.io/worker-id"] = "replaced-worker-id"
