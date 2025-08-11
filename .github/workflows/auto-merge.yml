@@ -7,8 +7,6 @@ on:
   pull_request:
     types:
       - opened
-    branches:
-      - 'dependabot/**'
 
 jobs:
   automerge:
