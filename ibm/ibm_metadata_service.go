@@ -127,7 +127,7 @@ func (ms *MetadataService) GetNodeMetadata(name string, applyNetworkUnavailable 
 		return node, nil
 	}
 	klog.Infof("MetadataService: node %s not in cache (applyNetUnAvail:%v, cni:%s)", name, applyNetworkUnavailable, cni)
-	k8sNode, err := ms.kubeClient.CoreV1().Nodes().Get(context.TODO(), string(name), metav1.GetOptions{})
+	k8sNode, err := ms.kubeClient.CoreV1().Nodes().Get(context.TODO(), name, metav1.GetOptions{})
 	if nil != err {
 		klog.Errorf("MetadataService: node %s failed to get k8s node data: %v", name, err)
 		return node, err

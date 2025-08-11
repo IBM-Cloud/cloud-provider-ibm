@@ -76,7 +76,7 @@ func SetCloudVpc(vpc *CloudVpc) {
 
 func NewCloudVpc(kubeClient kubernetes.Interface, config *ConfigVpc, recorder record.EventRecorder) (*CloudVpc, error) {
 	if config == nil {
-		return nil, fmt.Errorf("Missing cloud configuration")
+		return nil, fmt.Errorf("missing cloud configuration")
 	}
 	c := &CloudVpc{KubeClient: kubeClient, Config: config, Recorder: recorder}
 	err := c.initialize()
@@ -219,8 +219,8 @@ func (c *CloudVpc) EnsureLoadBalancerUpdated(lbName string, service *v1.Service,
 func (c *CloudVpc) GatherLoadBalancers(services *v1.ServiceList) (map[string]*v1.Service, map[string]*VpcLoadBalancer, error) {
 	// Verify we were passed a list of Kube services
 	if services == nil {
-		klog.Errorf("%s", "Required argument is missing")
-		return nil, nil, errors.New("Required argument is missing")
+		klog.Errorf("%s", "required argument is missing")
+		return nil, nil, errors.New("required argument is missing")
 	}
 	// Retrieve list of all load balancers
 	lbs, err := c.Sdk.ListLoadBalancers()
@@ -289,11 +289,11 @@ func (c *CloudVpc) GenerateLoadBalancerName(service *v1.Service) string {
 
 // GenerateLoadBalancerName - generate the VPC load balancer name from the cluster ID and Kube service
 func GenerateLoadBalancerName(service *v1.Service, clusterID string) string {
-	serviceLbName := service.ObjectMeta.Annotations[serviceAnnotationLbName]
+	serviceLbName := service.Annotations[serviceAnnotationLbName]
 	if serviceLbName != "" {
 		return serviceLbName
 	}
-	serviceID := strings.ReplaceAll(string(service.ObjectMeta.UID), "-", "")
+	serviceID := strings.ReplaceAll(string(service.UID), "-", "")
 	lbName := "kube-" + clusterID + "-" + serviceID
 	// Limit the LB name to 63 characters
 	if len(lbName) > 63 {
@@ -371,14 +371,14 @@ func (c *CloudVpc) MonitorLoadBalancers(services *v1.ServiceList, status map[str
 
 	// Verify that we have a VPC LB for each of the Kube LB services
 	for lbName, service := range lbMap {
-		serviceID := string(service.ObjectMeta.UID)
+		serviceID := string(service.UID)
 		oldStatus := status[serviceID]
 		vpcLB, exists := vpcMap[lbName]
 		if exists {
 			if vpcLB.IsReady() {
-				klog.Infof("VPC LB: %s Service:%s/%s", vpcLB.GetSummary(), service.ObjectMeta.Namespace, service.ObjectMeta.Name)
+				klog.Infof("VPC LB: %s Service:%s/%s", vpcLB.GetSummary(), service.Namespace, service.Name)
 			} else {
-				klog.Warningf("VPC LB: %s Service:%s/%s", vpcLB.GetSummary(), service.ObjectMeta.Namespace, service.ObjectMeta.Name)
+				klog.Warningf("VPC LB: %s Service:%s/%s", vpcLB.GetSummary(), service.Namespace, service.Name)
 			}
 			// Store the new status so its available to the next call to VpcMonitorLoadBalancers()
 			newStatus := vpcLB.GetStatus()
@@ -405,7 +405,7 @@ func (c *CloudVpc) MonitorLoadBalancers(services *v1.ServiceList, status map[str
 		}
 
 		// There is no VPC LB for the current Kubernetes load balancer.  Update the status to: "offline/not_found"
-		klog.Warningf("VPC LB not found for service %s/%s %s", service.ObjectMeta.Namespace, service.ObjectMeta.Name, serviceID)
+		klog.Warningf("VPC LB not found for service %s/%s %s", service.Namespace, service.Name, serviceID)
 		newStatus := vpcLbStatusOfflineNotFound
 		status[serviceID] = newStatus
 		if oldStatus == newStatus {
@@ -419,7 +419,7 @@ func (c *CloudVpc) MonitorLoadBalancers(services *v1.ServiceList, status map[str
 func (c *CloudVpc) recordServiceNormalEvent(lbService *v1.Service, lbName, eventMessage string) {
 	if c.Recorder != nil {
 		message := fmt.Sprintf("Event on cloud load balancer %v for service %v with UID %v: %v",
-			lbName, types.NamespacedName{Namespace: lbService.ObjectMeta.Namespace, Name: lbService.ObjectMeta.Name}, lbService.ObjectMeta.UID, eventMessage)
+			lbName, types.NamespacedName{Namespace: lbService.Namespace, Name: lbService.Name}, lbService.UID, eventMessage)
 		c.Recorder.Event(lbService, v1.EventTypeNormal, "CloudVPCLoadBalancerNormalEvent", message)
 	}
 }
@@ -428,7 +428,7 @@ func (c *CloudVpc) recordServiceNormalEvent(lbService *v1.Service, lbName, event
 // event and returns an error representing the event.
 func (c *CloudVpc) recordServiceWarningEvent(lbService *v1.Service, reason, lbName, errorMessage string) error {
 	message := fmt.Sprintf("Error on cloud load balancer %v for service %v with UID %v: %v",
-		lbName, types.NamespacedName{Namespace: lbService.ObjectMeta.Namespace, Name: lbService.ObjectMeta.Name}, lbService.ObjectMeta.UID, errorMessage)
+		lbName, types.NamespacedName{Namespace: lbService.Namespace, Name: lbService.Name}, lbService.UID, errorMessage)
 	if c.Recorder != nil {
 		c.Recorder.Event(lbService, v1.EventTypeWarning, reason, message)
 	}

@@ -111,7 +111,7 @@ func TestConfigVpc_initialize(t *testing.T) {
 	config.ProviderType = "invalid"
 	err := config.initialize()
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Invalid cloud configuration setting")
+	assert.Contains(t, err.Error(), "invalid cloud configuration setting")
 
 	// ProviderType = "fake".  Endpoints are not assigned
 	config.ProviderType = VpcProviderTypeFake
@@ -149,21 +149,21 @@ func TestConfigVpc_validate(t *testing.T) {
 	config.AccountID = ""
 	err = config.validate()
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Missing required cloud configuration setting")
+	assert.Contains(t, err.Error(), "missing required cloud configuration setting")
 	config.AccountID = "accountID"
 
 	// APIKeySecret not set
 	config.APIKeySecret = ""
 	err = config.validate()
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Missing required cloud configuration setting")
+	assert.Contains(t, err.Error(), "missing required cloud configuration setting")
 	config.APIKeySecret = "apiKey"
 
 	// ClusterID not set
 	config.ClusterID = ""
 	err = config.validate()
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Missing required cloud configuration setting")
+	assert.Contains(t, err.Error(), "missing required cloud configuration setting")
 	config.ClusterID = "clusterID"
 
 	// ProviderType set to "fake"
@@ -175,28 +175,28 @@ func TestConfigVpc_validate(t *testing.T) {
 	config.ProviderType = ""
 	err = config.validate()
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Invalid cloud configuration setting")
+	assert.Contains(t, err.Error(), "invalid cloud configuration setting")
 	config.ProviderType = VpcProviderTypeGen2
 
 	// Region not set
 	config.Region = ""
 	err = config.validate()
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Missing required cloud configuration setting")
+	assert.Contains(t, err.Error(), "missing required cloud configuration setting")
 	config.Region = "us-south"
 
 	// ResourceGroupName not set
 	config.ResourceGroupName = ""
 	err = config.validate()
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Missing required cloud configuration setting")
+	assert.Contains(t, err.Error(), "missing required cloud configuration setting")
 	config.ResourceGroupName = "Default"
 
 	// SubnetNames not set
 	config.SubnetNames = ""
 	err = config.validate()
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Missing required cloud configuration setting")
+	assert.Contains(t, err.Error(), "missing required cloud configuration setting")
 	config.SubnetNames = "subnet1,subnet2,subnet3"
 
 	// WorkerAccountID not set
@@ -209,7 +209,7 @@ func TestConfigVpc_validate(t *testing.T) {
 	config.VpcName = ""
 	err = config.validate()
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Missing required cloud configuration setting")
+	assert.Contains(t, err.Error(), "missing required cloud configuration setting")
 	config.VpcName = "subnet1,subnet2,subnet3"
 }
 
@@ -218,14 +218,14 @@ func TestNewCloudVpc(t *testing.T) {
 	vpc, err := NewCloudVpc(kubeClient, nil, nil)
 	assert.Nil(t, vpc)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Missing cloud configuration")
+	assert.Contains(t, err.Error(), "missing cloud configuration")
 
 	// Verify empty ConfigVpc will generate an error
 	config := &ConfigVpc{}
 	vpc, err = NewCloudVpc(kubeClient, config, nil)
 	assert.Nil(t, vpc)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Missing required cloud configuration setting")
+	assert.Contains(t, err.Error(), "missing required cloud configuration setting")
 
 	// Verify "fake" CloudVpc can be created
 	config = &ConfigVpc{
@@ -344,19 +344,19 @@ func TestCloudVpc_GetServiceNodeSelectorFilter(t *testing.T) {
 	assert.Equal(t, filterValue, "")
 
 	// Invalid annotation on the service. Output should be ""
-	mockService.ObjectMeta.Annotations = map[string]string{serviceAnnotationNodeSelector: "invalid"}
+	mockService.Annotations = map[string]string{serviceAnnotationNodeSelector: "invalid"}
 	filterLabel, filterValue = mockCloud.getServiceNodeSelectorFilter(mockService)
 	assert.Equal(t, filterLabel, "")
 	assert.Equal(t, filterValue, "")
 
 	// Invalid key in the annotation on the service.  Output should be ""
-	mockService.ObjectMeta.Annotations = map[string]string{serviceAnnotationNodeSelector: "beta.kubernetes.io/os=linux"}
+	mockService.Annotations = map[string]string{serviceAnnotationNodeSelector: "beta.kubernetes.io/os=linux"}
 	filterLabel, filterValue = mockCloud.getServiceNodeSelectorFilter(mockService)
 	assert.Equal(t, filterLabel, "")
 	assert.Equal(t, filterValue, "")
 
 	// Valid key in the annotation on the service.  Output should match the annotation value
-	mockService.ObjectMeta.Annotations = map[string]string{serviceAnnotationNodeSelector: "node.kubernetes.io/instance-type=cx2.2x4"}
+	mockService.Annotations = map[string]string{serviceAnnotationNodeSelector: "node.kubernetes.io/instance-type=cx2.2x4"}
 	filterLabel, filterValue = mockCloud.getServiceNodeSelectorFilter(mockService)
 	assert.Equal(t, filterLabel, "node.kubernetes.io/instance-type")
 	assert.Equal(t, filterValue, "cx2.2x4")
@@ -398,7 +398,7 @@ func TestCloudVpc_validateService(t *testing.T) {
 	assert.Contains(t, err.Error(), "Only TCP is supported")
 
 	// validateService, other options passed on through
-	service.ObjectMeta.Annotations[serviceAnnotationEnableFeatures] = "generic-option"
+	service.Annotations[serviceAnnotationEnableFeatures] = "generic-option"
 	service.Spec.Ports[0].Protocol = v1.ProtocolTCP
 	options, err = mockCloud.validateService(service)
 	assert.Equal(t, options.enabledFeatures, "generic-option")
@@ -446,12 +446,12 @@ func TestCloudVpc_ValidateServiceSubnetsNotUpdated(t *testing.T) {
 	assert.Nil(t, err)
 
 	// validateServiceSubnetsNotUpdated, success - no change in annotation
-	service.ObjectMeta.Annotations[serviceAnnotationSubnets] = "subnetID"
+	service.Annotations[serviceAnnotationSubnets] = "subnetID"
 	err = mockCloud.validateServiceSubnetsNotUpdated(service, lb, vpcSubnets)
 	assert.Nil(t, err)
 
 	// validateServiceSubnetsNotUpdated, Failed, diff subnet specified
-	service.ObjectMeta.Annotations[serviceAnnotationSubnets] = "subnetID2"
+	service.Annotations[serviceAnnotationSubnets] = "subnetID2"
 	err = mockCloud.validateServiceSubnetsNotUpdated(service, lb, vpcSubnets)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "setting can not be changed")
@@ -470,7 +470,7 @@ func TestCloudVpc_ValidateServiceTypeNotUpdated(t *testing.T) {
 	assert.Nil(t, err)
 
 	// validateServiceTypeNotUpdated, success - lb public, service private
-	service.ObjectMeta.Annotations[serviceAnnotationIPType] = servicePrivateLB
+	service.Annotations[serviceAnnotationIPType] = servicePrivateLB
 	options = mockCloud.getServiceOptions(service)
 	err = mockCloud.validateServiceTypeNotUpdated(options, lb)
 	assert.NotNil(t, err)
@@ -478,7 +478,7 @@ func TestCloudVpc_ValidateServiceTypeNotUpdated(t *testing.T) {
 
 	// validateServiceTypeNotUpdated, success - lb private, service public
 	lb.IsPublic = false
-	service.ObjectMeta.Annotations[serviceAnnotationIPType] = servicePublicLB
+	service.Annotations[serviceAnnotationIPType] = servicePublicLB
 	options = mockCloud.getServiceOptions(service)
 	err = mockCloud.validateServiceTypeNotUpdated(options, lb)
 	assert.NotNil(t, err)

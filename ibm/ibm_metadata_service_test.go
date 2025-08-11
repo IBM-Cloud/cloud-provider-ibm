@@ -132,7 +132,7 @@ func TestMetadataService(t *testing.T) {
 			},
 		},
 	}
-	k8sclient.CoreV1().Nodes().Update(context.TODO(), &k8snode, metav1.UpdateOptions{})
+	_, err = k8sclient.CoreV1().Nodes().Update(context.TODO(), &k8snode, metav1.UpdateOptions{})
 	if nil != err {
 		t.Fatalf("Failed to update Node goodnode: %v", err)
 	}
@@ -171,7 +171,7 @@ func TestMetadataService(t *testing.T) {
 			},
 		},
 	}
-	k8sclient.CoreV1().Nodes().Update(context.TODO(), &k8snode, metav1.UpdateOptions{})
+	_, err = k8sclient.CoreV1().Nodes().Update(context.TODO(), &k8snode, metav1.UpdateOptions{}) //nolint:errcheck
 	if nil != err {
 		t.Fatalf("Failed to update Node goodnode: %v", err)
 	}
@@ -210,7 +210,7 @@ func TestMetadataService(t *testing.T) {
 			},
 		},
 	}
-	k8sclient.CoreV1().Nodes().Update(context.TODO(), &k8snode, metav1.UpdateOptions{})
+	_, err = k8sclient.CoreV1().Nodes().Update(context.TODO(), &k8snode, metav1.UpdateOptions{})
 	if nil != err {
 		t.Fatalf("Failed to update Node goodnode: %v", err)
 	}
@@ -243,7 +243,7 @@ func TestMetadataService(t *testing.T) {
 			ProviderID: expectedMetadata.ProviderID,
 		},
 	}
-	k8sclient.CoreV1().Nodes().Update(context.TODO(), &k8snode, metav1.UpdateOptions{})
+	_, err = k8sclient.CoreV1().Nodes().Update(context.TODO(), &k8snode, metav1.UpdateOptions{})
 	if nil != err {
 		t.Fatalf("Failed to update Node goodnode: %v", err)
 	}
@@ -267,7 +267,7 @@ func TestMetadataService(t *testing.T) {
 		t.Fatal("NodeMetadata not correct for modified 'goodnode' after cache expired.")
 	}
 	// delete 'goodnode'
-	k8sclient.CoreV1().Nodes().Delete(context.TODO(), "goodnode", metav1.DeleteOptions{})
+	k8sclient.CoreV1().Nodes().Delete(context.TODO(), "goodnode", metav1.DeleteOptions{}) //nolint:errcheck
 	mdService.deleteCachedNode("goodnode")
 	_, err = mdService.GetNodeMetadata("goodnode", false, "Calico")
 	if nil == err {
@@ -312,7 +312,7 @@ func TestMetadataService(t *testing.T) {
 		if nil == err && l != "foo" {
 			t.Fatalf("Did not get an error for partial node missing label=%s", l)
 		}
-		k8sclient.CoreV1().Nodes().Delete(context.TODO(), "partialnode", metav1.DeleteOptions{})
+		k8sclient.CoreV1().Nodes().Delete(context.TODO(), "partialnode", metav1.DeleteOptions{}) //nolint:errcheck
 	}
 
 	// ask for node with no external IP

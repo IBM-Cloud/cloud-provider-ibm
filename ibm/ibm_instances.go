@@ -125,9 +125,9 @@ func (c *Cloud) InstanceMetadata(ctx context.Context, node *v1.Node) (*cloudprov
 		return nil, err
 	}
 
-	providerID := c.providerIDV2(ctx, nodeMD)
-	instanceType := c.instanceTypeV2(ctx, nodeMD)
-	nodeAddresses := c.nodeAddressesV2(ctx, nodeMD)
+	providerID := c.providerIDV2(nodeMD)
+	instanceType := c.instanceTypeV2(nodeMD)
+	nodeAddresses := c.nodeAddressesV2(nodeMD)
 
 	instanceMetadata := cloudprovider.InstanceMetadata{
 		ProviderID:    providerID,
@@ -141,7 +141,7 @@ func (c *Cloud) InstanceMetadata(ctx context.Context, node *v1.Node) (*cloudprov
 }
 
 // get provider id from node labels
-func (c *Cloud) providerIDV2(ctx context.Context, nodeMD NodeMetadata) string {
+func (c *Cloud) providerIDV2(nodeMD NodeMetadata) string {
 	if nodeMD.ProviderID != "" {
 		return nodeMD.ProviderID
 	}
@@ -150,12 +150,12 @@ func (c *Cloud) providerIDV2(ctx context.Context, nodeMD NodeMetadata) string {
 }
 
 // Get instance type from node labels
-func (c *Cloud) instanceTypeV2(ctx context.Context, nodeMD NodeMetadata) string {
+func (c *Cloud) instanceTypeV2(nodeMD NodeMetadata) string {
 	return nodeMD.InstanceType
 }
 
 // Get node addresses from node labels
-func (c *Cloud) nodeAddressesV2(ctx context.Context, nodeMD NodeMetadata) []v1.NodeAddress {
+func (c *Cloud) nodeAddressesV2(nodeMD NodeMetadata) []v1.NodeAddress {
 	// ExternalIP may not be provided by metadata for private-only nodes, but
 	// we will return one in case external consumers depend on it.
 	externalIP := nodeMD.ExternalIP

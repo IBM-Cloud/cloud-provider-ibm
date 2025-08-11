@@ -45,7 +45,7 @@ func NewVpcSdkGen2(c *ConfigVpc) (CloudVpcSdk, error) {
 		Authenticator: authenticator,
 		URL:           c.endpointURL})
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create SDK client: %v", err)
+		return nil, fmt.Errorf("failed to create SDK client: %v", err)
 	}
 	// Convert the resource group name to an ID
 	if c.resourceGroupID == "" && c.ResourceGroupName != "" {
@@ -79,7 +79,7 @@ func convertResourceGroupNameToID(c *ConfigVpc) error {
 	authenticator := &core.IamAuthenticator{ApiKey: c.APIKeySecret, URL: c.tokenExchangeURL}
 	client, err := resourcemanagerv2.NewResourceManagerV2(&resourcemanagerv2.ResourceManagerV2Options{URL: url, Authenticator: authenticator})
 	if err != nil {
-		return fmt.Errorf("Failed to create resource manager v2 client: %v", err)
+		return fmt.Errorf("failed to create resource manager v2 client: %v", err)
 	}
 	// Retrieve the resource group
 	listOptions := &resourcemanagerv2.ListResourceGroupsOptions{AccountID: &c.AccountID, Name: &c.ResourceGroupName}
@@ -88,7 +88,7 @@ func convertResourceGroupNameToID(c *ConfigVpc) error {
 		if response != nil {
 			klog.Infof("Response (%d): %+v", response.StatusCode, response.Result)
 		}
-		return fmt.Errorf("Failed to ListResourceGroups: %v", err)
+		return fmt.Errorf("failed to ListResourceGroups: %v", err)
 	}
 	if len(list.Resources) != 1 {
 		return fmt.Errorf("%d resource groups match name: %s", len(list.Resources), c.ResourceGroupName)

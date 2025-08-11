@@ -36,7 +36,7 @@ func TestCloud(t *testing.T) {
 	c.Initialize(clientBuilder, stop)
 
 	providerName := c.ProviderName()
-	if "ibm" != providerName {
+	if providerName != "ibm" {
 		t.Fatalf("Cloud provider name is not correct: %s", providerName)
 	}
 
@@ -103,7 +103,7 @@ func TestNewCloud(t *testing.T) {
 		if !ok {
 			t.Fatalf("Unexpected cloud type created")
 		}
-		if 0 != strings.Compare("ibm", ibmCloud.Name) {
+		if strings.Compare("ibm", ibmCloud.Name) != 0 {
 			t.Fatalf("Unexpected cloud name: %v", ibmCloud.Name)
 		}
 	}

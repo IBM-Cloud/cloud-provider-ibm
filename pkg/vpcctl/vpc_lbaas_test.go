@@ -48,14 +48,14 @@ func TestCloudVpc_CreateLoadBalancer(t *testing.T) {
 	lb, err := c.CreateLoadBalancer("", service, []*v1.Node{})
 	assert.Nil(t, lb)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Required argument is missing")
+	assert.Contains(t, err.Error(), "required argument is missing")
 
 	// Create load balancer failed, service = UDP load balancer
 	service.Spec.Ports[0].Protocol = v1.ProtocolUDP
 	lb, err = c.CreateLoadBalancer("load balancer", service, []*v1.Node{})
 	assert.Nil(t, lb)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Service default/echo-server is a UDP load balancer")
+	assert.Contains(t, err.Error(), "service default/echo-server is a UDP load balancer")
 	service.Spec.Ports[0].Protocol = v1.ProtocolTCP
 
 	// Create load balancer failed, SDK call to list subnets failed
@@ -71,30 +71,30 @@ func TestCloudVpc_CreateLoadBalancer(t *testing.T) {
 	lb, err = c.CreateLoadBalancer("load balancer", service, []*v1.Node{node})
 	assert.Nil(t, lb)
 	assert.NotNil(t, err)
-	assert.Equal(t, err.Error(), "None of the configured VPC subnets (invalid) were found")
+	assert.Equal(t, err.Error(), "none of the configured VPC subnets (invalid) were found")
 	c.Config.SubnetNames = "subnet1"
 
 	// Create load balancer failed, backend nodes service annotation results in no nodes selected
-	service.ObjectMeta.Annotations = map[string]string{serviceAnnotationNodeSelector: nodeLabelZone + "=" + "zoneX"}
+	service.Annotations = map[string]string{serviceAnnotationNodeSelector: nodeLabelZone + "=" + "zoneX"}
 	lb, err = c.CreateLoadBalancer("load balancer", service, []*v1.Node{node})
 	assert.Nil(t, lb)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "no available nodes for this service")
 
 	// Create load balancer failed, no cluster subnets in the service annotation zone
-	service.ObjectMeta.Annotations = map[string]string{serviceAnnotationZone: "zoneA"}
+	service.Annotations = map[string]string{serviceAnnotationZone: "zoneA"}
 	lb, err = c.CreateLoadBalancer("load balancer", service, []*v1.Node{node})
 	assert.Nil(t, lb)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "no cluster subnets in that zone")
 
 	// Create load balancer failed, subnet annotation contains invalid subnets IDs
-	service.ObjectMeta.Annotations = map[string]string{serviceAnnotationSubnets: "subnetID,subnetID-not-valid"}
+	service.Annotations = map[string]string{serviceAnnotationSubnets: "subnetID,subnetID-not-valid"}
 	lb, err = c.CreateLoadBalancer("load balancer", service, []*v1.Node{node})
 	assert.Nil(t, lb)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "invalid VPC subnet")
-	service.ObjectMeta.Annotations = map[string]string{}
+	service.Annotations = map[string]string{}
 
 	// Create load balancer failed, no nodes defined
 	lb, err = c.CreateLoadBalancer("load balancer", service, []*v1.Node{})
@@ -121,7 +121,7 @@ func TestCloudVpc_DeleteLoadBalancer(t *testing.T) {
 	// Delete load balancer failed, LB not specified
 	err := c.DeleteLoadBalancer(nil, nil)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Required argument is missing")
+	assert.Contains(t, err.Error(), "required argument is missing")
 
 	// Delete load balancer worked
 	lb := &VpcLoadBalancer{ID: "Ready"}
@@ -185,7 +185,7 @@ func TestCloudVpc_UpdateLoadBalancer(t *testing.T) {
 	lb, err := c.UpdateLoadBalancer(nil, service, []*v1.Node{node})
 	assert.Nil(t, lb)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Required argument is missing")
+	assert.Contains(t, err.Error(), "required argument is missing")
 
 	// Update load balancer failed, lb is not in a ready state
 	notReadyLB := &VpcLoadBalancer{OperatingStatus: LoadBalancerOperatingStatusOffline, ProvisioningStatus: LoadBalancerProvisioningStatusCreatePending}
@@ -203,12 +203,12 @@ func TestCloudVpc_UpdateLoadBalancer(t *testing.T) {
 	service.Spec.Ports[0].Protocol = v1.ProtocolTCP
 
 	// Update load balancer failed, attempting to change public LB to a private LB
-	service.ObjectMeta.Annotations[serviceAnnotationIPType] = servicePrivateLB
+	service.Annotations[serviceAnnotationIPType] = servicePrivateLB
 	lb, err = c.UpdateLoadBalancer(publicLB, service, []*v1.Node{node})
 	assert.Nil(t, lb)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "was created as a public load balancer")
-	service.ObjectMeta.Annotations = map[string]string{}
+	service.Annotations = map[string]string{}
 
 	// Update load balancer failed, failed to get list of VPC subnets
 	c.SetFakeSdkError("ListSubnets")
@@ -219,12 +219,12 @@ func TestCloudVpc_UpdateLoadBalancer(t *testing.T) {
 	c.ClearFakeSdkError("ListSubnets")
 
 	// Update load balancer failed, attempting to subnet annotation to an invalid subnet ID
-	service.ObjectMeta.Annotations[serviceAnnotationSubnets] = "invalidSubnetID"
+	service.Annotations[serviceAnnotationSubnets] = "invalidSubnetID"
 	lb, err = c.UpdateLoadBalancer(publicLB, service, []*v1.Node{node})
 	assert.Nil(t, lb)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "invalid VPC subnet")
-	service.ObjectMeta.Annotations = map[string]string{}
+	service.Annotations = map[string]string{}
 
 	// Update load balancer failed, no nodes for the LB
 	lb, err = c.UpdateLoadBalancer(publicLB, service, []*v1.Node{})
@@ -233,12 +233,12 @@ func TestCloudVpc_UpdateLoadBalancer(t *testing.T) {
 	assert.Contains(t, err.Error(), "no available nodes")
 
 	// Update load balancer failed, no nodes for the LB
-	service.ObjectMeta.Annotations = map[string]string{serviceAnnotationNodeSelector: nodeLabelZone + "=" + "zoneX"}
+	service.Annotations = map[string]string{serviceAnnotationNodeSelector: nodeLabelZone + "=" + "zoneX"}
 	lb, err = c.UpdateLoadBalancer(publicLB, service, []*v1.Node{node})
 	assert.Nil(t, lb)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "no available nodes")
-	service.ObjectMeta.Annotations = map[string]string{}
+	service.Annotations = map[string]string{}
 
 	// Update load balancer failed, failed to get list of listeners
 	c.SetFakeSdkError("ListLoadBalancerListeners")

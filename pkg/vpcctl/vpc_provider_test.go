@@ -37,7 +37,7 @@ func TestCloudVpc_EnsureLoadBalancer(t *testing.T) {
 	status, err := c.EnsureLoadBalancer("", service, []*v1.Node{node})
 	assert.Nil(t, status)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Required argument is missing")
+	assert.Contains(t, err.Error(), "required argument is missing")
 
 	// EnsureLoadBalancer failed, failed to get find the LB
 	c.SetFakeSdkError("FindLoadBalancer")
@@ -166,7 +166,7 @@ func TestCloudVpc_GatherLoadBalancers(t *testing.T) {
 	assert.Nil(t, lbMap)
 	assert.Nil(t, vpcMap)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Required argument is missing")
+	assert.Contains(t, err.Error(), "required argument is missing")
 
 	// GatherLoadBalancers failed, SDK List LB failed
 	c.SetFakeSdkError("ListLoadBalancers")

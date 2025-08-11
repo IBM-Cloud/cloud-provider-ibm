@@ -313,7 +313,7 @@ func (c *CloudVpc) checkPoolForServiceChanges(updatesRequired []string, pool *Vp
 // CreateLoadBalancer - create a VPC load balancer
 func (c *CloudVpc) CreateLoadBalancer(lbName string, service *v1.Service, nodes []*v1.Node) (*VpcLoadBalancer, error) {
 	if lbName == "" || service == nil || nodes == nil {
-		return nil, fmt.Errorf("Required argument is missing")
+		return nil, fmt.Errorf("required argument is missing")
 	}
 
 	// Validate the service tht was passed in and extract the advanced options requested
@@ -330,7 +330,7 @@ func (c *CloudVpc) CreateLoadBalancer(lbName string, service *v1.Service, nodes 
 	vpcSubnets := c.filterSubnetsByVpcName(allSubnets, c.Config.VpcName)
 	clusterSubnets := c.filterSubnetsByName(vpcSubnets, c.Config.SubnetNames)
 	if len(clusterSubnets) == 0 {
-		return nil, fmt.Errorf("None of the configured VPC subnets (%s) were found", c.Config.SubnetNames)
+		return nil, fmt.Errorf("none of the configured VPC subnets (%s) were found", c.Config.SubnetNames)
 	}
 	subnetList := c.getSubnetIDs(clusterSubnets)
 	serviceSubnets := options.getServiceSubnets()
@@ -355,7 +355,7 @@ func (c *CloudVpc) CreateLoadBalancer(lbName string, service *v1.Service, nodes 
 		nodes = c.filterNodesByEdgeLabel(nodes)
 	}
 	if len(nodes) == 0 {
-		return nil, fmt.Errorf("There are no available nodes for this service")
+		return nil, fmt.Errorf("no available nodes for this service")
 	}
 
 	// Determine the IP address for each of the nodes
@@ -388,7 +388,7 @@ func (c *CloudVpc) createLoadBalancerListener(lb *VpcLoadBalancer, poolName stri
 		}
 	}
 	if poolID == "" {
-		return fmt.Errorf("Unable to create listener. Pool %s not found", poolName)
+		return fmt.Errorf("unable to create listener. Pool %s not found", poolName)
 	}
 	_, err := c.Sdk.CreateLoadBalancerListener(lb.ID, poolName, poolID)
 	return err
@@ -404,7 +404,7 @@ func (c *CloudVpc) createLoadBalancerPool(lb *VpcLoadBalancer, poolName string, 
 func (c *CloudVpc) createLoadBalancerPoolMember(lb *VpcLoadBalancer, args string) error {
 	argsArray := strings.Fields(args)
 	if lb == nil || len(argsArray) != 3 {
-		return fmt.Errorf("Required argument is missing")
+		return fmt.Errorf("required argument is missing")
 	}
 	poolName := argsArray[0]
 	poolID := argsArray[1]
@@ -416,7 +416,7 @@ func (c *CloudVpc) createLoadBalancerPoolMember(lb *VpcLoadBalancer, args string
 // DeleteLoadBalancer - delete a VPC load balancer
 func (c *CloudVpc) DeleteLoadBalancer(lb *VpcLoadBalancer, service *v1.Service) error {
 	if lb == nil {
-		return fmt.Errorf("Required argument is missing")
+		return fmt.Errorf("required argument is missing")
 	}
 	return c.Sdk.DeleteLoadBalancer(lb.ID)
 }
@@ -425,7 +425,7 @@ func (c *CloudVpc) DeleteLoadBalancer(lb *VpcLoadBalancer, service *v1.Service) 
 func (c *CloudVpc) deleteLoadBalancerListener(lb *VpcLoadBalancer, args string) error {
 	argsArray := strings.Fields(args)
 	if lb == nil || len(argsArray) != 2 {
-		return fmt.Errorf("Required argument is missing")
+		return fmt.Errorf("required argument is missing")
 	}
 	// poolName := argsArray[0]
 	listenerID := argsArray[1]
@@ -436,7 +436,7 @@ func (c *CloudVpc) deleteLoadBalancerListener(lb *VpcLoadBalancer, args string) 
 func (c *CloudVpc) deleteLoadBalancerPool(lb *VpcLoadBalancer, args string) error {
 	argsArray := strings.Fields(args)
 	if lb == nil || len(argsArray) != 2 {
-		return fmt.Errorf("Required argument is missing")
+		return fmt.Errorf("required argument is missing")
 	}
 	// poolName := argsArray[0]
 	poolID := argsArray[1]
@@ -447,7 +447,7 @@ func (c *CloudVpc) deleteLoadBalancerPool(lb *VpcLoadBalancer, args string) erro
 func (c *CloudVpc) deleteLoadBalancerPoolMember(lb *VpcLoadBalancer, args string) error {
 	argsArray := strings.Fields(args)
 	if lb == nil || len(argsArray) != 4 {
-		return fmt.Errorf("Required argument is missing")
+		return fmt.Errorf("required argument is missing")
 	}
 	// poolName := argsArray[0]
 	poolID := argsArray[1]
@@ -459,7 +459,7 @@ func (c *CloudVpc) deleteLoadBalancerPoolMember(lb *VpcLoadBalancer, args string
 // FindLoadBalancer - locate a VPC load balancer based on the Name, ID, or hostname
 func (c *CloudVpc) FindLoadBalancer(nameID string, service *v1.Service) (*VpcLoadBalancer, error) {
 	if nameID == "" {
-		return nil, fmt.Errorf("Required argument is missing")
+		return nil, fmt.Errorf("required argument is missing")
 	}
 	lbs, err := c.Sdk.ListLoadBalancers()
 	if err != nil {
@@ -484,7 +484,7 @@ func (c *CloudVpc) GetLoadBalancerStatus(service *v1.Service, lb *VpcLoadBalance
 func (c *CloudVpc) replaceLoadBalancerPoolMembers(lb *VpcLoadBalancer, args string, nodeList []string) error {
 	argsArray := strings.Fields(args)
 	if lb == nil || len(argsArray) != 2 {
-		return fmt.Errorf("Required argument is missing")
+		return fmt.Errorf("required argument is missing")
 	}
 	poolName := argsArray[0]
 	poolID := argsArray[1]
@@ -495,12 +495,12 @@ func (c *CloudVpc) replaceLoadBalancerPoolMembers(lb *VpcLoadBalancer, args stri
 // UpdateLoadBalancer - update a VPC load balancer
 func (c *CloudVpc) UpdateLoadBalancer(lb *VpcLoadBalancer, service *v1.Service, nodes []*v1.Node) (*VpcLoadBalancer, error) {
 	if lb == nil || service == nil || nodes == nil {
-		return nil, fmt.Errorf("Required argument is missing")
+		return nil, fmt.Errorf("required argument is missing")
 	}
 
 	// Verify that the load balancer is in the correct state
 	if !lb.IsReady() {
-		return nil, fmt.Errorf("Update can not be performed, load balancer is not ready: %v", lb.GetStatus())
+		return nil, fmt.Errorf("update can not be performed, load balancer is not ready: %v", lb.GetStatus())
 	}
 
 	// Validate the service tht was passed in and extract the advanced options requested
@@ -537,7 +537,7 @@ func (c *CloudVpc) UpdateLoadBalancer(lb *VpcLoadBalancer, service *v1.Service, 
 		nodes = c.filterNodesByEdgeLabel(nodes)
 	}
 	if len(nodes) == 0 {
-		return nil, fmt.Errorf("There are no available nodes for this load balancer")
+		return nil, fmt.Errorf("no available nodes for this load balancer")
 	}
 
 	// Retrieve list of listeners for the current load balancer
@@ -678,7 +678,7 @@ func (c *CloudVpc) UpdateLoadBalancer(lb *VpcLoadBalancer, service *v1.Service, 
 		case actionReplacePoolMembers:
 			err = c.replaceLoadBalancerPoolMembers(lb, args, nodeList)
 		default:
-			err = fmt.Errorf("Unsupported update operation: %s", update)
+			err = fmt.Errorf("unsupported update operation: %s", update)
 		}
 		// If update operation failed, return err
 		if err != nil {
@@ -695,7 +695,7 @@ func (c *CloudVpc) UpdateLoadBalancer(lb *VpcLoadBalancer, service *v1.Service, 
 func (c *CloudVpc) updateLoadBalancerPool(lb *VpcLoadBalancer, args string, pools []*VpcLoadBalancerPool, options *ServiceOptions) error {
 	argsArray := strings.Fields(args)
 	if lb == nil || len(argsArray) != 2 {
-		return fmt.Errorf("Required argument is missing")
+		return fmt.Errorf("required argument is missing")
 	}
 	poolName := argsArray[0]
 	poolID := argsArray[1]
@@ -707,7 +707,7 @@ func (c *CloudVpc) updateLoadBalancerPool(lb *VpcLoadBalancer, args string, pool
 		}
 	}
 	if existingPool == nil {
-		return fmt.Errorf("Existing pool nof found for pool ID: %s", poolID)
+		return fmt.Errorf("existing pool nof found for pool ID: %s", poolID)
 	}
 	_, err := c.Sdk.UpdateLoadBalancerPool(lb.ID, poolName, existingPool, options)
 	return err
@@ -735,7 +735,7 @@ func (c *CloudVpc) WaitLoadBalancerReady(lb *VpcLoadBalancer, minSleep, maxWait 
 		time.Sleep(time.Second * time.Duration(minSleep))
 		lb, err = c.Sdk.GetLoadBalancer(lbID)
 		if err != nil {
-			klog.Errorf("Failed to get load balancer %v: %v", lbID, err)
+			klog.Errorf("failed to get load balancer %v: %v", lbID, err)
 			return nil, err
 		}
 	}

@@ -29,7 +29,7 @@ const runCountKey = "runCount"
 
 func cloudFunc(c *Cloud, data map[string]string) {
 	runCount := data[runCountKey]
-	if 0 == len(runCount) {
+	if len(runCount) == 0 {
 		data[runCountKey] = "1"
 	} else {
 		runCountI, _ := strconv.Atoi(runCount)
@@ -48,7 +48,7 @@ func TestTask(t *testing.T) {
 	if nil == ct {
 		t.Fatalf("No cloud task created: %v", c.CloudTasks)
 	}
-	if 1 != len(c.CloudTasks) {
+	if len(c.CloudTasks) != 1 {
 		t.Fatalf("Unexpected number of cloud tasks created: %v", c.CloudTasks)
 	}
 	if ct.Name != ctName {
@@ -57,7 +57,7 @@ func TestTask(t *testing.T) {
 
 	// Verify another cloud task isn't started for the same function.
 	c.StartTask(cloudFunc, time.Second)
-	if 1 != len(c.CloudTasks) {
+	if len(c.CloudTasks) != 1 {
 		t.Fatalf("Unexpected number of cloud tasks created: %v", c.CloudTasks)
 	}
 
@@ -65,13 +65,13 @@ func TestTask(t *testing.T) {
 	time.Sleep(time.Second * 5)
 	c.StopTask(cloudFunc)
 	time.Sleep(time.Second * 5)
-	if 0 != len(c.CloudTasks) {
+	if len(c.CloudTasks) != 0 {
 		t.Fatalf("Unexpected number of cloud tasks exist: %v", c.CloudTasks)
 	}
 
 	// Stop cloud task that does not exist.
 	c.StopTask(cloudFunc)
-	if 0 != len(c.CloudTasks) {
+	if len(c.CloudTasks) != 0 {
 		t.Fatalf("Unexpected number of cloud tasks exist: %v", c.CloudTasks)
 	}
 }

@@ -79,8 +79,8 @@ func (c *CloudEventRecorder) LoadBalancerServiceWarningEvent(lbService *v1.Servi
 	message := fmt.Sprintf(
 		"Error on cloud load balancer %v for service %v with UID %v: %v",
 		GetCloudProviderLoadBalancerName(lbService),
-		types.NamespacedName{Namespace: lbService.ObjectMeta.Namespace, Name: lbService.ObjectMeta.Name},
-		lbService.ObjectMeta.UID,
+		types.NamespacedName{Namespace: lbService.Namespace, Name: lbService.Name},
+		lbService.UID,
 		errorMessage,
 	)
 	c.Recorder.Event(lbService, v1.EventTypeWarning, fmt.Sprintf("%v", reason), message)
@@ -93,8 +93,8 @@ func (c *CloudEventRecorder) VpcLoadBalancerServiceWarningEvent(lbService *v1.Se
 	message := fmt.Sprintf(
 		"Error on cloud load balancer %v for service %v with UID %v: %v",
 		lbName,
-		types.NamespacedName{Namespace: lbService.ObjectMeta.Namespace, Name: lbService.ObjectMeta.Name},
-		lbService.ObjectMeta.UID,
+		types.NamespacedName{Namespace: lbService.Namespace, Name: lbService.Name},
+		lbService.UID,
 		errorMessage,
 	)
 	c.Recorder.Event(lbService, v1.EventTypeWarning, fmt.Sprintf("%v", reason), message)

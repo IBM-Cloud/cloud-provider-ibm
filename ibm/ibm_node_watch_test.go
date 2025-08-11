@@ -48,7 +48,7 @@ func TestNodeWatch(t *testing.T) {
 	var err error
 	var expectedInstanceID string
 	var labels map[string]string
-	var nodeName string = "original-internal-ip"
+	var nodeName = "original-internal-ip"
 	expectedInstanceID = "ibm://testAccount///testCluster/original-worker-id"
 	labels = map[string]string{
 		"ibm-cloud.kubernetes.io/internal-ip":  nodeName,
@@ -76,7 +76,7 @@ func TestNodeWatch(t *testing.T) {
 	}
 
 	// delete node
-	k8sclient.CoreV1().Nodes().Delete(context.TODO(), nodeName, metav1.DeleteOptions{})
+	k8sclient.CoreV1().Nodes().Delete(context.TODO(), nodeName, metav1.DeleteOptions{}) //nolint:errcheck
 	c.handleNodeDelete(&k8snode)
 	_, err = c.InstanceMetadata(context.Background(), &k8snode)
 	if nil == err {
@@ -88,7 +88,7 @@ func TestNodeWatch(t *testing.T) {
 	if nil != err {
 		t.Fatalf("Failed to create Node: %v", err)
 	}
-	k8sclient.CoreV1().Nodes().Delete(context.TODO(), nodeName, metav1.DeleteOptions{})
+	k8sclient.CoreV1().Nodes().Delete(context.TODO(), nodeName, metav1.DeleteOptions{}) //nolint:errcheck
 	c.handleNodeDelete(&k8snode)
 	expectedInstanceID = "ibm://testAccount///testCluster/replaced-worker-id"
 	labels["ibm-cloud.kubernetes.io/worker-id"] = "replaced-worker-id"

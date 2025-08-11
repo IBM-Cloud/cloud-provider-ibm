@@ -84,7 +84,7 @@ func (c *Cloud) isProviderVpc() bool {
 func (c *Cloud) NewConfigVpc(enablePrivateEndpoint bool) (*vpcctl.ConfigVpc, error) {
 	// Make sure Cloud config has been initialized
 	if c.Config == nil {
-		return nil, errors.New("Cloud config not initialized")
+		return nil, errors.New("cloud config not initialized")
 	}
 	// Initialize config based on values in the cloud provider
 	config := &vpcctl.ConfigVpc{
@@ -107,7 +107,7 @@ func (c *Cloud) NewConfigVpc(enablePrivateEndpoint bool) (*vpcctl.ConfigVpc, err
 		klog.Infof("Reading cloud credential from: %v", c.Config.Prov.G2Credentials)
 		fileData, err := os.ReadFile(c.Config.Prov.G2Credentials)
 		if err != nil {
-			return nil, fmt.Errorf("Failed to read credentials from %s: %v", c.Config.Prov.G2Credentials, err)
+			return nil, fmt.Errorf("failed to read credentials from %s: %v", c.Config.Prov.G2Credentials, err)
 		}
 		config.APIKeySecret = strings.TrimSpace(string(fileData))
 		// If there are spaces in the API key, then reset it
@@ -150,7 +150,7 @@ func (c *Cloud) VpcEnsureLoadBalancer(ctx context.Context, clusterName string, s
 	}
 	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
-		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
+		errString := fmt.Sprintf("failed initializing VPC: %v", err)
 		klog.Error(errString)
 		return nil, c.Recorder.VpcLoadBalancerServiceWarningEvent(service, CreatingCloudLoadBalancerFailed, lbName, errString)
 	}
@@ -165,7 +165,7 @@ func (c *Cloud) VpcEnsureLoadBalancerDeleted(ctx context.Context, clusterName st
 	klog.Infof("EnsureLoadBalancerDeleted(lbName:%v, Service:{%v})", lbName, c.vpcGetServiceDetails(service))
 	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
-		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
+		errString := fmt.Sprintf("failed initializing VPC: %v", err)
 		klog.Error(errString)
 		return c.Recorder.VpcLoadBalancerServiceWarningEvent(service, DeletingCloudLoadBalancerFailed, lbName, errString)
 	}
@@ -180,7 +180,7 @@ func (c *Cloud) VpcGetLoadBalancer(ctx context.Context, clusterName string, serv
 	klog.Infof("GetLoadBalancer(lbName:%v, Service:{%v})", lbName, c.vpcGetServiceDetails(service))
 	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
-		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
+		errString := fmt.Sprintf("failed initializing VPC: %v", err)
 		klog.Error(errString)
 		return nil, false, c.Recorder.VpcLoadBalancerServiceWarningEvent(service, GettingCloudLoadBalancerFailed, lbName, errString)
 	}
@@ -200,7 +200,7 @@ func (c *Cloud) vpcGetServiceDetails(service *v1.Service) string {
 	}
 	// Only include the service annotations that we care about in the log
 	annotations := map[string]string{}
-	for k, v := range service.ObjectMeta.Annotations {
+	for k, v := range service.Annotations {
 		if strings.Contains(k, "ibm-load-balancer-cloud-provider") {
 			annotations[k] = v
 		}
@@ -221,9 +221,9 @@ func (c *Cloud) vpcGetServiceDetails(service *v1.Service) string {
 		status = append(status, hostnameIP{Hostname: ingress.Hostname, IP: ingress.IP})
 	}
 	return fmt.Sprintf("Name:%v NameSpace:%v UID:%v Annotations:%v Ports:%v ExternalTrafficPolicy:%v HealthCheckNodePort:%v Status:%+v",
-		service.ObjectMeta.Name,
-		service.ObjectMeta.Namespace,
-		service.ObjectMeta.UID,
+		service.Name,
+		service.Namespace,
+		service.UID,
 		annotations,
 		ports,
 		service.Spec.ExternalTrafficPolicy,
@@ -254,7 +254,7 @@ func (c *Cloud) VpcUpdateLoadBalancer(ctx context.Context, clusterName string, s
 	lbName := c.vpcGetLoadBalancerName(service)
 	klog.Infof("UpdateLoadBalancer(lbName:%v, Service:{%v}, NodeCount:%v)", lbName, c.vpcGetServiceDetails(service), len(nodes))
 	if len(nodes) == 0 {
-		errString := "There are no available nodes for LoadBalancer"
+		errString := "there are no available nodes for LoadBalancer"
 		klog.Error(errString)
 		return errors.New(errString)
 	}
@@ -275,7 +275,7 @@ func (c *Cloud) VpcUpdateLoadBalancer(ctx context.Context, clusterName string, s
 	}
 	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
-		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
+		errString := fmt.Sprintf("failed initializing VPC: %v", err)
 		klog.Error(errString)
 		return c.Recorder.VpcLoadBalancerServiceWarningEvent(service, UpdatingCloudLoadBalancerFailed, lbName, errString)
 	}
@@ -286,12 +286,12 @@ func (c *Cloud) VpcUpdateLoadBalancer(ctx context.Context, clusterName string, s
 // WatchCloudCredential watches for changes to the cloud credentials and resets the VPC settings
 func (c *Cloud) WatchCloudCredential() error {
 	if c.Config.Prov.G2Credentials == "" {
-		return errors.New("No cloud credential file to watch")
+		return errors.New("no cloud credential file to watch")
 	}
 	klog.Infof("Watch the cloud credential file: %v", c.Config.Prov.G2Credentials)
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		return fmt.Errorf("Failed to create watcher for cloud credential file: %v", err)
+		return fmt.Errorf("failed to create watcher for cloud credential file: %v", err)
 	}
 	// Go function to handle updates
 	go func() {
@@ -321,7 +321,7 @@ func (c *Cloud) WatchCloudCredential() error {
 	}()
 	err = watcher.Add(c.Config.Prov.G2Credentials)
 	if err != nil {
-		return fmt.Errorf("Failed to add credential file to watch: %v", err)
+		return fmt.Errorf("failed to add credential file to watch: %v", err)
 	}
 	return nil
 }

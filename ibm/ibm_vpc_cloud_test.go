@@ -67,7 +67,7 @@ func TestCloud_NewConfigVpc(t *testing.T) {
 	config, err := c.NewConfigVpc(true)
 	assert.Nil(t, config)
 	assert.NotNil(t, err)
-	assert.Equal(t, err.Error(), "Cloud config not initialized")
+	assert.Equal(t, err.Error(), "cloud config not initialized")
 
 	// Test failure to read credentials from file
 	c.Config = &CloudConfig{Prov: Provider{
@@ -87,7 +87,7 @@ func TestCloud_NewConfigVpc(t *testing.T) {
 	config, err = c.NewConfigVpc(true)
 	assert.Nil(t, config)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Failed to read credentials")
+	assert.Contains(t, err.Error(), "failed to read credentials")
 
 	// Successfully return ConfigVpc
 	c.Config.Prov.G2Credentials = ""
@@ -138,7 +138,7 @@ func TestCloud_VpcEnsureLoadBalancer(t *testing.T) {
 	status, err = cloud.VpcEnsureLoadBalancer(context.Background(), clusterName, service, []*v1.Node{node})
 	assert.Nil(t, status)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Failed initializing VPC")
+	assert.Contains(t, err.Error(), "failed initializing VPC")
 }
 
 func TestCloud_VpcEnsureLoadBalancerDeleted(t *testing.T) {
@@ -153,7 +153,7 @@ func TestCloud_VpcEnsureLoadBalancerDeleted(t *testing.T) {
 	vpcctl.ResetCloudVpc()
 	err := cloud.VpcEnsureLoadBalancerDeleted(context.Background(), clusterName, service)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Failed initializing VPC")
+	assert.Contains(t, err.Error(), "failed initializing VPC")
 
 	// VpcEnsureLoadBalancerDeleted successful, existing LB was deleted
 	cloud.Config.Prov.ProviderType = vpcctl.VpcProviderTypeFake
@@ -183,7 +183,7 @@ func TestCloud_VpcGetLoadBalancer(t *testing.T) {
 	assert.Nil(t, status)
 	assert.False(t, exist)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Failed initializing VPC")
+	assert.Contains(t, err.Error(), "failed initializing VPC")
 
 	// VpcGetLoadBalancer successful, LB is ready
 	cloud.Config.Prov.ProviderType = vpcctl.VpcProviderTypeFake
@@ -255,13 +255,13 @@ func TestCloud_VpcUpdateLoadBalancer(t *testing.T) {
 	// VpcUpdateLoadBalancer failed, node list is empty
 	err := cloud.VpcUpdateLoadBalancer(context.Background(), clusterName, service, []*v1.Node{})
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "There are no available nodes for LoadBalancer")
+	assert.Contains(t, err.Error(), "no available nodes for LoadBalancer")
 
 	// VpcUpdateLoadBalancer failed, failed to initialize VPC env
 	vpcctl.ResetCloudVpc()
 	err = cloud.VpcUpdateLoadBalancer(context.Background(), clusterName, service, []*v1.Node{node})
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Failed initializing VPC")
+	assert.Contains(t, err.Error(), "failed initializing VPC")
 }
 
 func TestCloud_WatchCloudCredential(t *testing.T) {
@@ -272,7 +272,7 @@ func TestCloud_WatchCloudCredential(t *testing.T) {
 	// WatchCloudCredential failed, no cloud credential file
 	err := cloud.WatchCloudCredential()
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "No cloud credential file to watch")
+	assert.Contains(t, err.Error(), "no cloud credential file to watch")
 
 	// WatchCloudCredential failed, cloud credential file does not exist
 	cloud.Config.Prov.G2Credentials = "/tmp/file_does_not_exist"

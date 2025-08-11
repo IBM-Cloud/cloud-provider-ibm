@@ -56,7 +56,7 @@ func TestVpcSdkGen2_CreateLoadBalancer(t *testing.T) {
 	lb, err := v.CreateLoadBalancer("lbName", []string{"192.168.1.1"}, []string{"poolName"}, []string{"subnetID"}, options)
 	assert.Nil(t, lb)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Invalid pool name,")
+	assert.Contains(t, err.Error(), "invalid pool name,")
 
 	// Success
 	nodes := []string{"192.168.1.1"}
@@ -82,7 +82,7 @@ func TestVpcSdkGen2_CreateLoadBalancerListener(t *testing.T) {
 	listener, err := v.CreateLoadBalancerListener("lbID", "poolName", "poolID")
 	assert.Nil(t, listener)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Invalid pool name")
+	assert.Contains(t, err.Error(), "invalid pool name")
 
 	// Success
 	listener, err = v.CreateLoadBalancerListener("lbID", "tcp-80-30123", "poolID")
@@ -107,7 +107,7 @@ func TestVpcSdkGen2_CreateLoadBalancerPool(t *testing.T) {
 	pool, err := v.CreateLoadBalancerPool("lbID", "poolName", nodes, options)
 	assert.Nil(t, pool)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Invalid pool name")
+	assert.Contains(t, err.Error(), "invalid pool name")
 
 	// Success
 	pool, err = v.CreateLoadBalancerPool("lbID", "tcp-80-30123", nodes, options)
@@ -130,7 +130,7 @@ func TestVpcSdkGen2_CreateLoadBalancerPoolMember(t *testing.T) {
 	member, err := v.CreateLoadBalancerPoolMember("lbID", "poolName", "poolID", "192.168.1.1")
 	assert.Nil(t, member)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Invalid pool name")
+	assert.Contains(t, err.Error(), "invalid pool name")
 
 	// Success
 	member, err = v.CreateLoadBalancerPoolMember("lbID", "tcp-80-30123", "poolID", "192.168.1.1")
@@ -380,7 +380,7 @@ func TestVpcSdkGen2_ReplaceLoadBalancerPoolMembers(t *testing.T) {
 	members, err := v.ReplaceLoadBalancerPoolMembers("lbID", "poolName", "poolID", nodes)
 	assert.Nil(t, members)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Invalid pool name")
+	assert.Contains(t, err.Error(), "invalid pool name")
 
 	// Success
 	members, err = v.ReplaceLoadBalancerPoolMembers("lbID", "tcp-80-30123", "poolID", nodes)
@@ -404,7 +404,7 @@ func TestVpcSdkGen2_UpdateLoadBalancerPool(t *testing.T) {
 	members, err := v.UpdateLoadBalancerPool("lbID", "poolName", &VpcLoadBalancerPool{ID: "poolID"}, options)
 	assert.Nil(t, members)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "Invalid pool name")
+	assert.Contains(t, err.Error(), "invalid pool name")
 
 	// Success
 	members, err = v.UpdateLoadBalancerPool("lbID", "tcp-80-30123", &VpcLoadBalancerPool{ID: "poolID"}, options)

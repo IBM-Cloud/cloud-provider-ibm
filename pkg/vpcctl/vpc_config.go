@@ -165,23 +165,23 @@ func (c *ConfigVpc) validate() error {
 	// Check the fields in the config
 	switch {
 	case c.ClusterID == "":
-		return fmt.Errorf("Missing required cloud configuration setting: clusterID")
+		return fmt.Errorf("missing required cloud configuration setting: clusterID")
 	case c.ProviderType == VpcProviderTypeFake:
 		return nil
 	case c.ProviderType != VpcProviderTypeGen2:
-		return fmt.Errorf("Invalid cloud configuration setting for cluster-default-provider: %s", c.ProviderType)
+		return fmt.Errorf("invalid cloud configuration setting for cluster-default-provider: %s", c.ProviderType)
 	case c.AccountID == "":
-		return fmt.Errorf("Missing required cloud configuration setting: accountID")
+		return fmt.Errorf("missing required cloud configuration setting: accountID")
 	case c.APIKeySecret == "":
-		return fmt.Errorf("Missing required cloud configuration setting: g2Credentials")
+		return fmt.Errorf("missing required cloud configuration setting: g2Credentials")
 	case c.Region == "":
-		return fmt.Errorf("Missing required cloud configuration setting: region")
+		return fmt.Errorf("missing required cloud configuration setting: region")
 	case c.ResourceGroupName == "":
-		return fmt.Errorf("Missing required cloud configuration setting: g2ResourceGroupName")
+		return fmt.Errorf("missing required cloud configuration setting: g2ResourceGroupName")
 	case c.SubnetNames == "":
-		return fmt.Errorf("Missing required cloud configuration setting: g2VpcSubnetNames")
+		return fmt.Errorf("missing required cloud configuration setting: g2VpcSubnetNames")
 	case c.VpcName == "":
-		return fmt.Errorf("Missing required cloud configuration setting: g2VpcName")
+		return fmt.Errorf("missing required cloud configuration setting: g2VpcName")
 	}
 	// Validation passed
 	return nil
@@ -278,7 +278,7 @@ func (c *CloudVpc) getPoolMemberTargets(members []*VpcLoadBalancerPoolMember) []
 
 // getServiceEnabledFeatures - retrieve the vpc-subnets annotation
 func (c *CloudVpc) getServiceEnabledFeatures(service *v1.Service) string {
-	return strings.ToLower(strings.ReplaceAll(service.ObjectMeta.Annotations[serviceAnnotationEnableFeatures], " ", ""))
+	return strings.ToLower(strings.ReplaceAll(service.Annotations[serviceAnnotationEnableFeatures], " ", ""))
 }
 
 // getServiceHealthCheckNodePort - retrieve the health check node port for the service
@@ -291,7 +291,7 @@ func (c *CloudVpc) getServiceHealthCheckNodePort(service *v1.Service) int {
 
 // getServiceNodeSelectorFilter - retrieve the service annotation used to filter the backend worker nodes
 func (c *CloudVpc) getServiceNodeSelectorFilter(service *v1.Service) (string, string) {
-	filter := strings.ReplaceAll(service.ObjectMeta.Annotations[serviceAnnotationNodeSelector], " ", "")
+	filter := strings.ReplaceAll(service.Annotations[serviceAnnotationNodeSelector], " ", "")
 	if filter == "" {
 		return "", ""
 	}
@@ -313,7 +313,7 @@ func (c *CloudVpc) getServiceNodeSelectorFilter(service *v1.Service) (string, st
 func (c *CloudVpc) getServicePoolNames(service *v1.Service) ([]string, error) {
 	poolList := []string{}
 	if service == nil {
-		return poolList, fmt.Errorf("Service not specified")
+		return poolList, fmt.Errorf("service not specified")
 	}
 	for _, kubePort := range service.Spec.Ports {
 		poolList = append(poolList, genLoadBalancerPoolName(kubePort))
@@ -323,7 +323,7 @@ func (c *CloudVpc) getServicePoolNames(service *v1.Service) ([]string, error) {
 
 // getServiceSubnets - retrieve the vpc-subnets annotation
 func (c *CloudVpc) getServiceSubnets(service *v1.Service) string {
-	return strings.ReplaceAll(service.ObjectMeta.Annotations[serviceAnnotationSubnets], " ", "")
+	return strings.ReplaceAll(service.Annotations[serviceAnnotationSubnets], " ", "")
 }
 
 // getSubnetIDs - get the IDs for all of the subnets that were passed in
@@ -359,8 +359,8 @@ func (c *CloudVpc) validateService(service *v1.Service) (*ServiceOptions, error)
 	// Only TCP is supported
 	for _, kubePort := range service.Spec.Ports {
 		if kubePort.Protocol != v1.ProtocolTCP {
-			return nil, fmt.Errorf("Service %s/%s is a %s load balancer. Only TCP is supported",
-				service.ObjectMeta.Namespace, service.ObjectMeta.Name, kubePort.Protocol)
+			return nil, fmt.Errorf("service %s/%s is a %s load balancer. Only TCP is supported",
+				service.Namespace, service.Name, kubePort.Protocol)
 		}
 	}
 	// All other service annotation options we ignore and just pass through
@@ -375,8 +375,8 @@ func (c *CloudVpc) validateServiceSubnets(service *v1.Service, serviceSubnets, v
 		for _, subnet := range vpcSubnets {
 			if subnetID == subnet.ID {
 				if vpcID != subnet.Vpc.ID {
-					return nil, fmt.Errorf("The annotation %s on service %s/%s contains VPC subnet %s that is located in a different VPC",
-						serviceAnnotationSubnets, service.ObjectMeta.Namespace, service.ObjectMeta.Name, subnetID)
+					return nil, fmt.Errorf("annotation %s on service %s/%s contains VPC subnet %s that is located in a different VPC",
+						serviceAnnotationSubnets, service.Namespace, service.Name, subnetID)
 				}
 				found = true
 				desiredSubnetMap[subnetID] = true
@@ -394,8 +394,8 @@ func (c *CloudVpc) validateServiceSubnets(service *v1.Service, serviceSubnets, v
 			}
 		}
 		if !found {
-			return nil, fmt.Errorf("The annotation %s on service %s/%s contains invalid VPC subnet %s",
-				serviceAnnotationSubnets, service.ObjectMeta.Namespace, service.ObjectMeta.Name, subnetID)
+			return nil, fmt.Errorf("annotation %s on service %s/%s contains invalid VPC subnet %s",
+				serviceAnnotationSubnets, service.Namespace, service.Name, subnetID)
 		}
 	}
 	// The user may have specified the same service "value" on the annotation multiple times: ID, name, and CIDR
@@ -431,7 +431,7 @@ func (c *CloudVpc) validateServiceSubnetsNotUpdated(service *v1.Service, lb *Vpc
 	sort.Strings(requested)
 	sort.Strings(actual)
 	if strings.Join(requested, ",") != strings.Join(actual, ",") {
-		return fmt.Errorf("The load balancer was created with subnets %s. This setting can not be changed", strings.Join(actual, ","))
+		return fmt.Errorf("load balancer was created with subnets %s. This setting can not be changed", strings.Join(actual, ","))
 	}
 	// No update was detected
 	return nil
@@ -444,7 +444,7 @@ func (c *CloudVpc) validateServiceTypeNotUpdated(options *ServiceOptions, lb *Vp
 		if lb.IsPublic {
 			lbType = servicePublicLB
 		}
-		return fmt.Errorf("The load balancer was created as a %s load balancer. This setting can not be changed", lbType)
+		return fmt.Errorf("load balancer was created as a %s load balancer. This setting can not be changed", lbType)
 	}
 	return nil
 }
@@ -458,8 +458,8 @@ func (c *CloudVpc) validateServiceZone(service *v1.Service, serviceZone string, 
 		}
 	}
 	if len(clusterSubnets) == 0 {
-		return nil, fmt.Errorf("The annotation %s on service %s/%s contains invalid zone %s. There are no cluster subnets in that zone",
-			serviceAnnotationZone, service.ObjectMeta.Namespace, service.ObjectMeta.Name, serviceZone)
+		return nil, fmt.Errorf("annotation %s on service %s/%s contains invalid zone %s. There are no cluster subnets in that zone",
+			serviceAnnotationZone, service.Namespace, service.Name, serviceZone)
 	}
 	return clusterSubnets, nil
 }

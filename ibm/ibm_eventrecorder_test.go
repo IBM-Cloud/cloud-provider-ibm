@@ -63,7 +63,7 @@ func TestNewCloudEventRecorder(t *testing.T) {
 	cer := NewCloudEventRecorderV1("ibm", fake.NewSimpleClientset().CoreV1().Events(lbDeploymentNamespace))
 	if nil == cer {
 		t.Fatalf("Failed to create cloud event recorder")
-	} else if 0 != strings.Compare("ibm-cloud-provider", cer.Name) {
+	} else if strings.Compare("ibm-cloud-provider", cer.Name) != 0 {
 		t.Fatalf("Invalid cloud event recorder name: %v", cer.Name)
 	}
 }
@@ -79,9 +79,9 @@ func TestLoadBalancerServiceWarningEvent(t *testing.T) {
 	}
 	errorSubStrings := []string{
 		GetCloudProviderLoadBalancerName(lbService),
-		lbService.ObjectMeta.Name,
-		lbService.ObjectMeta.Namespace,
-		fmt.Sprintf("%v", lbService.ObjectMeta.UID),
+		lbService.Name,
+		lbService.Namespace,
+		fmt.Sprintf("%v", lbService.UID),
 		errorMessage,
 	}
 	errorString := fmt.Sprintf("%v", err)
@@ -92,7 +92,7 @@ func TestLoadBalancerServiceWarningEvent(t *testing.T) {
 	}
 	time.Sleep(time.Second * 10)
 	eventsGenerated, err := fakeClient.CoreV1().Events(lbDeploymentNamespace).List(context.TODO(), metav1.ListOptions{})
-	if nil != err || 1 != len(eventsGenerated.Items) {
+	if nil != err || len(eventsGenerated.Items) != 1 {
 		t.Fatalf("Failed to generate events: error: %v, events: %v", err, eventsGenerated.Items)
 	}
 }

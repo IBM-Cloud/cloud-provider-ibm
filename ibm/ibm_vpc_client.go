@@ -40,7 +40,7 @@ type vpcClient struct {
 var newVpcSdkClient = func(provider Provider) (*vpcv1.VpcV1, error) {
 	// check id used to allocate worker nodes
 	if provider.AccountID != provider.G2WorkerServiceAccountID {
-		return nil, errors.New("Cluster nodes allocated under different account")
+		return nil, errors.New("cluster nodes allocated under different account")
 	}
 
 	// read VPC credentials from mounted secret
