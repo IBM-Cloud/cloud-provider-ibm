@@ -19,8 +19,6 @@ updates:
       - "dependencies"
       - "github-actions"
       - "release-1.34"
-    ignore:
-      - dependency-name: "golangci/golangci-lint-action" # Need to use older version
     target-branch: "release-1.34"
 
   - package-ecosystem: "github-actions"
