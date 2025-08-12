@@ -1,0 +1,61 @@
+# This workflow will check the copyright of GO files
+
+name: Copyright check
+
+on:
+  push:
+    paths:
+      - "**.go"
+      - "**.ini"
+      - ".github/workflows/copyright-check.yml"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**.go"
+      - "**.ini"
+      - ".github/workflows/copyright-check.yml"
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensure we can diff against base
+
+      - name: Get list of changed Go and INI files
+        id: changed
+        run: |
+          # If event is pull_request, diff against base branch
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            files=$(git diff --name-only origin/${{ github.base_ref }} HEAD | grep -E '\.(go|ini)$' || true)
+          else
+            # For push events, check files changed in the latest commit range
+            files=$(git diff --name-only HEAD^ HEAD | grep -E '\.(go|ini)$' || true)
+          fi
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Verify copyright notice
+        run: |
+          CURRENT_YEAR=$(date +%Y)
+          COPYRIGHT_KEY="Copyright IBM Corp."
+          missing=false
+
+          for file in ${{ steps.changed.outputs.files }}; do
+            echo "Processing: $file"
+            if [ ! -f "$file" ]; then
+              continue
+            fi
+
+            if ! head -10 "${file}" | grep "${COPYRIGHT_KEY}" | grep -q "${CURRENT_YEAR}"; then
+              echo "     ❌ Missing or incorrect copyright"
+              missing=true
+            fi
+          done
+
+          if [ "$missing" = true ]; then
+            echo "One or more files are missing the correct copyright notice."
+            exit 1
+          fi
