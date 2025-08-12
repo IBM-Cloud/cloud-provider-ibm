@@ -35,6 +35,7 @@ jobs:
             # For push events, check files changed in the latest commit range
             files=$(git diff --name-only HEAD^ HEAD | grep -E '\.(go|ini)$' || true)
           fi
+          echo "Files found: %files"
           echo "files=$files" >> "$GITHUB_OUTPUT"
 
       - name: Verify copyright notice
