@@ -35,7 +35,11 @@ jobs:
             # For push events, check files changed in the latest commit range
             files=$(git diff --name-only HEAD^ HEAD | grep -E '\.(go|ini)$' || true)
           fi
-          echo "Files found: $files"
+
+          # Join files into a single space-separated string
+          files="${files//$'\n'/ }"
+          echo ".go/.ini files found: $files"
+          
           echo "files=$files" >> "$GITHUB_OUTPUT"
 
       - name: Verify copyright notice
