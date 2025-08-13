@@ -8,6 +8,7 @@ on:
       - "**.md"
       - ".github/workflows/markdown.yml"
   pull_request:
+    types: [opened, synchronize, reopened]
     paths:
       - "**.md"
       - ".github/workflows/markdown.yml"
