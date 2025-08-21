@@ -1,6 +1,6 @@
 module cloud.ibm.com/cloud-provider-ibm
 
-go 1.24.5
+go 1.24.6
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.21.0
