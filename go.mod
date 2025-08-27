@@ -4,13 +4,13 @@ go 1.24.6
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.21.0
-	github.com/IBM/platform-services-go-sdk v0.86.0
+	github.com/IBM/platform-services-go-sdk v0.86.1
 	github.com/IBM/vpc-go-sdk v0.70.1
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-openapi/strfmt v0.23.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.7
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	gopkg.in/gcfg.v1 v1.2.3
 	k8s.io/api v0.34.0-rc.2
 	k8s.io/apimachinery v0.34.0-rc.2
