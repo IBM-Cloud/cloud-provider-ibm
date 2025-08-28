@@ -13,7 +13,7 @@ updates:
     directory: "/" # location of your .github/workflows directory
     schedule:
       interval: "cron"
-      cronjob: "0 8 * * *" # Run at 8:00 UTC daily
+      cronjob: "34 11 * * *" # Run at 11:34 UTC daily
     open-pull-requests-limit: 99
     labels:
       - "dependencies"
@@ -28,7 +28,7 @@ updates:
     directory: "/" # location of your .github/workflows directory
     schedule:
       interval: "cron"
-      cronjob: "0 7 * * *" # Run at 7:00 UTC daily
+      cronjob: "33 11 * * *" # Run at 11:33 UTC daily
     open-pull-requests-limit: 99
     labels:
       - "dependencies"
@@ -42,7 +42,7 @@ updates:
     directory: "/" # location of your .github/workflows directory
     schedule:
       interval: "cron"
-      cronjob: "0 6 * * *" # Run at 6:00 UTC daily
+      cronjob: "32 11 * * *" # Run at 11:32 UTC daily
     open-pull-requests-limit: 99
     labels:
       - "dependencies"
@@ -56,7 +56,7 @@ updates:
     directory: "/" # location of your .github/workflows directory
     schedule:
       interval: "cron"
-      cronjob: "0 5 * * *" # Run at 5:00 UTC daily
+      cronjob: "31 11 * * *" # Run at 11:31 UTC daily
     open-pull-requests-limit: 99
     labels:
       - "dependencies"
@@ -70,7 +70,7 @@ updates:
     directory: "/" # location of your .github/workflows directory
     schedule:
       interval: "cron"
-      cronjob: "0 4 * * *" # Run at 4:00 UTC daily
+      cronjob: "30 11 * * *" # Run at 11:30 UTC daily
     open-pull-requests-limit: 99
     labels:
       - "dependencies"
@@ -84,7 +84,7 @@ updates:
     directory: "/" # location of your .github/workflows directory
     schedule:
       interval: "cron"
-      cronjob: "0 3 * * *" # Run at 3:00 UTC daily
+      cronjob: "29 11 * * *" # Run at 11:29 UTC daily
     open-pull-requests-limit: 99
     labels:
       - "dependencies"
@@ -98,7 +98,7 @@ updates:
     directory: "/" # location of your .github/workflows directory
     schedule:
       interval: "cron"
-      cronjob: "0 2 * * *" # Run at 2:00 UTC daily
+      cronjob: "28 11 * * *" # Run at 11:28 UTC daily
     open-pull-requests-limit: 99
     labels:
       - "dependencies"
@@ -112,7 +112,7 @@ updates:
     directory: "/" # location of your .github/workflows directory
     schedule:
       interval: "cron"
-      cronjob: "0 1 * * *" # Run at 1:00 UTC daily
+      cronjob: "27 11 * * *" # Run at 11:27 UTC daily
     open-pull-requests-limit: 99
     labels:
       - "dependencies"
@@ -130,7 +130,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "0 8 * * *" # Run at 8:00 UTC daily
+      cronjob: "34 10 * * *" # Run at 10:34 UTC daily
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -162,7 +162,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "0 7 * * *" # Run at 7:00 UTC daily
+      cronjob: "33 10 * * *" # Run at 10:33 UTC daily
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -194,7 +194,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "0 6 * * *" # Run at 6:00 UTC daily
+      cronjob: "32 10 * * *" # Run at 10:32 UTC daily
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -226,7 +226,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "0 5 * * *" # Run at 5:00 UTC daily
+      cronjob: "31 10 * * *" # Run at 10:31 UTC daily
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -258,7 +258,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "0 4 * * *" # Run at 4:00 UTC daily
+      cronjob: "30 10 * * *" # Run at 10:30 UTC daily
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -290,7 +290,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "0 3 * * *" # Run at 3:00 UTC daily
+      cronjob: "29 10 * * *" # Run at 10:29 UTC daily
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -322,7 +322,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "0 2 * * *" # Run at 2:00 UTC daily
+      cronjob: "28 10 * * *" # Run at 10:28 UTC daily
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -354,7 +354,7 @@ updates:
     directory: "/" # Location of your go.mod file
     schedule:
       interval: "cron"
-      cronjob: "0 1 * * *" # Run at 1:00 UTC daily
+      cronjob: "27 10 * * *" # Run at 10:27 UTC daily
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
