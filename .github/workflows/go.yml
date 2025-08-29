@@ -24,7 +24,7 @@ on:
   workflow_dispatch: # Allow manual triggering
 
 jobs:
-  lint:
+  go-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -54,7 +54,7 @@ jobs:
       - name: Run lint (via golangci-lint)
         run: make lint
 
-  test:
+  go-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -72,7 +72,7 @@ jobs:
       - name: Run go test
         run: make test
 
-  build:
+  go-build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
