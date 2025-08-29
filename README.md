@@ -26,4 +26,3 @@ GO library dependencies are managed by [Dependabot](.github/dependabot.yml).
 
 The [kube-update GitHub Action](.github/workflows/kube-update.yml) workflow will detect Kubernetes updates
 and create pull requests to update the required files.
-
