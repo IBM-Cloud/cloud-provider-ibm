@@ -30,6 +30,7 @@ jobs:
             let allDone = false;
             let attempts = 0;
 
+            await new Promise(r => setTimeout(r, 10000)); // Wait 10 sec before the first check
             while (!allDone && attempts < maxAttempts) {
               const { data: { check_runs } } = await github.rest.checks.listForRef({ owner, repo, ref: sha });
 
