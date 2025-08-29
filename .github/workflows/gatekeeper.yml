@@ -49,7 +49,7 @@ jobs:
                 );
 
                 console.log(`\n🔎 Attempt ${attempt}:`);
-                checks.forEach(c => console.log("- " + formatCheck(c)));
+                checks.forEach(c => console.log(JSON.stringify(c, null, 2) + "- " + formatCheck(c)));
 
                 if (failed.length > 0) {
                   console.log("❌ Some checks failed");
