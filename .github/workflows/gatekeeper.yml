@@ -1,88 +1,118 @@
 name: Gatekeeper
 
 on:
-  workflow_run:
-    workflows: ["GitHub Actions Lint", "Copyright Check", "Go Lint/Test/Build", "Markdown Lint", "Shellcheck Lint"]
-    types:
-      - completed
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   gatekeeper:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for all checks and report status
+      - name: Wait for all other workflows
         uses: actions/github-script@v7
         with:
           script: |
             const sha = context.payload.workflow_run.head_sha;
-            const repoOwner = context.repo.owner;
-            const repoName = context.repo.repo;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
             const gatekeeperName = "gatekeeper";
             const maxAttempts = 20;
             const delayMs = 30000;
 
-            async function getChecks() {
-              const { data } = await github.rest.checks.listForRef({
-                owner: repoOwner,
-                repo: repoName,
+            // Get all workflow runs for this commit (for mapping check_suite_id -> workflow name)
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              head_sha: sha,
+            });
+
+            // Build a map of check_suite_id -> workflow name
+            const suiteToWorkflow = {};
+            runs.data.workflow_runs.forEach(run => {
+              suiteToWorkflow[run.check_suite_id] = run.name;
+            });
+
+            let allDone = false;
+            let attempts = 0;
+            let summaryRows = [];
+
+            while (!allDone && attempts < maxAttempts) {
+              const checks = await github.rest.checks.listForRef({
+                owner,
+                repo,
                 ref: sha,
               });
 
-              // Filter out Gatekeeper itself
-              return data.check_runs.filter(c => c.name !== gatekeeperName);
-            }
+              allDone = true;
+              summaryRows = [];
 
-            function formatCheck(c) {
-              const wf = c.check_suite?.name || "UnknownWorkflow";
-              return `${wf} / ${c.name}: status=${c.status}, conclusion=${c.conclusion}`;
-            }
+              for (const c of checks.data.check_runs) {
+                if (c.name.includes("gatekeeper")) continue; // skip self
 
-            async function waitForChecks() {
-              for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-                const checks = await getChecks();
+                const workflowName = suiteToWorkflow[c.check_suite.id] || "UnknownWorkflow";
+                summaryRows.push(`| ${workflowName} | ${c.name} | ${c.status} | ${c.conclusion || "—"} |`);
 
-                const pending = checks.filter(c =>
-                  ["queued", "in_progress", "waiting"].includes(c.status)
-                );
-                const failed = checks.filter(c =>
-                  c.status === "completed" && !["success", "skipped"].includes(c.conclusion)
-                );
-
-                console.log(`\n🔎 Attempt ${attempt}:`);
-                checks.forEach(c => console.log(JSON.stringify(c, null, 2) + "- " + formatCheck(c)));
-
-                if (failed.length > 0) {
-                  console.log("❌ Some checks failed");
-                  return { result: "failure", message: `Some checks failed: ${failed.map(c => c.name).join(", ")}` };
+                if (c.status === "completed" && ["failure","cancelled","timed_out","action_required"].includes(c.conclusion)) {
+                  const table = ["| Workflow | Check | Status | Conclusion |", "|----------|-------|--------|------------|", ...summaryRows].join("\n");
+                  await github.rest.checks.create({
+                    owner,
+                    repo,
+                    name: "Gatekeeper",
+                    head_sha: sha,
+                    status: "completed",
+                    conclusion: "failure",
+                    output: {
+                      title: "Gatekeeper: PR blocked",
+                      summary: "One or more required workflows failed.",
+                      text: table,
+                    },
+                  });
+                  core.setFailed(`❌ ${workflowName} / ${c.name} failed`);
+                  return;
                 }
 
-                if (pending.length === 0) {
-                  console.log("✅ All checks succeeded or skipped");
-                  return { result: "success", message: "All required checks passed" };
-                }
-
-                if (attempt < maxAttempts) {
-                  console.log(`⏳ Still waiting on: ${pending.map(c => c.check_suite?.name + " / " + c.name).join(", ")}`);
-                  await new Promise(r => setTimeout(r, delayMs));
+                if (c.status !== "completed") {
+                  allDone = false;
                 }
               }
-              console.log("⚠️ Timeout reached");
-              return { result: "failure", message: "Timeout: some checks never completed" };
+
+              if (!allDone) {
+                console.log("⏳ Some checks still in progress. Retrying in 30s...");
+                await new Promise(r => setTimeout(r, delayMs));
+                attempts++;
+              }
             }
 
-            const { result, message } = await waitForChecks();
+            const table = ["| Workflow | Check | Status | Conclusion |", "|----------|-------|--------|------------|", ...summaryRows].join("\n");
 
-            // Report status back to PR
-            await github.rest.repos.createCommitStatus({
-              owner: repoOwner,
-              repo: repoName,
-              sha,
-              state: result,
-              context: "Gatekeeper",
-              description: message
-            });
-
-            // Fail job if Gatekeeper failed
-            if (result === "failure") {
-              core.setFailed(message);
+            if (!allDone) {
+              await github.rest.checks.create({
+                owner,
+                repo,
+                name: "Gatekeeper",
+                head_sha: sha,
+                status: "completed",
+                conclusion: "failure",
+                output: {
+                  title: "Gatekeeper: Timeout",
+                  summary: "Timed out waiting for workflows to complete.",
+                  text: table,
+                },
+              });
+              core.setFailed("⏰ Timeout waiting for all workflows to complete.");
+            } else {
+              await github.rest.checks.create({
+                owner,
+                repo,
+                name: "Gatekeeper",
+                head_sha: sha,
+                status: "completed",
+                conclusion: "success",
+                output: {
+                  title: "Gatekeeper: All workflows passed",
+                  summary: "All required workflows completed successfully.",
+                  text: table,
+                },
+              });
+              console.log("✅ All workflows completed successfully.");
             }
