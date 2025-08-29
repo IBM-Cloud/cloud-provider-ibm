@@ -10,7 +10,7 @@ We'd love to accept your patches! Before we can accept them, you need to sign Cl
 
 ## Reporting an issue
 
-If you find a bug or a feature request related to cloud-provider-ibm you are encouraged to open a new github issue in this repo.
+If you find a bug or a feature request related to [cloud-provider-ibm](./README.md) you are encouraged to [open an issue](https://github.com/IBM-Cloud/cloud-provider-ibm/issues).
 
 ## Contributing a Patch
 
