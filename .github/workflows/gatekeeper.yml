@@ -9,9 +9,7 @@ jobs:
   gatekeeper:
     runs-on: ubuntu-latest
     permissions:
-      checks: write       # needed to create a check-run
-      pull-requests: read
-      actions: read
+      checks: read
 
     steps:
       - name: Wait for all other workflows
@@ -26,74 +24,39 @@ jobs:
               ? context.payload.pull_request.head.sha
               : context.sha;
 
+            const maxAttempts = 20;
+            const delayMs = 30000; // 30 seconds
+
             let allDone = false;
             let attempts = 0;
-            let summaryRows = [];
 
-            while (!allDone && attempts < 20) {
-              const checksResp = await github.rest.checks.listForRef({ owner, repo, ref: sha });
-              const checks = checksResp.data.check_runs;
+            while (!allDone && attempts < maxAttempts) {
+              const { data: { check_runs } } = await github.rest.checks.listForRef({ owner, repo, ref: sha });
 
               allDone = true;
-              summaryRows = [];
+              const inProgress = [];
 
-              for (const c of checks) {
+              for (const c of check_runs) {
                 if (c.name.includes("gatekeeper")) continue; // skip self
 
-                summaryRows.push(`| ${c.name} | ${c.status} | ${c.conclusion || ''} |`);
-
-                // 🚨 Fail immediately if a workflow failed
-                if (c.status === 'completed' && ['failure','cancelled','timed_out','action_required'].includes(c.conclusion)) {
-                  const table = ['| Check | Status | Conclusion |','|-------|--------|------------|', ...summaryRows].join('\n');
-                  await github.rest.checks.create({
-                    owner, repo, name: 'Gatekeeper', head_sha: sha, status: 'completed', conclusion: 'failure',
-                    output: {
-                      title: 'Gatekeeper: PR blocked',
-                      summary: '❌ One or more checks failed.',
-                      text: table
-                    },
-                  });
-                  core.setFailed(`❌ ${c.name} failed`);
-                  return;
-                }
-
-                // If not completed, keep waiting
-                if (c.status !== "completed") {
+                if (c.status !== 'completed') {
                   allDone = false;
+                  inProgress.push(c.name);
+                } else if (['failure','cancelled','timed_out','action_required'].includes(c.conclusion)) {
+                  core.setFailed(`❌ ${c.name} failed. PR cannot be merged.`);
+                  return;
                 }
               }
 
               if (!allDone) {
-                // Show which checks are still in progress
-                const inProgress = checks
-                  .filter(c => !c.name.includes('gatekeeper') && c.status !== 'completed')
-                  .map(c => c.name);
-                console.log(`⏳ Waiting for ${inProgress.length} checks: ${inProgress.join(', ')}. Retrying in 30s...`);
-                await new Promise(r => setTimeout(r, 30000));
+                console.log(`⏳ Waiting for ${inProgress.length} checks to finish: ${inProgress.join(', ')}. Retrying in 30s...`);
+                await new Promise(r => setTimeout(r, delayMs));
                 attempts++;
               }
             }
 
-            const table = ['| Check | Status | Conclusion |','|-------|--------|------------|', ...summaryRows].join('\n');
-
             if (!allDone) {
-              await github.rest.checks.create({
-                owner, repo, name: 'Gatekeeper', head_sha: sha, status: 'completed', conclusion: 'failure',
-                output: {
-                  title: 'Gatekeeper: Timeout',
-                  summary: '⏰ Timed out waiting for checks.',
-                  text: table
-                },
-              });
-              core.setFailed("⏰ Timeout waiting for all workflows to complete.");
+              core.setFailed("⏰ Timeout waiting for workflows to complete.");
             } else {
-              await github.rest.checks.create({
-                owner, repo, name: 'Gatekeeper', head_sha: sha, status: 'completed', conclusion: 'success',
-                output: {
-                  title: 'Gatekeeper: All checks passed',
-                  summary: '✅ All required checks completed successfully.',
-                  text: table
-                },
-              });
               console.log("✅ All workflows completed successfully.");
             }
