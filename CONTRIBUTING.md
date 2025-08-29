@@ -10,14 +10,14 @@ We'd love to accept your patches! Before we can accept them, you need to sign Cl
 
 ## Reporting an issue
 
-If you find a bug or a feature request related to cloud-provider-ibm you are encouraged to open a new github issue in this repo.
+If you find a bug or a feature request related to [cloud-provider-ibm](https://github.com/IBM-Cloud/cloud-provider-ibm) you are encouraged to [open an issue](https://github.com/IBM-Cloud/cloud-provider-ibm/issues/new).
 
 ## Contributing a Patch
 
 1. Submit an issue describing your proposed change to the repo.
 2. Fork the cloud-provider-ibm repo, develop and test your code changes.
 3. Submit a pull request.
-4. The bot will automatically assigns someone to review your PR. Check the full list of bot [commands](https://prow.k8s.io/command-help).
+4. Make sure the pull request passes all checks.  Update the PR as needed.
 
 ## Legal
 
