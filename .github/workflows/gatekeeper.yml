@@ -10,17 +10,21 @@ jobs:
   gatekeeper:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for all check runs
+      - name: Wait for all checks and report status
         uses: actions/github-script@v7
         with:
           script: |
             const sha = context.payload.workflow_run.head_sha;
+            const repoOwner = context.repo.owner;
+            const repoName = context.repo.repo;
             const gatekeeperName = "gatekeeper";
+            const maxAttempts = 20;
+            const delayMs = 30000;
 
             async function getChecks() {
               const { data } = await github.rest.checks.listForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+                owner: repoOwner,
+                repo: repoName,
                 ref: sha,
               });
 
@@ -28,7 +32,12 @@ jobs:
               return data.check_runs.filter(c => c.name !== gatekeeperName);
             }
 
-            async function waitForChecks(maxAttempts = 20, delayMs = 30000) {
+            function formatCheck(c) {
+              const wf = c.check_suite?.name || "UnknownWorkflow";
+              return `${wf} / ${c.name}: status=${c.status}, conclusion=${c.conclusion}`;
+            }
+
+            async function waitForChecks() {
               for (let attempt = 1; attempt <= maxAttempts; attempt++) {
                 const checks = await getChecks();
 
@@ -39,29 +48,41 @@ jobs:
                   c.status === "completed" && !["success", "skipped"].includes(c.conclusion)
                 );
 
-                console.log(`Attempt ${attempt}:`);
-                checks.forEach(c =>
-                  console.log(`- ${c.name}: status=${c.status}, conclusion=${c.conclusion}`)
-                );
+                console.log(`\n🔎 Attempt ${attempt}:`);
+                checks.forEach(c => console.log("- " + formatCheck(c)));
 
                 if (failed.length > 0) {
-                  core.setFailed(`❌ Some checks failed: ${failed.map(c => c.name).join(", ")}`);
-                  return;
+                  console.log("❌ Some checks failed");
+                  return { result: "failure", message: `Some checks failed: ${failed.map(c => c.name).join(", ")}` };
                 }
 
                 if (pending.length === 0) {
                   console.log("✅ All checks succeeded or skipped");
-                  return;
+                  return { result: "success", message: "All required checks passed" };
                 }
 
                 if (attempt < maxAttempts) {
-                  console.log(`⏳ Still waiting on: ${pending.map(c => c.name).join(", ")}...`);
+                  console.log(`⏳ Still waiting on: ${pending.map(c => c.check_suite?.name + " / " + c.name).join(", ")}`);
                   await new Promise(r => setTimeout(r, delayMs));
-                } else {
-                  core.setFailed(`⚠️ Timeout: checks never completed: ${pending.map(c => c.name).join(", ")}`);
-                  return;
                 }
               }
+              console.log("⚠️ Timeout reached");
+              return { result: "failure", message: "Timeout: some checks never completed" };
             }
 
-            await waitForChecks();
+            const { result, message } = await waitForChecks();
+
+            // Report status back to PR
+            await github.rest.repos.createCommitStatus({
+              owner: repoOwner,
+              repo: repoName,
+              sha,
+              state: result,
+              context: "Gatekeeper",
+              description: message
+            });
+
+            // Fail job if Gatekeeper failed
+            if (result === "failure") {
+              core.setFailed(message);
+            }
