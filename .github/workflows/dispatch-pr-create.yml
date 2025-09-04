@@ -22,7 +22,7 @@ jobs:
           echo "golangci_version=v$(grep '^GOLANGCI_LINT_VERSION ' Makefile | awk '{ print $3 }')" >> "$GITHUB_OUTPUT"
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: ${{ steps.get-ver.outputs.go_version }}
 
