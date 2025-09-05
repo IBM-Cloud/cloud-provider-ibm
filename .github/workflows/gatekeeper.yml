@@ -24,7 +24,7 @@ jobs:
               ? context.payload.pull_request.head.sha
               : context.sha;
 
-            const maxAttempts = 20;
+            const maxAttempts = 40;
             const delayMs = 30000; // 30 seconds
 
             let allDone = false;
