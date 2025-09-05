@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Wait for all other workflows
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const owner = context.repo.owner;
