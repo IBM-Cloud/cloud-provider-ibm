@@ -1,12 +1,13 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+# This workflow will set the "auto-merge" flag on dependabot pull requests
 
-name: Dependabot PRs Auto-merge
+name: Auto-merge Dependabot PR
 
 on:
   pull_request:
-    types:
-      - opened
+    types: [opened, synchronize, reopened]
+    paths:
+      - "go.mod"
+      - "**.yml"
 
 jobs:
   automerge:
