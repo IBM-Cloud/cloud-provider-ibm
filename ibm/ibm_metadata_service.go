@@ -54,6 +54,7 @@ type MetadataService struct {
 	provider       Provider
 	kubeClient     kubernetes.Interface
 	vpcClient      *vpcClient
+	powerVSClient  *ibmPowerVSClient
 	nodeMap        map[string]NodeMetadata
 	nodeMapMux     sync.Mutex
 	nodeCacheStart time.Time
@@ -217,23 +218,41 @@ func (ms *MetadataService) GetNodeMetadata(name string, applyNetworkUnavailable 
 		ms.putCachedNode(name, newNode)
 		return newNode, nil
 	} else if isProviderVpc(ms.provider.ProviderType) && ms.provider.AccountID == ms.provider.G2WorkerServiceAccountID {
-		// labels were not set; if VPC we can try to call api for values
-		klog.Infof("MetadataService: node %s retrieve details from VPC instance", name)
-
-		// create vpcClient if we haven't already
-		if ms.vpcClient == nil {
-			ms.vpcClient, err = newVpcClient(ms.provider)
+		if isProviderPowerVS(ms.provider) {
+			klog.Infof("Retrieving information for node=%s from Power VS", name)
+			if ms.powerVSClient == nil {
+				ms.powerVSClient, err = newPowerVSClient(&ms.provider)
+				if err != nil {
+					klog.Errorf("Failed to create new PowerVS client Error: %v", err)
+					return node, err
+				}
+			}
+			// gather node information from Power VS
+			err = ms.powerVSClient.populateNodeMetadata(name, &newNode)
 			if err != nil {
-				klog.Errorf("MetadataService: node %s failed to create VPC client: %v", node, err)
+				klog.Errorf("Failed to populate metadata for PowerVS node %s Error: %v", name, err)
 				return node, err
 			}
-		}
+		} else {
 
-		// gather node information from VPC
-		err = ms.vpcClient.populateNodeMetadata(name, &newNode)
-		if err != nil {
-			klog.Errorf("MetadataService: node %s failed to get details from VPC instance: %v", name, err)
-			return node, err
+			// labels were not set; if VPC we can try to call api for values
+			klog.Infof("MetadataService: node %s retrieve details from VPC instance", name)
+
+			// create vpcClient if we haven't already
+			if ms.vpcClient == nil {
+				ms.vpcClient, err = newVpcClient(ms.provider)
+				if err != nil {
+					klog.Errorf("MetadataService: node %s failed to create VPC client: %v", node, err)
+					return node, err
+				}
+			}
+
+			// gather node information from VPC
+			err = ms.vpcClient.populateNodeMetadata(name, &newNode)
+			if err != nil {
+				klog.Errorf("MetadataService: node %s failed to get details from VPC instance: %v", name, err)
+				return node, err
+			}
 		}
 
 		klog.Infof("MetadataService: node %s save to cache, metadata: %+v", name, newNode)
