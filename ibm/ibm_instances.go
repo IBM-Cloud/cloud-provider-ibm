@@ -146,6 +146,11 @@ func (c *Cloud) providerIDV2(nodeMD NodeMetadata) string {
 		return nodeMD.ProviderID
 	}
 	// construct provider id from config and node metadata
+	// ProviderID format for PowerVS
+	// ProviderID = ibmpowervs://<powervs_region>/<powervs_zone>/<powervs_service_instanceid>/powervs_vm_instanceid
+	if isProviderPowerVS(c.Config.Prov) {
+		return fmt.Sprintf("ibmpowervs://%s/%s/%s/%s", c.Config.Prov.PowerVSRegion, c.Config.Prov.PowerVSZone, c.Metadata.provider.PowerVSCloudInstanceID, nodeMD.WorkerID)
+	}
 	return fmt.Sprintf("ibm://%s///%s/%s", c.Config.Prov.AccountID, c.Config.Prov.ClusterID, nodeMD.WorkerID)
 }
 
