@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2024 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2025 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -109,7 +109,7 @@ type Provider struct {
 	IamEndpointOverride string `gcfg:"iamEndpointOverride"`
 	// Optional: Resource Manager endpoint override URL
 	RmEndpointOverride string `gcfg:"rmEndpointOverride"`
-	// Optional: Armada API Endpoint URL
+	// Optional: IBM Cloud Kubernetes Service API Private Endpoint Hostname
 	IKSPrivateEndpointHostname string `gcfg:"iksPrivateEndpointHostname"`
 	// File containing cloud credentials both for Classic and VPC
 	CloudCredentials string `gcfg:"cloudCredentials"`
@@ -293,7 +293,7 @@ func NewCloud(config io.Reader) (cloudprovider.Interface, error) {
 		_, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 		if err != nil {
 			errString := fmt.Sprintf("Failed initializing VPC: %v", err)
-			klog.Warningf(errString)
+			klog.Warning(errString)
 		}
 	} else {
 		// Initialize the classic logic
