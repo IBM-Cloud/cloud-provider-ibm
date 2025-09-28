@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2024 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2025 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -21,6 +21,7 @@ package ibm
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -29,10 +30,10 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 
-	"cloud.ibm.com/cloud-provider-ibm/pkg/klog"
 	"cloud.ibm.com/cloud-provider-ibm/pkg/vpcctl"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/record"
+	"k8s.io/klog/v2"
 )
 
 // envVarPublicEndPoint is an environmental variable used to select public service endpoint
@@ -83,7 +84,7 @@ func (c *Cloud) isProviderVpc() bool {
 func (c *Cloud) NewConfigVpc(enablePrivateEndpoint bool) (*vpcctl.ConfigVpc, error) {
 	// Make sure Cloud config has been initialized
 	if c.Config == nil {
-		return nil, fmt.Errorf("Cloud config not initialized")
+		return nil, errors.New("Cloud config not initialized")
 	}
 	// Initialize config based on values in the cloud provider
 	config := &vpcctl.ConfigVpc{
@@ -137,19 +138,19 @@ func (c *Cloud) VpcEnsureLoadBalancer(ctx context.Context, clusterName string, s
 				select {
 				case <-syncChan:
 					klog.Infof("- nodes now available for EnsureLoadBalancer, return so that Kubernetes will retry")
-					return nil, fmt.Errorf(errString)
+					return nil, errors.New(errString)
 				case <-time.After(time.Minute): // Display message every min
 					klog.Warningf("- no available nodes for load balancer (%d out %d)", i+1, maxWait)
 					continue
 				}
 			}
 		}
-		return nil, fmt.Errorf(errString)
+		return nil, errors.New(errString)
 	}
 	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
 		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
-		klog.Errorf(errString)
+		klog.Error(errString)
 		return nil, c.Recorder.VpcLoadBalancerServiceWarningEvent(service, CreatingCloudLoadBalancerFailed, lbName, errString)
 	}
 	// Attempt to create/update the VPC load balancer for this service
@@ -164,7 +165,7 @@ func (c *Cloud) VpcEnsureLoadBalancerDeleted(ctx context.Context, clusterName st
 	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
 		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
-		klog.Errorf(errString)
+		klog.Error(errString)
 		return c.Recorder.VpcLoadBalancerServiceWarningEvent(service, DeletingCloudLoadBalancerFailed, lbName, errString)
 	}
 	// Attempt to delete the VPC load balancer
@@ -179,7 +180,7 @@ func (c *Cloud) VpcGetLoadBalancer(ctx context.Context, clusterName string, serv
 	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
 		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
-		klog.Errorf(errString)
+		klog.Error(errString)
 		return nil, false, c.Recorder.VpcLoadBalancerServiceWarningEvent(service, GettingCloudLoadBalancerFailed, lbName, errString)
 	}
 	// Retrieve the status of the VPC load balancer
@@ -209,6 +210,15 @@ func (c *Cloud) vpcGetServiceDetails(service *v1.Service) string {
 		portString := fmt.Sprintf("%v-%v-%v", port.Protocol, port.Port, port.NodePort)
 		ports = append(ports, strings.ToLower(portString))
 	}
+	// Only include the hostname/IP in the status
+	type hostnameIP struct {
+		Hostname string
+		IP       string
+	}
+	status := []hostnameIP{}
+	for _, ingress := range service.Status.LoadBalancer.Ingress {
+		status = append(status, hostnameIP{Hostname: ingress.Hostname, IP: ingress.IP})
+	}
 	return fmt.Sprintf("Name:%v NameSpace:%v UID:%v Annotations:%v Ports:%v ExternalTrafficPolicy:%v HealthCheckNodePort:%v Status:%+v",
 		service.ObjectMeta.Name,
 		service.ObjectMeta.Namespace,
@@ -217,7 +227,7 @@ func (c *Cloud) vpcGetServiceDetails(service *v1.Service) string {
 		ports,
 		service.Spec.ExternalTrafficPolicy,
 		service.Spec.HealthCheckNodePort,
-		service.Status)
+		status)
 }
 
 // VpcMonitorLoadBalancers accepts a list of services (of all types), verifies that each Kubernetes load balancer service has a
@@ -244,8 +254,8 @@ func (c *Cloud) VpcUpdateLoadBalancer(ctx context.Context, clusterName string, s
 	klog.Infof("UpdateLoadBalancer(lbName:%v, Service:{%v}, NodeCount:%v)", lbName, c.vpcGetServiceDetails(service), len(nodes))
 	if len(nodes) == 0 {
 		errString := "There are no available nodes for LoadBalancer"
-		klog.Errorf(errString)
-		return fmt.Errorf(errString)
+		klog.Error(errString)
+		return errors.New(errString)
 	}
 	// There could be one or more EnsureLoadBalancer threads blocked waiting for the cluster nodes to become available.
 	// Closing the sync channel will release all of the blocked EnsureLoadBalancer threads.
@@ -265,7 +275,7 @@ func (c *Cloud) VpcUpdateLoadBalancer(ctx context.Context, clusterName string, s
 	vpc, err := c.InitCloudVpc(shouldPrivateEndpointBeEnabled())
 	if err != nil {
 		errString := fmt.Sprintf("Failed initializing VPC: %v", err)
-		klog.Errorf(errString)
+		klog.Error(errString)
 		return c.Recorder.VpcLoadBalancerServiceWarningEvent(service, UpdatingCloudLoadBalancerFailed, lbName, errString)
 	}
 	// Update the VPC load balancer
@@ -275,7 +285,7 @@ func (c *Cloud) VpcUpdateLoadBalancer(ctx context.Context, clusterName string, s
 // WatchCloudCredential watches for changes to the cloud credentials and resets the VPC settings
 func (c *Cloud) WatchCloudCredential() error {
 	if c.Config.Prov.G2Credentials == "" {
-		return fmt.Errorf("No cloud credential file to watch")
+		return errors.New("No cloud credential file to watch")
 	}
 	klog.Infof("Watch the cloud credential file: %v", c.Config.Prov.G2Credentials)
 	watcher, err := fsnotify.NewWatcher()
