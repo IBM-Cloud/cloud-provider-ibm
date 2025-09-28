@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2024 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2025 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -22,6 +22,7 @@ package ibm
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -38,7 +39,7 @@ import (
 
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	resource "k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -333,13 +334,13 @@ func (c *Cloud) getCloudProviderVlanIPConfig() (*cloudProviderVlanIPConfig, erro
 	cmName := c.Config.LBDeployment.VlanIPConfigMap
 	cmNamespace := k8sNamespace
 	cm, err := c.KubeClient.CoreV1().ConfigMaps(cmNamespace).Get(context.TODO(), cmName, metav1.GetOptions{})
-	if nil != err && errors.IsNotFound(err) {
+	if nil != err && apierrors.IsNotFound(err) {
 		cmNamespace = lbDeploymentNamespace
 		cm, err = c.KubeClient.CoreV1().ConfigMaps(cmNamespace).Get(context.TODO(), cmName, metav1.GetOptions{})
 	}
 	if nil != err {
 		// Handle special error case when the config map isn't found.
-		if errors.IsNotFound(err) {
+		if apierrors.IsNotFound(err) {
 			nodes, err := c.KubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 			if nil == err && 1 == len(nodes.Items) {
 				return nil, fmt.Errorf("%v %v", lbLiteClusterMessage, lbDocReferenceMessage)
@@ -769,7 +770,7 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 		if !isFeatureEnabledDeployment(lbDeployment, lbFeatureIPVS) {
 			localErrStr := "Unsupported - Attempt to enable IPVS feature during service update"
 			klog.Error(localErrStr)
-			return fmt.Errorf(localErrStr)
+			return errors.New(localErrStr)
 		}
 		if !servicehelper.RequestsOnlyLocalTraffic(service) {
 			klog.Errorf("%s - %v", lbIPVSInvlaidExternalTrafficPolicy, service)
@@ -809,7 +810,7 @@ func (c *Cloud) updateLoadBalancerDeployment(lbLogName string, lbDeployment *app
 	} else if isFeatureEnabledDeployment(lbDeployment, lbFeatureIPVS) { // IPVS Feature is not enabled on the service update
 		localErrStr := "Unsupported - Attempt to disable IPVS feature during service update"
 		klog.Error(localErrStr)
-		return fmt.Errorf(localErrStr)
+		return errors.New(localErrStr)
 	}
 
 	// We can live without the LB priority class so only use it if available.
@@ -924,7 +925,7 @@ func (c *Cloud) createIPVSConfigMapStruct(service *v1.Service, lbIP string, node
 	if schedulerAlgorithm != "" {
 		// Validate customer defined a valid scheduling algorithm
 		if !sliceContains(supportedIPVSSchedulerTypes, strings.TrimSpace(schedulerAlgorithm)) {
-			return nil, fmt.Errorf(getUnsupportedSchedulerMsg(schedulerAlgorithm))
+			return nil, errors.New(getUnsupportedSchedulerMsg(schedulerAlgorithm))
 		}
 		dataMap["scheduler"] = schedulerAlgorithm
 	}
@@ -987,7 +988,7 @@ func (c *Cloud) isIPVSConfigMapEqual(cmLeft *v1.ConfigMap, cmRight *v1.ConfigMap
 
 func (c *Cloud) createIPVSConfigMap(ipvsConfigMap *v1.ConfigMap) (result *v1.ConfigMap, err error) {
 	_, err = c.KubeClient.CoreV1().ConfigMaps(lbDeploymentNamespace).Get(context.TODO(), ipvsConfigMap.ObjectMeta.Name, metav1.GetOptions{})
-	if err != nil && errors.IsNotFound(err) {
+	if err != nil && apierrors.IsNotFound(err) {
 		result, err = c.KubeClient.CoreV1().ConfigMaps(lbDeploymentNamespace).Create(context.TODO(), ipvsConfigMap, metav1.CreateOptions{})
 	} else {
 		result, err = c.KubeClient.CoreV1().ConfigMaps(lbDeploymentNamespace).Update(context.TODO(), ipvsConfigMap, metav1.UpdateOptions{})
@@ -1213,8 +1214,8 @@ spec:
 	stdoutStderr, err := caliCmd.CombinedOutput()
 	if err != nil {
 		stdoutStderrStr := fmt.Sprintf("Error running calicoctl: %s, %v", string(stdoutStderr), err)
-		klog.Errorf(stdoutStderrStr)
-		return fmt.Errorf(stdoutStderrStr)
+		klog.Error(stdoutStderrStr)
+		return errors.New(stdoutStderrStr)
 	}
 	return nil
 }
@@ -1233,8 +1234,8 @@ func (c *Cloud) deleteCalicoIngressPolicy(service *v1.Service) error {
 	stdoutStderr, err := caliCmd.CombinedOutput()
 	if err != nil {
 		stdoutStderrStr := fmt.Sprintf("Error running calicoctl: %s, %v", string(stdoutStderr), err)
-		klog.Errorf(stdoutStderrStr)
-		return fmt.Errorf(stdoutStderrStr)
+		klog.Error(stdoutStderrStr)
+		return errors.New(stdoutStderrStr)
 	}
 	return nil
 }
@@ -2126,7 +2127,7 @@ func (c *Cloud) EnsureLoadBalancerDeleted(ctx context.Context, clusterName strin
 		}
 
 		err = c.deleteIPVSConfigMap(service)
-		if nil != err && !errors.IsNotFound(err) {
+		if nil != err && !apierrors.IsNotFound(err) {
 			ret = fmt.Errorf("%v, %v", ret, c.Recorder.LoadBalancerWarningEvent(
 				lbDeployment, service,
 				DeletingCloudLoadBalancerFailed,
