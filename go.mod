@@ -12,12 +12,12 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 	gopkg.in/gcfg.v1 v1.2.3
-	k8s.io/api v0.35.0-alpha.1
-	k8s.io/apimachinery v0.35.0-alpha.1
-	k8s.io/client-go v0.35.0-alpha.1
-	k8s.io/cloud-provider v0.35.0-alpha.1
-	k8s.io/component-base v0.35.0-alpha.1
-	k8s.io/component-helpers v0.35.0-alpha.1
+	k8s.io/api v0.35.0-alpha.2
+	k8s.io/apimachinery v0.35.0-alpha.2
+	k8s.io/client-go v0.35.0-alpha.2
+	k8s.io/cloud-provider v0.35.0-alpha.2
+	k8s.io/component-base v0.35.0-alpha.2
+	k8s.io/component-helpers v0.35.0-alpha.2
 	k8s.io/klog/v2 v2.130.1
 )
 
@@ -113,9 +113,9 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiserver v0.35.0-alpha.1 // indirect
-	k8s.io/controller-manager v0.35.0-alpha.1 // indirect
-	k8s.io/kms v0.35.0-alpha.1 // indirect
+	k8s.io/apiserver v0.35.0-alpha.2 // indirect
+	k8s.io/controller-manager v0.35.0-alpha.2 // indirect
+	k8s.io/kms v0.35.0-alpha.2 // indirect
 	k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912 // indirect
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.31.2 // indirect
