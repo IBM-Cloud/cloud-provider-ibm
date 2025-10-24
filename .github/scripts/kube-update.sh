@@ -83,15 +83,8 @@ for FILE_TO_UPDATE in $FILES_WITH_K8S_VERSION; do
 done
 
 # Determine the current and update golang version.
+GO_CURRENT_VERSION=$(grep '^go ' go.mod | awk '{ print $2 }')
 K8S_DIRECTORY="/tmp/kubernetes"
-rm -rf "${K8S_DIRECTORY}"
-
-git clone --filter=blob:none --depth=1 --sparse -b "${K8S_CURRENT_VERSION}" https://github.com/kubernetes/kubernetes.git ${K8S_DIRECTORY}
-git -C ${K8S_DIRECTORY} sparse-checkout add build
-GO_CURRENT_VERSION=$(grep -A 1 "name: \"golang: upstream version" "${K8S_DIRECTORY}/build/dependencies.yaml" | grep "version:" | awk '{ print $2 }')
-echo "INFO: Current Go version: ${GO_CURRENT_VERSION}"
-rm -rf "${K8S_DIRECTORY}"
-
 git clone --filter=blob:none --depth=1 --sparse -b "${K8S_UPDATE_VERSION}" https://github.com/kubernetes/kubernetes.git ${K8S_DIRECTORY}
 git -C ${K8S_DIRECTORY} sparse-checkout add build
 GO_UPDATE_VERSION=$(grep -A 1 "name: \"golang: upstream version" "${K8S_DIRECTORY}/build/dependencies.yaml" | grep "version:" | awk '{ print $2 }')
@@ -99,7 +92,7 @@ echo "INFO: Updated Go version: ${GO_UPDATE_VERSION}"
 rm -rf "${K8S_DIRECTORY}"
 
 if [[ "${GO_CURRENT_VERSION}" != "${GO_UPDATE_VERSION}" ]]; then
-    sed -i -e "s/go\s\+${GO_CURRENT_VERSION}/go ${GO_UPDATE_VERSION}/g" go.mod
+    sed -i -e "s/go ${GO_CURRENT_VERSION}/go ${GO_UPDATE_VERSION}/g" go.mod
     go mod tidy
     echo "INFO: Updated Go version in go.mod from ${GO_CURRENT_VERSION} to ${GO_UPDATE_VERSION}"
 fi
