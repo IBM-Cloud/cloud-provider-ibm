@@ -45,13 +45,15 @@ func TestTask(t *testing.T) {
 	c.StartTask(cloudFunc, time.Second*2)
 	ctName := getCloudTaskName(cloudFunc)
 	ct := c.CloudTasks[ctName]
+	//nolint:staticcheck // SA5011 not sure why the next line is being flagged
 	if ct == nil {
 		t.Fatalf("No cloud task created: %v", c.CloudTasks)
 	}
 	if len(c.CloudTasks) != 1 {
 		t.Fatalf("Unexpected number of cloud tasks created: %v", c.CloudTasks)
 	}
-	if ct.Name != ctName { //nolint:staticcheck // SA5011: ct will never by null here
+	//nolint:staticcheck // SA5011 false positive: ct will never by null, earlier t.Fatalf will exit
+	if ct.Name != ctName {
 		t.Fatalf("Unexpected cloud task name")
 	}
 
