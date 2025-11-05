@@ -51,7 +51,7 @@ func TestTask(t *testing.T) {
 	if len(c.CloudTasks) != 1 {
 		t.Fatalf("Unexpected number of cloud tasks created: %v", c.CloudTasks)
 	}
-	if ct.Name != ctName {
+	if ct.Name != ctName { //nolint:staticcheck // SA5011: ct will never by null here
 		t.Fatalf("Unexpected cloud task name")
 	}
 
