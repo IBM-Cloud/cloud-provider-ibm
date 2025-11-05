@@ -45,7 +45,7 @@ func TestTask(t *testing.T) {
 	c.StartTask(cloudFunc, time.Second*2)
 	ctName := getCloudTaskName(cloudFunc)
 	ct := c.CloudTasks[ctName]
-	if nil == ct {
+	if ct == nil {
 		t.Fatalf("No cloud task created: %v", c.CloudTasks)
 	}
 	if len(c.CloudTasks) != 1 {
