@@ -8,7 +8,7 @@ require (
 	github.com/IBM/vpc-go-sdk v0.76.1
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-openapi/strfmt v0.25.0
-	github.com/spf13/cobra v1.10.1
+	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.11.1
 	gopkg.in/gcfg.v1 v1.2.3
