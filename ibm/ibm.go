@@ -130,10 +130,6 @@ type CloudConfig struct {
 		// an in cluster config is not support for classic infrastructure
 		// since Calico does not support such configurations.
 		ConfigFilePaths []string `gcfg:"config-file"`
-		// The Calico datastore type: "ETCD" or "KDD". Required when running on
-		// classic infrastructure, otherwise this may be omitted and will be
-		// ignored for VPC infrastructure.
-		CalicoDatastore string `gcfg:"calico-datastore"`
 		// If set to true, all new nodes will get the condition NetworkUnavailable
 		// during node registration
 		SetNetworkUnavailable bool `gcfg:"set-network-unavailable,false"`
@@ -300,7 +296,6 @@ func NewCloud(config io.Reader) (cloudprovider.Interface, error) {
 		classicConfig := &classic.CloudConfig{
 			APIKeySecretPath:           c.Config.Prov.CloudCredentials,
 			Application:                c.Config.LBDeployment.Application,
-			CalicoDatastore:            c.Config.Kubernetes.CalicoDatastore,
 			ClusterID:                  c.Config.Prov.ClusterID,
 			ConfigFilePath:             c.Config.Kubernetes.ConfigFilePaths[0],
 			Region:                     c.Config.Prov.Region,
