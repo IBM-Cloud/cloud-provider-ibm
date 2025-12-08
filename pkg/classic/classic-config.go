@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2024 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2025 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -29,7 +29,6 @@ import (
 type CloudConfig struct {
 	APIKeySecretPath           string // File containing cloud credentials
 	Application                string // Name of the application to use as a label for the load balancer deployment
-	CalicoDatastore            string // The Calico datastore type: "ETCD" or "KDD"
 	ConfigFilePath             string // The Kubernetes config file path
 	ClusterID                  string // ClusterID
 	Region                     string // Region

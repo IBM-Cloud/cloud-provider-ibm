@@ -118,10 +118,6 @@ func verifyCloudConfig(t *testing.T, cc *CloudConfig, ecc *CloudConfig) {
 		t.Fatalf("Unexpected cloud config k8s config file paths: %v, expected: %v", cc.Kubernetes.ConfigFilePaths, ecc.Kubernetes.ConfigFilePaths)
 	}
 
-	if !reflect.DeepEqual(ecc.Kubernetes.CalicoDatastore, cc.Kubernetes.CalicoDatastore) {
-		t.Fatalf("Unexpected calico datastore type: %v, expected: %v", cc.Kubernetes.CalicoDatastore, ecc.Kubernetes.CalicoDatastore)
-	}
-
 	if !reflect.DeepEqual(ecc.LBDeployment, cc.LBDeployment) {
 		t.Fatalf("Unexpected cloud config load balancer deployment: %v, expected: %v", cc.LBDeployment, ecc.LBDeployment)
 	}
@@ -142,7 +138,6 @@ func TestGetCloudConfig(t *testing.T) {
 	// Build expected cloud config.
 	ecc.Global.Version = "1.0.0"
 	ecc.Kubernetes.ConfigFilePaths = []string{"../test-fixtures/kubernetes/k8s-config"}
-	ecc.Kubernetes.CalicoDatastore = "KDD"
 	ecc.LBDeployment.Image = "registry.ng.bluemix.net/armada-master/keepalived:1328"
 	ecc.LBDeployment.Application = "keepalived"
 	ecc.LBDeployment.VlanIPConfigMap = "ibm-cloud-provider-vlan-ip-config"
@@ -170,7 +165,6 @@ func TestGetCloudConfig(t *testing.T) {
 		t.Fatalf("getCloudConfig failed for ibm-cloud-config-2.ini: %v", err)
 	}
 	ecc.Global.Version = "1.1.0"
-	ecc.Kubernetes.CalicoDatastore = ""
 	ecc.Prov.InternalIP = "10.190.31.186"
 	ecc.Prov.ExternalIP = "169.61.102.244"
 	ecc.Prov.Region = "testregion"
@@ -207,7 +201,6 @@ func TestGetCloudConfig(t *testing.T) {
 		t.Fatalf("getCloudConfig failed for ibm-cloud-config-ccm-classic.ini: %v", err)
 	}
 	// Build off previous expected configuration with select overrides.
-	ecc.Kubernetes.CalicoDatastore = "KDD"
 	verifyCloudConfig(t, cc, &ecc)
 
 	configccm, err = os.Open("../test-fixtures/ibm-cloud-config-ccm-vpc.ini")
@@ -220,7 +213,6 @@ func TestGetCloudConfig(t *testing.T) {
 		t.Fatalf("getCloudConfig failed for ibm-cloud-config-vpc.ini: %v", err)
 	}
 	// Build off previous expected configuration with select overrides.
-	ecc.Kubernetes.CalicoDatastore = ""
 	ecc.LBDeployment.Image = ""
 	ecc.LBDeployment.Application = ""
 	ecc.LBDeployment.VlanIPConfigMap = ""
