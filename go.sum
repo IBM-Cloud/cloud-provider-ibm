@@ -6,8 +6,8 @@ github.com/IBM/go-sdk-core/v5 v5.21.2 h1:mJ5QbLPOm4g5qhZiVB6wbSllfpeUExftGoyPek2
 github.com/IBM/go-sdk-core/v5 v5.21.2/go.mod h1:ngpMgwkjur1VNUjqn11LPk3o5eCyOCRbcfg/0YAY7Hc=
 github.com/IBM/platform-services-go-sdk v0.90.4 h1:60oLi1S/9C23/BidRSC1MWNlQVEezk+x4giOb9NkEPQ=
 github.com/IBM/platform-services-go-sdk v0.90.4/go.mod h1:KAnBhxKaYsu9It2aVXV6oCPEj78imvTs2qSG0ScZKpM=
-github.com/IBM/vpc-go-sdk v0.76.2 h1:bZ6aHA1X69Ekn9rxd5XyjxuV9dwEneamEPYojDPHZdA=
-github.com/IBM/vpc-go-sdk v0.76.2/go.mod h1:hhgE1EQZRq1Cngdh4A6+LLUaA0kKWW/rgfHpISM+AKg=
+github.com/IBM/vpc-go-sdk v0.77.0 h1:qAJ1lrwRn509v9yIx3M7pYtBiAucpug+6M/63KS6Er0=
+github.com/IBM/vpc-go-sdk v0.77.0/go.mod h1:85bJ/0FS7vYAifHdZvlnXypf8pQSmuf9kxReDDI5ZdY=
 github.com/Masterminds/semver/v3 v3.4.0 h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=
 github.com/Masterminds/semver/v3 v3.4.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/NYTimes/gziphandler v1.1.1 h1:ZUDjpQae29j0ryrS0u/B8HZfJBtBQHjqw2rQ2cqUQ3I=
