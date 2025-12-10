@@ -54,7 +54,7 @@ jobs:
 
       - name: Create pull request
         if: steps.current.outputs.version != steps.latest.outputs.version
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           title: ${{ steps.commit-change.outputs.msg }}
           body: |
