@@ -16,9 +16,12 @@ linters:
     staticcheck:
       checks:
         - all # Enable all checks by default
+        - -SA1006 # printf-style function with dynamic format string and no further arguments should use print-style function instead
         - -ST1005 # error strings should not be capitalized / error strings should not end with punctuation or newlines
         - -ST1017 # don't use Yoda conditions
         - -ST1023 # should omit type string from declaration; it will be inferred from the right-hand side
+        - -QF1003 # could use tagged switch on ...
+        - -QF1007 # could merge conditional assignment into variable declaration
         - -QF1008 # could remove embedded field "ObjectMeta" from selector
         - -QF1011 # could omit type string from declaration; it will be inferred from the right-hand side
   exclusions:
