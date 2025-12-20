@@ -1,36 +1,32 @@
-# ******************************************************************************
-# IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2022, 2025 All Rights Reserved.
-#
-# SPDX-License-Identifier: Apache2.0
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ******************************************************************************
+version: "2"
 linters:
-  disable-all: true
+  enable:
+    - gocritic
+    - gosec
+    - govet # on by default
+    - ineffassign # on by default
+    - misspell
+    - staticcheck # on by default
+    - unused # on by default
+  disable:
+    - errcheck
+    - unconvert
+    - unparam
+  settings:
+    staticcheck:
+      checks:
+        - all # Enable all checks by default
+        - -ST1005 # error strings should not be capitalized / error strings should not end with punctuation or newlines
+        - -ST1017 # don't use Yoda conditions
+        - -ST1023 # should omit type string from declaration; it will be inferred from the right-hand side
+        - -QF1008 # could remove embedded field "ObjectMeta" from selector
+        - -QF1011 # could omit type string from declaration; it will be inferred from the right-hand side
+  exclusions:
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+formatters:
   enable:
     - gofmt
-    - gosec
-    - gosimple
-    - staticcheck
-    - unused
-    - govet
-    - misspell
-    - ineffassign
-    - gocritic
-
-linters-settings: # please keep this alphabetized
-  staticcheck:
-    checks:
-      - "all"
-      - "-SA1006"  # TODO(fix) Using a printf-style function with a dynamic format string and no arguments can just use a print-style func
