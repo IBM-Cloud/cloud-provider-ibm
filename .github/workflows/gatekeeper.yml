@@ -2,7 +2,7 @@ name: Gatekeeper
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [assigned, opened, reopened, synchronize]
   workflow_dispatch: # Allow manual triggering
 
 jobs:
