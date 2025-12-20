@@ -22,7 +22,7 @@ export
 GOPACKAGES=$(shell go list ./...)
 SHFILES=$(shell find . -type f -name '*.sh')
 
-GOLANGCI_LINT_VERSION := 1.64.8
+GOLANGCI_LINT_VERSION := 2.7.2
 GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
 TAG ?= v1.29.15
@@ -33,7 +33,7 @@ all: fmt lint lint-sh vet test ccm
 .PHONY: fmt
 fmt:
 ifdef GOLANGCI_LINT_EXISTS
-	golangci-lint run --disable-all --no-config --enable=gofmt --timeout 5m
+	golangci-lint fmt -v
 else
 	@echo "golangci-lint is not installed"
 	exit 1
