@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2025 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2026 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
