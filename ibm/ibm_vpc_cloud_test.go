@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2025 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2026 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -70,7 +70,7 @@ func TestCloud_NewConfigVpc(t *testing.T) {
 	assert.Equal(t, err.Error(), "cloud config not initialized")
 
 	// Test failure to read credentials from file
-	c.Config = &CloudConfig{Prov: Provider{
+	c.Config = &CloudConfig{Prov: Provider{ // #nosec G101 "Potential hardcoded credentials" - ignore, invalid warning
 		Region:                   "us-south",
 		AccountID:                "accountID",
 		ClusterID:                "clusterID",
