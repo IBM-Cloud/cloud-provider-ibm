@@ -70,7 +70,7 @@ func TestCloud_NewConfigVpc(t *testing.T) {
 	assert.Equal(t, err.Error(), "cloud config not initialized")
 
 	// Test failure to read credentials from file
-	c.Config = &CloudConfig{Prov: Provider{
+	c.Config = &CloudConfig{Prov: Provider{ // #nosec G101 "Potential hardcoded credentials" is being flagged, not sure why
 		Region:                   "us-south",
 		AccountID:                "accountID",
 		ClusterID:                "clusterID",
