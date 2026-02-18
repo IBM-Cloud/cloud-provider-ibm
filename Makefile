@@ -22,7 +22,7 @@ export
 GOPACKAGES=$(shell go list ./...)
 SHFILES=$(shell find . -type f -name '*.sh')
 
-GOLANGCI_LINT_VERSION := 2.9.0
+GOLANGCI_LINT_VERSION := 2.10.1
 GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
 TAG ?= v1.35.1
