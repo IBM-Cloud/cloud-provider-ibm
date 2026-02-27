@@ -46,7 +46,7 @@ jobs:
           ref: ${{ matrix.branch }}
 
       - name: Download shared-files artifact into /tmp
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: shared-files
           path: /tmp
