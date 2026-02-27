@@ -25,7 +25,7 @@ SHFILES=$(shell find . -type f -name '*.sh')
 GOLANGCI_LINT_VERSION := 2.10.1
 GOLANGCI_LINT_EXISTS := $(shell golangci-lint --version 2>/dev/null)
 
-TAG ?= v1.32.12
+TAG ?= v1.32.13
 
 .PHONY: all
 all: fmt lint lint-sh vet test ccm
