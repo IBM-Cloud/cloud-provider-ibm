@@ -1,0 +1,49 @@
+# This workflow checks that go.mod and go.sum are tidy
+# It runs "go mod tidy" and fails if there are any changes
+
+name: Go Mod Tidy
+
+on:
+  push:
+    paths:
+      - "**.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/go-mod-tidy.yml"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/go-mod-tidy.yml"
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  go-mod-tidy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Extract Go version
+        id: get-ver
+        run: |
+          echo "go_version=$(grep '^go ' go.mod | awk '{ print $2 }')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ steps.get-ver.outputs.go_version }}
+
+      - name: Run go mod tidy
+        run: go mod tidy
+
+      - name: Check for changes
+        run: |
+          if ! git diff --exit-code go.mod go.sum; then
+            echo "Error: go.mod or go.sum has changes after running 'go mod tidy'"
+            echo "Please run 'go mod tidy' locally and commit the changes"
+            exit 1
+          fi
+          echo "go.mod and go.sum are tidy"
