@@ -1,6 +1,6 @@
 module cloud.ibm.com/cloud-provider-ibm
 
-go 1.24.2
+go 1.25.0
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.21.2
@@ -96,7 +96,7 @@ require (
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	golang.org/x/crypto v0.48.0 // indirect
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
-	golang.org/x/net v0.50.0 // indirect
+	golang.org/x/net v0.51.0 // indirect
 	golang.org/x/oauth2 v0.34.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
