@@ -2,8 +2,6 @@ module cloud.ibm.com/cloud-provider-ibm
 
 go 1.25.7
 
-exclude github.com/go-openapi/testify/enable/yaml/v2 v2.0.2
-
 require (
 	github.com/IBM/go-sdk-core/v5 v5.21.2
 	github.com/IBM/platform-services-go-sdk v0.96.0
@@ -132,3 +130,5 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.2 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+exclude github.com/go-openapi/testify/enable/yaml/v2 v2.0.2
