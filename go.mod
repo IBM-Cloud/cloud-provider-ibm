@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/IBM/go-sdk-core/v5 v5.21.2
 	github.com/IBM/platform-services-go-sdk v0.97.2
-	github.com/IBM/vpc-go-sdk v0.82.1
+	github.com/IBM/vpc-go-sdk v0.83.2
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-openapi/strfmt v0.26.1
 	github.com/spf13/cobra v1.10.2
