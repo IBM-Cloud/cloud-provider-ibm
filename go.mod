@@ -123,3 +123,5 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace github.com/moby/spdystream => github.com/moby/spdystream v0.5.1
