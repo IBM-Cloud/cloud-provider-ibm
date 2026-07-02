@@ -87,7 +87,7 @@ GO_CURRENT_VERSION=$(grep '^go ' go.mod | awk '{ print $2 }')
 K8S_DIRECTORY="/tmp/kubernetes"
 git clone --filter=blob:none --depth=1 --sparse -b "${K8S_UPDATE_VERSION}" https://github.com/kubernetes/kubernetes.git ${K8S_DIRECTORY}
 git -C ${K8S_DIRECTORY} sparse-checkout add build
-GO_UPDATE_VERSION=$(grep -A 1 "name: \"golang: upstream version" "${K8S_DIRECTORY}/build/dependencies.yaml" | grep "version:" | awk '{ print $2 }')
+GO_UPDATE_VERSION=$(cat "${K8S_DIRECTORY}/.go-version")
 echo "INFO: Updated Go version: ${GO_UPDATE_VERSION}"
 rm -rf "${K8S_DIRECTORY}"
 
