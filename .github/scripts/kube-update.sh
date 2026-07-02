@@ -1,7 +1,7 @@
 #!/bin/bash
 # ******************************************************************************
 # IBM Cloud Kubernetes Service, 5737-D43
-# (C) Copyright IBM Corp. 2025 All Rights Reserved.
+# (C) Copyright IBM Corp. 2025, 2026 All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache2.0
 #
@@ -22,8 +22,8 @@ set -x
 
 K8S_CURRENT_VERSION=$(grep "^TAG " Makefile | awk '{ print $3 }')
 if [[ -z "${K8S_CURRENT_VERSION}" ]]; then
-    echo "FAIL: Unable to determine current Kubernetes version in Makefile."
-    exit 1
+	echo "FAIL: Unable to determine current Kubernetes version in Makefile."
+	exit 1
 fi
 
 # Trim alpha/beta tag off of current release
@@ -34,43 +34,43 @@ MAJOR_MINOR=${K8S_SHORT_VERSION%.*}
 GIT_BRANCH=$(git branch --show-current)
 BRANCH_MAJOR_MINOR="v${GIT_BRANCH#"release-"}"
 if [[ "${MAJOR_MINOR}" != "${BRANCH_MAJOR_MINOR}" ]]; then
-    MAJOR_MINOR=${BRANCH_MAJOR_MINOR}
+	MAJOR_MINOR=${BRANCH_MAJOR_MINOR}
 fi
 
 K8S_RELEASE_FILE="/tmp/kube-releases.txt"
 if [[ ! -f "${K8S_RELEASE_FILE}" ]]; then
-    curl -L --fail --retry 3 --retry-delay 5 -o $K8S_RELEASE_FILE https://api.github.com/repos/kubernetes/kubernetes/releases
+	curl -L --fail --retry 3 --retry-delay 5 -o $K8S_RELEASE_FILE https://api.github.com/repos/kubernetes/kubernetes/releases
 fi
 
 K8S_TAGS_FILE="/tmp/kube-tags.txt"
 if [[ ! -f "${K8S_TAGS_FILE}" ]]; then
-    curl -L --fail --retry 3 --retry-delay 5 -o $K8S_TAGS_FILE https://api.github.com/repos/kubernetes/kubernetes/tags
+	curl -L --fail --retry 3 --retry-delay 5 -o $K8S_TAGS_FILE https://api.github.com/repos/kubernetes/kubernetes/tags
 fi
 
 K8S_UPDATE_VERSION=$(cat $K8S_RELEASE_FILE | jq -r ".[].name" | grep "$MAJOR_MINOR" | head -1 | sed 's/^Kubernetes //g')
 MOD_VERSION=$(go mod download -json "k8s.io/api@kubernetes-${K8S_UPDATE_VERSION#v}" | jq -r .Version)
 if [[ -z "${K8S_UPDATE_VERSION}" ]]; then
-    echo "FAIL: Failed to retrieve the kubernetes release, attempt to retrieve the git tag"
-    K8S_UPDATE_VERSION=$(cat $K8S_TAGS_FILE | jq -r ".[].name" | grep "$MAJOR_MINOR" | head -1)
-    MOD_VERSION=$(go mod download -json "k8s.io/api@kubernetes-${K8S_UPDATE_VERSION#v}" | jq -r .Version)
+	echo "FAIL: Failed to retrieve the kubernetes release, attempt to retrieve the git tag"
+	K8S_UPDATE_VERSION=$(cat $K8S_TAGS_FILE | jq -r ".[].name" | grep "$MAJOR_MINOR" | head -1)
+	MOD_VERSION=$(go mod download -json "k8s.io/api@kubernetes-${K8S_UPDATE_VERSION#v}" | jq -r .Version)
 fi
 if [[ -z "${K8S_UPDATE_VERSION}" ]]; then
-    echo "FAIL: Failed to retrieve latest kubernetes version."
-    exit 1
+	echo "FAIL: Failed to retrieve latest kubernetes version."
+	exit 1
 fi
 if [[ "${K8S_UPDATE_VERSION}" == "${K8S_CURRENT_VERSION}" ]]; then
-    echo "INFO: No new version available, exiting gracefully"
-    exit 0
+	echo "INFO: No new version available, exiting gracefully"
+	exit 0
 fi
 # Ensure the go modules have also been updated. i.e. k8s.io/api v0.20.3
 if [[ "${MOD_VERSION}" != "v0.${K8S_UPDATE_VERSION#*.}" ]]; then
-    echo "INFO: New go modules are not available, exiting gracefully"
-    exit 0
+	echo "INFO: New go modules are not available, exiting gracefully"
+	exit 0
 fi
 # Ensure that an update for this Kubernetes release was not already started
 if git ls-remote --exit-code --heads "origin" "$K8S_UPDATE_VERSION" >/dev/null; then
-    echo "INFO: Branch $K8S_UPDATE_VERSION has already been created, exiting gracefully"
-    exit 0
+	echo "INFO: Branch $K8S_UPDATE_VERSION has already been created, exiting gracefully"
+	exit 0
 fi
 
 echo "INFO: Starting Kubernetes update from version ${K8S_CURRENT_VERSION} to ${K8S_UPDATE_VERSION} ..."
@@ -78,30 +78,27 @@ echo "INFO: Starting Kubernetes update from version ${K8S_CURRENT_VERSION} to ${
 # Update files that contain the Kubernetes version
 FILES_WITH_K8S_VERSION="ibm/ibm_version.go main.go Makefile README.md"
 for FILE_TO_UPDATE in $FILES_WITH_K8S_VERSION; do
-    sed -i -e "s/${K8S_CURRENT_VERSION}/${K8S_UPDATE_VERSION}/g" "${FILE_TO_UPDATE}"
-    echo "INFO: Updated Kubernetes version in ${FILE_TO_UPDATE}"
+	sed -i -e "s/${K8S_CURRENT_VERSION}/${K8S_UPDATE_VERSION}/g" "${FILE_TO_UPDATE}"
+	echo "INFO: Updated Kubernetes version in ${FILE_TO_UPDATE}"
 done
 
 # Determine the current and update golang version.
+GO_CURRENT_VERSION=$(grep '^go ' go.mod | awk '{ print $2 }')
 K8S_DIRECTORY="/tmp/kubernetes"
-rm -rf "${K8S_DIRECTORY}"
-
-git clone --filter=blob:none --depth=1 --sparse -b "${K8S_CURRENT_VERSION}" https://github.com/kubernetes/kubernetes.git ${K8S_DIRECTORY}
-git -C ${K8S_DIRECTORY} sparse-checkout add build
-GO_CURRENT_VERSION=$(grep -A 1 "name: \"golang: upstream version" "${K8S_DIRECTORY}/build/dependencies.yaml" | grep "version:" | awk '{ print $2 }')
-echo "INFO: Current Go version: ${GO_CURRENT_VERSION}"
-rm -rf "${K8S_DIRECTORY}"
-
 git clone --filter=blob:none --depth=1 --sparse -b "${K8S_UPDATE_VERSION}" https://github.com/kubernetes/kubernetes.git ${K8S_DIRECTORY}
 git -C ${K8S_DIRECTORY} sparse-checkout add build
-GO_UPDATE_VERSION=$(grep -A 1 "name: \"golang: upstream version" "${K8S_DIRECTORY}/build/dependencies.yaml" | grep "version:" | awk '{ print $2 }')
+GO_UPDATE_VERSION=$(cat "${K8S_DIRECTORY}/.go-version")
 echo "INFO: Updated Go version: ${GO_UPDATE_VERSION}"
 rm -rf "${K8S_DIRECTORY}"
 
 if [[ "${GO_CURRENT_VERSION}" != "${GO_UPDATE_VERSION}" ]]; then
-    sed -i -e "s/go\s\+${GO_CURRENT_VERSION}/go ${GO_UPDATE_VERSION}/g" go.mod
-    go mod tidy
-    echo "INFO: Updated Go version in go.mod from ${GO_CURRENT_VERSION} to ${GO_UPDATE_VERSION}"
+	# Make sure new GO version is newer than the current GO version
+	EARLIER_GO_VERSION=$(printf "%s\n" "${GO_CURRENT_VERSION}" "${GO_UPDATE_VERSION}" | sort -V | head -1)
+	if [[ "${EARLIER_GO_VERSION}" == "${GO_CURRENT_VERSION}" ]]; then
+		sed -i -e "s/go ${GO_CURRENT_VERSION}/go ${GO_UPDATE_VERSION}/g" go.mod
+		go mod tidy
+		echo "INFO: Updated Go version in go.mod from ${GO_CURRENT_VERSION} to ${GO_UPDATE_VERSION}"
+	fi
 fi
 
 echo "SUCCESS: Completed Kubernetes update from version ${K8S_CURRENT_VERSION} to ${K8S_UPDATE_VERSION}."
