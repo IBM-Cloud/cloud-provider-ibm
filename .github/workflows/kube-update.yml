@@ -35,7 +35,6 @@ jobs:
       matrix:
         branch:
           [
-            release-1.32,
             release-1.33,
             release-1.34,
             release-1.35,
