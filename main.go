@@ -18,8 +18,8 @@
 *******************************************************************************/
 
 // References:
-// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.34.9/staging/src/k8s.io/cloud-provider/app/controllermanager.go
-// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.34.9/staging/src/k8s.io/cloud-provider/sample/basic_main.go
+// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.34.10/staging/src/k8s.io/cloud-provider/app/controllermanager.go
+// - https://raw.githubusercontent.com/kubernetes/kubernetes/v1.34.10/staging/src/k8s.io/cloud-provider/sample/basic_main.go
 
 package main
 
