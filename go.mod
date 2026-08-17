@@ -10,7 +10,7 @@ require (
 	github.com/go-openapi/strfmt v0.27.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.0
 	gopkg.in/gcfg.v1 v1.2.3
 	k8s.io/api v0.37.0-beta.0
 	k8s.io/apimachinery v0.37.0-beta.0
