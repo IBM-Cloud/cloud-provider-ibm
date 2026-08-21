@@ -124,7 +124,7 @@ func (c *Cloud) VpcEnsureLoadBalancer(ctx context.Context, clusterName string, s
 	lbName := c.vpcGetLoadBalancerName(service)
 	klog.Infof("EnsureLoadBalancer(lbName:%v, Service:{%v}, NodeCount:%v)", lbName, c.vpcGetServiceDetails(service), len(nodes))
 	if len(nodes) == 0 {
-		errString := "There are no available nodes for LoadBalancer"
+		errString := "there are no available nodes for LoadBalancer"
 		// This routine was called when there are no nodes available.
 		// When we return an error, Kubernetes will go into an increasing exponential backoff retry logic.
 		// By the time that a cluster node finally appears, the wait time between attempts will likely be significant.
