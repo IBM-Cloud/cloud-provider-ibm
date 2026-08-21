@@ -123,14 +123,14 @@ func TestCloud_VpcEnsureLoadBalancer(t *testing.T) {
 	status, err := cloud.VpcEnsureLoadBalancer(context.Background(), clusterName, service, []*v1.Node{})
 	assert.Nil(t, status)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "There are no available nodes for LoadBalancer")
+	assert.Contains(t, err.Error(), "there are no available nodes for LoadBalancer")
 
 	// VpcEnsureLoadBalancer failed, no available nodes
 	CreateUpdateChan = nil
 	status, err = cloud.VpcEnsureLoadBalancer(context.Background(), clusterName, service, []*v1.Node{})
 	assert.Nil(t, status)
 	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "There are no available nodes for LoadBalancer")
+	assert.Contains(t, err.Error(), "there are no available nodes for LoadBalancer")
 
 	// VpcEnsureLoadBalancer failed, failed to initialize VPC env
 	vpcctl.ResetCloudVpc()

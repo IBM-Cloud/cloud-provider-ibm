@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2024 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2026 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -124,7 +124,7 @@ func (c *Cloud) VpcEnsureLoadBalancer(ctx context.Context, clusterName string, s
 	lbName := c.vpcGetLoadBalancerName(service)
 	klog.Infof("EnsureLoadBalancer(lbName:%v, Service:{%v}, NodeCount:%v)", lbName, c.vpcGetServiceDetails(service), len(nodes))
 	if len(nodes) == 0 {
-		errString := "There are no available nodes for LoadBalancer"
+		errString := "there are no available nodes for LoadBalancer"
 		// This routine was called when there are no nodes available.
 		// When we return an error, Kubernetes will go into an increasing exponential backoff retry logic.
 		// By the time that a cluster node finally appears, the wait time between attempts will likely be significant.
