@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2026 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -42,7 +42,6 @@ func createTestResources() (*apps.Deployment, *v1.Service) {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "lbDeploymentName",
 			Namespace: lbDeploymentNamespace,
-			SelfLink:  "/apis/apps/v1/namespaces/" + lbDeploymentNamespace + "/deployments/lbDeploymentName",
 		},
 	}
 	lbService := &v1.Service{
@@ -50,7 +49,6 @@ func createTestResources() (*apps.Deployment, *v1.Service) {
 			Name:      "lbServiceName",
 			Namespace: lbDeploymentNamespace,
 			UID:       types.UID("lbServiceUID"),
-			SelfLink:  "/apis/apps/v1/namespaces/" + lbDeploymentNamespace + "/services/lbServiceName",
 		},
 		Spec: v1.ServiceSpec{
 			LoadBalancerIP: "192.168.10.30",
