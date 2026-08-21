@@ -1,6 +1,6 @@
 module cloud.ibm.com/cloud-provider-ibm
 
-go 1.26.5
+go 1.26.6
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.23.2
@@ -12,12 +12,12 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.12.1
 	gopkg.in/gcfg.v1 v1.2.3
-	k8s.io/api v0.37.0-rc.0
-	k8s.io/apimachinery v0.37.0-rc.0
-	k8s.io/client-go v0.37.0-rc.0
-	k8s.io/cloud-provider v0.37.0-rc.0
-	k8s.io/component-base v0.37.0-rc.0
-	k8s.io/component-helpers v0.37.0-rc.0
+	k8s.io/api v0.37.0-rc.1
+	k8s.io/apimachinery v0.37.0-rc.1
+	k8s.io/client-go v0.37.0-rc.1
+	k8s.io/cloud-provider v0.37.0-rc.1
+	k8s.io/component-base v0.37.0-rc.1
+	k8s.io/component-helpers v0.37.0-rc.1
 	k8s.io/klog/v2 v2.140.0
 )
 
@@ -116,11 +116,11 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	k8s.io/apiserver v0.37.0-rc.0 // indirect
-	k8s.io/controller-manager v0.37.0-rc.0 // indirect
-	k8s.io/kms v0.37.0-rc.0 // indirect
+	k8s.io/apiserver v0.37.0-rc.1 // indirect
+	k8s.io/controller-manager v0.37.0-rc.1 // indirect
+	k8s.io/kms v0.37.0-rc.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20260721132016-d427ff9ee9ad // indirect
-	k8s.io/streaming v0.37.0-rc.0 // indirect
+	k8s.io/streaming v0.37.0-rc.1 // indirect
 	k8s.io/utils v0.0.0-20260626114624-be93311217bd // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.36.0 // indirect
 	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
