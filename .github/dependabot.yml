@@ -114,6 +114,9 @@ updates:
     schedule:
       interval: "cron"
       cronjob: "37 10 * * *" # Run at 10:37 UTC daily
+    allow:
+      - dependency-name: "google.golang.org/grpc"
+        dependency-type: "indirect"
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -143,6 +146,9 @@ updates:
     schedule:
       interval: "cron"
       cronjob: "36 10 * * *" # Run at 10:36 UTC daily
+    allow:
+      - dependency-name: "google.golang.org/grpc"
+        dependency-type: "indirect"
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -172,6 +178,9 @@ updates:
     schedule:
       interval: "cron"
       cronjob: "35 10 * * *" # Run at 10:35 UTC daily
+    allow:
+      - dependency-name: "google.golang.org/grpc"
+        dependency-type: "indirect"
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -201,6 +210,9 @@ updates:
     schedule:
       interval: "cron"
       cronjob: "34 10 * * *" # Run at 10:34 UTC daily
+    allow:
+      - dependency-name: "google.golang.org/grpc"
+        dependency-type: "indirect"
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -230,6 +242,9 @@ updates:
     schedule:
       interval: "cron"
       cronjob: "33 10 * * *" # Run at 10:33 UTC daily
+    allow:
+      - dependency-name: "google.golang.org/grpc"
+        dependency-type: "indirect"
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -259,6 +274,9 @@ updates:
     schedule:
       interval: "cron"
       cronjob: "32 10 * * *" # Run at 10:32 UTC daily
+    allow:
+      - dependency-name: "google.golang.org/grpc"
+        dependency-type: "indirect"
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -288,6 +306,9 @@ updates:
     schedule:
       interval: "cron"
       cronjob: "31 10 * * *" # Run at 10:31 UTC daily
+    allow:
+      - dependency-name: "google.golang.org/grpc"
+        dependency-type: "indirect"
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
@@ -317,6 +338,9 @@ updates:
     schedule:
       interval: "cron"
       cronjob: "30 10 * * *" # Run at 10:30 UTC daily
+    allow:
+      - dependency-name: "google.golang.org/grpc"
+        dependency-type: "indirect"
     ignore:
       - dependency-name: "k8s.io/api"
         update-types: ["version-update:semver-minor"]
