@@ -123,4 +123,7 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-replace github.com/moby/spdystream => github.com/moby/spdystream v0.5.1
+replace (
+	github.com/moby/spdystream => github.com/moby/spdystream v0.5.1
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp => go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.64.0
+)
