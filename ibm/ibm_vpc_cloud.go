@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2021, 2025 All Rights Reserved.
+* (C) Copyright IBM Corp. 2021, 2026 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -24,6 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -289,18 +290,38 @@ func (c *Cloud) WatchCloudCredential() error {
 		return errors.New("No cloud credential file to watch")
 	}
 	klog.Infof("Watch the cloud credential file: %v", c.Config.Prov.G2Credentials)
+	// Verify the credential file exists before setting up the directory watch.
+	if _, err := os.Stat(c.Config.Prov.G2Credentials); err != nil {
+		return fmt.Errorf("failed to watch credential file: %v", err)
+	}
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return fmt.Errorf("Failed to create watcher for cloud credential file: %v", err)
 	}
-	// Go function to handle updates
+	// Go function to handle updates.
+	// A single secret rotation generates several CREATE/RENAME events within
+	// milliseconds (new timestamped dir, ..data_tmp, rename of ..data_tmp,
+	// creation of ..data). Debounce with a 1-second timer so that only one
+	// reset is triggered per rotation regardless of how many events fire.
 	go func() {
+		var debounce *time.Timer
 		for {
 			select {
 			case event := <-watcher.Events:
-				klog.Infof("Credential watch event: %v", event)
-				// Write event == file was updated. Don't care about other events
-				if event.Op&fsnotify.Write == fsnotify.Write {
+				// Kubernetes may mount secrets as a projected volume (where ..data is
+				// atomically renamed) or as a subPath bind mount (where the file itself
+				// is replaced). In both cases the rotation signal is a Create or Rename
+				// somewhere in the directory. Remove/Chmod are noise and are ignored.
+				if event.Op&(fsnotify.Create|fsnotify.Rename) == 0 {
+					klog.Infof("Credential watch event, ignore event:   %v", event)
+					continue
+				}
+				if debounce != nil {
+					debounce.Stop()
+				}
+				klog.Infof("Credential watch event, debounce timer: %v", event)
+				debounce = time.AfterFunc(time.Second, func() {
+					klog.Infof("Credential watch debounce timer elapsed, read credential file: %v", c.Config.Prov.G2Credentials)
 					fileData, err := os.ReadFile(c.Config.Prov.G2Credentials)
 					if err != nil {
 						klog.Warningf("Failed to read credentials from %s: %v", c.Config.Prov.G2Credentials, err)
@@ -313,15 +334,19 @@ func (c *Cloud) WatchCloudCredential() error {
 							c.Metadata.vpcClient = nil
 						}
 					}
-				}
+				})
 			case err := <-watcher.Errors:
 				klog.Infof("Credential watch error: %v", err)
 			}
 		}
 	}()
-	err = watcher.Add(c.Config.Prov.G2Credentials)
+	// Watch the parent directory rather than the file itself. Kubernetes secret
+	// updates replace the file via atomic rename, which causes inotify to drop
+	// the watch on the original inode after a REMOVE event. Watching the
+	// directory ensures we continue to receive events after each rotation.
+	err = watcher.Add(filepath.Dir(c.Config.Prov.G2Credentials))
 	if err != nil {
-		return fmt.Errorf("Failed to add credential file to watch: %v", err)
+		return fmt.Errorf("failed to add credential directory to watch: %v", err)
 	}
 	return nil
 }
