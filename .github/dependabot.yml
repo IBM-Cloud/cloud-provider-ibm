@@ -135,17 +135,7 @@ updates:
       - dependency-name: "golang.org/x/crypto"
         dependency-type: "indirect"
     ignore:
-      - dependency-name: "k8s.io/api"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/apimachinery"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/client-go"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/cloud-provider"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-base"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-helpers"
+      - dependency-name: "k8s.io/*"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -172,17 +162,7 @@ updates:
       - dependency-name: "golang.org/x/crypto"
         dependency-type: "indirect"
     ignore:
-      - dependency-name: "k8s.io/api"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/apimachinery"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/client-go"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/cloud-provider"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-base"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-helpers"
+      - dependency-name: "k8s.io/*"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -209,17 +189,7 @@ updates:
       - dependency-name: "golang.org/x/crypto"
         dependency-type: "indirect"
     ignore:
-      - dependency-name: "k8s.io/api"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/apimachinery"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/client-go"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/cloud-provider"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-base"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-helpers"
+      - dependency-name: "k8s.io/*"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -246,17 +216,7 @@ updates:
       - dependency-name: "golang.org/x/crypto"
         dependency-type: "indirect"
     ignore:
-      - dependency-name: "k8s.io/api"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/apimachinery"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/client-go"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/cloud-provider"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-base"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-helpers"
+      - dependency-name: "k8s.io/*"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -283,17 +243,7 @@ updates:
       - dependency-name: "golang.org/x/crypto"
         dependency-type: "indirect"
     ignore:
-      - dependency-name: "k8s.io/api"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/apimachinery"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/client-go"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/cloud-provider"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-base"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-helpers"
+      - dependency-name: "k8s.io/*"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -320,17 +270,7 @@ updates:
       - dependency-name: "golang.org/x/crypto"
         dependency-type: "indirect"
     ignore:
-      - dependency-name: "k8s.io/api"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/apimachinery"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/client-go"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/cloud-provider"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-base"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-helpers"
+      - dependency-name: "k8s.io/*"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -357,17 +297,7 @@ updates:
       - dependency-name: "golang.org/x/crypto"
         dependency-type: "indirect"
     ignore:
-      - dependency-name: "k8s.io/api"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/apimachinery"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/client-go"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/cloud-provider"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-base"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-helpers"
+      - dependency-name: "k8s.io/*"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -394,17 +324,7 @@ updates:
       - dependency-name: "golang.org/x/crypto"
         dependency-type: "indirect"
     ignore:
-      - dependency-name: "k8s.io/api"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/apimachinery"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/client-go"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/cloud-provider"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-base"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-helpers"
+      - dependency-name: "k8s.io/*"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -431,17 +351,7 @@ updates:
       - dependency-name: "golang.org/x/crypto"
         dependency-type: "indirect"
     ignore:
-      - dependency-name: "k8s.io/api"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/apimachinery"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/client-go"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/cloud-provider"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-base"
-        update-types: ["version-update:semver-minor"]
-      - dependency-name: "k8s.io/component-helpers"
+      - dependency-name: "k8s.io/*"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
