@@ -127,7 +127,17 @@ updates:
       interval: "cron"
       cronjob: "38 10 * * *" # Run at 10:38 UTC daily
     ignore:
-      - dependency-name: "k8s.io/*"
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -146,7 +156,17 @@ updates:
       interval: "cron"
       cronjob: "37 10 * * *" # Run at 10:37 UTC daily
     ignore:
-      - dependency-name: "k8s.io/*"
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -165,7 +185,17 @@ updates:
       interval: "cron"
       cronjob: "36 10 * * *" # Run at 10:36 UTC daily
     ignore:
-      - dependency-name: "k8s.io/*"
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -184,7 +214,17 @@ updates:
       interval: "cron"
       cronjob: "35 10 * * *" # Run at 10:35 UTC daily
     ignore:
-      - dependency-name: "k8s.io/*"
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -203,7 +243,17 @@ updates:
       interval: "cron"
       cronjob: "34 10 * * *" # Run at 10:34 UTC daily
     ignore:
-      - dependency-name: "k8s.io/*"
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -222,7 +272,17 @@ updates:
       interval: "cron"
       cronjob: "33 10 * * *" # Run at 10:33 UTC daily
     ignore:
-      - dependency-name: "k8s.io/*"
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -241,7 +301,17 @@ updates:
       interval: "cron"
       cronjob: "32 10 * * *" # Run at 10:32 UTC daily
     ignore:
-      - dependency-name: "k8s.io/*"
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -260,7 +330,17 @@ updates:
       interval: "cron"
       cronjob: "31 10 * * *" # Run at 10:31 UTC daily
     ignore:
-      - dependency-name: "k8s.io/*"
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
@@ -279,7 +359,17 @@ updates:
       interval: "cron"
       cronjob: "30 10 * * *" # Run at 10:30 UTC daily
     ignore:
-      - dependency-name: "k8s.io/*"
+      - dependency-name: "k8s.io/api"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/apimachinery"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/client-go"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/cloud-provider"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-base"
+        update-types: ["version-update:semver-minor"]
+      - dependency-name: "k8s.io/component-helpers"
         update-types: ["version-update:semver-minor"]
     open-pull-requests-limit: 99
     groups:
