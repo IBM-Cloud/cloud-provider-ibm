@@ -50,9 +50,6 @@ func createTestResources() (*apps.Deployment, *v1.Service) {
 			Namespace: lbDeploymentNamespace,
 			UID:       types.UID("lbServiceUID"),
 		},
-		Spec: v1.ServiceSpec{
-			LoadBalancerIP: "192.168.10.30",
-		},
 	}
 	return lbDeployment, lbService
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2021, 2023, 2024 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2026 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -30,6 +30,7 @@ import (
 Zones cloud provider interface must be implemented in order to support the
 LoadBalancer interface.
 */
+//nolint:staticcheck // SA1019: Zones is still required by cloudprovider.Interface
 func (c *Cloud) Zones() (cloudprovider.Zones, bool) {
 	return c, true
 }

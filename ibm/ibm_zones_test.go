@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2025 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2026 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -30,6 +30,7 @@ import (
 	cloudprovider "k8s.io/cloud-provider"
 )
 
+//nolint:staticcheck // SA1019: exercising the deprecated-but-required Zones interface
 func getZonesInterfaceWithProvider(provider *Provider) cloudprovider.Zones {
 	var config *CloudConfig
 	if nil != provider {
@@ -42,6 +43,7 @@ func getZonesInterfaceWithProvider(provider *Provider) cloudprovider.Zones {
 	return i
 }
 
+//nolint:staticcheck // SA1019: exercising the deprecated-but-required Zones interface
 func getZonesInterfaceWithCCMProvider(provider *Provider, metadataSvc *MetadataService) cloudprovider.Zones {
 	var config *CloudConfig
 	if nil != provider {
@@ -54,6 +56,7 @@ func getZonesInterfaceWithCCMProvider(provider *Provider, metadataSvc *MetadataS
 	return i
 }
 
+//nolint:staticcheck // SA1019: exercising the deprecated-but-required Zones interface
 func getZonesInterface() cloudprovider.Zones {
 	return getZonesInterfaceWithProvider(nil)
 }
