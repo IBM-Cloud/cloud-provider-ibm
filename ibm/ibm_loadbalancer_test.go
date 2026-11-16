@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2023 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2026 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -20,10 +20,13 @@
 package ibm
 
 import (
+	"context"
 	"testing"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/informers"
+	"k8s.io/client-go/kubernetes/fake"
 )
 
 func TestLoadBalancer(t *testing.T) {
@@ -101,6 +104,71 @@ func TestFilterLoadBalancersFromServiceList(t *testing.T) {
 	c.filterLoadBalancersFromServiceList(services)
 	if len(services.Items) != 0 {
 		t.Fatalf("Load balancer with (allocate node ports == false) was not filtered when it should not have been")
+	}
+}
+
+func TestListLoadBalancerServices(t *testing.T) {
+	lb := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{Name: "lb", Namespace: "default"},
+		Spec:       v1.ServiceSpec{Type: v1.ServiceTypeLoadBalancer},
+	}
+	nodePort := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{Name: "np", Namespace: "default"},
+		Spec:       v1.ServiceSpec{Type: v1.ServiceTypeNodePort},
+	}
+	client := fake.NewSimpleClientset(lb, nodePort)
+	c := &Cloud{KubeClient: client}
+
+	// No informer configured: falls back to listing from the API server (all services)
+	services, err := c.listLoadBalancerServices()
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	if len(services.Items) != 2 {
+		t.Fatalf("Expected 2 services from API server fallback, got %d", len(services.Items))
+	}
+
+	// Informer configured but not yet synced: still falls back to the API server
+	c.serviceLister = informers.NewSharedInformerFactory(client, 0).Core().V1().Services().Lister()
+	c.serviceSynced = func() bool { return false }
+	services, err = c.listLoadBalancerServices()
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	if len(services.Items) != 2 {
+		t.Fatalf("Expected 2 services from API server fallback, got %d", len(services.Items))
+	}
+
+	// Informer synced: only load balancer services are returned, from the cache
+	factory := informers.NewSharedInformerFactory(client, 0)
+	serviceInformer := factory.Core().V1().Services()
+	c.serviceLister = serviceInformer.Lister()
+	c.serviceSynced = serviceInformer.Informer().HasSynced
+	stop := make(chan struct{})
+	defer close(stop)
+	factory.Start(stop)
+	factory.WaitForCacheSync(stop)
+	// Delete from the API server; the result must come from the cache, not the API server
+	err = client.CoreV1().Services("default").Delete(context.TODO(), "np", metav1.DeleteOptions{})
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	services, err = c.listLoadBalancerServices()
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	if len(services.Items) != 1 || services.Items[0].Name != "lb" {
+		t.Fatalf("Expected only the load balancer service from the cache, got %+v", services.Items)
+	}
+
+	// Returned services are copies; modifying them must not change the cache
+	services.Items[0].Spec.Type = v1.ServiceTypeNodePort
+	services, err = c.listLoadBalancerServices()
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	if len(services.Items) != 1 {
+		t.Fatalf("Cache was modified by caller, got %+v", services.Items)
 	}
 }
 
