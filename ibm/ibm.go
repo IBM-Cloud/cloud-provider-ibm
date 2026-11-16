@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2025 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2026 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -32,6 +32,7 @@ import (
 
 	"k8s.io/client-go/informers"
 	clientset "k8s.io/client-go/kubernetes"
+	corelisters "k8s.io/client-go/listers/core/v1"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
@@ -151,6 +152,12 @@ type Cloud struct {
 	CloudTasks   map[string]*CloudTask
 	Metadata     *MetadataService // will be nil in kubelet
 	ClassicCloud *classic.Cloud   // Classic load balancer support
+
+	// Service lister backed by the shared informer cache. Used by the load balancer monitor
+	// to avoid listing every service from the API server on each run. Both are nil until
+	// SetInformers is called.
+	serviceLister corelisters.ServiceLister
+	serviceSynced cache.InformerSynced
 }
 
 // Initialize provides the cloud with a kubernetes client builder and may spawn goroutines
@@ -177,6 +184,10 @@ func (c *Cloud) SetInformers(informerFactory informers.SharedInformerFactory) {
 	if !c.isProviderVpc() {
 		c.ClassicCloud.SetInformers(informerFactory)
 	}
+
+	serviceInformer := informerFactory.Core().V1().Services()
+	c.serviceLister = serviceInformer.Lister()
+	c.serviceSynced = serviceInformer.Informer().HasSynced
 
 	nodeInformer := informerFactory.Core().V1().Nodes().Informer()
 	// #nosec G104 Error is ignored for now
