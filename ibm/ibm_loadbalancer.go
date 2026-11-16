@@ -1,6 +1,6 @@
 /*******************************************************************************
 * IBM Cloud Kubernetes Service, 5737-D43
-* (C) Copyright IBM Corp. 2017, 2025 All Rights Reserved.
+* (C) Copyright IBM Corp. 2017, 2026 All Rights Reserved.
 *
 * SPDX-License-Identifier: Apache2.0
 *
@@ -30,6 +30,7 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	cloudprovider "k8s.io/cloud-provider"
 )
 
@@ -142,6 +143,33 @@ func (c *Cloud) filterLoadBalancersFromServiceList(services *v1.ServiceList) {
 	services.Items = lbItems
 }
 
+// listLoadBalancerServices returns the services of type LoadBalancer. When the shared informer
+// cache has synced, the services are read from it, which avoids deserializing every service in
+// the cluster from the API server on each monitor run. Otherwise (informer not set up or not yet
+// synced) the services are listed from the API server.
+// The returned services are copies, so callers may modify them without affecting the cache.
+func (c *Cloud) listLoadBalancerServices() (*v1.ServiceList, error) {
+	configured := c.serviceLister != nil && c.serviceSynced != nil
+	synced := configured && c.serviceSynced()
+	if !synced {
+		klog.Warningf("Service informer cache not used by the LB monitor: informer configured=%t, cache synced=%t", configured, synced)
+		return c.KubeClient.CoreV1().Services(v1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
+	}
+	cached, err := c.serviceLister.List(labels.Everything())
+	if err != nil {
+		return nil, err
+	}
+	services := &v1.ServiceList{}
+	for _, service := range cached {
+		// Only copy the load balancers; the rest of the cluster's services are not needed.
+		if service.Spec.Type == v1.ServiceTypeLoadBalancer {
+			services.Items = append(services.Items, *service)
+		}
+	}
+	klog.Infof("Service informer cache used by the LB monitor: %d LB services out of %d total in cache", len(services.Items), len(cached))
+	return services, nil
+}
+
 // MonitorLoadBalancers monitors load balancer services to ensure that they
 // are working properly. This is a cloud task run via ticker.
 func MonitorLoadBalancers(c *Cloud, data map[string]string) {
@@ -155,7 +183,7 @@ func MonitorLoadBalancers(c *Cloud, data map[string]string) {
 	// Monitor all load balancer services and generate a warning event for
 	// each service that fails at least two consecutive monitors. A warning event
 	// will also be generated to note that a service is restored after a failure.
-	services, err := c.KubeClient.CoreV1().Services(v1.NamespaceAll).List(context.TODO(), metav1.ListOptions{})
+	services, err := c.listLoadBalancerServices()
 	if nil != err {
 		klog.Warningf("Failed to list load balancer services: %v", err)
 		return
